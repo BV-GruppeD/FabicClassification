@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+		http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>org.scijava</groupId>
+		<artifactId>pom-scijava</artifactId>
+		<version>14.0.0</version>
+		<relativePath />
+	</parent>
+
+	<groupId>com.bv_gruppe_d</groupId>
+	<version>0.1.0-SNAPSHOT</version>
+
+	<name>FabricClassification</name>
+	<inceptionYear>2019</inceptionYear>
+	<organization>
+		<name>BV-Gruppe D</name>
+		<url>https://github.com/BV-GruppeD/FabricClassification</url>
+	</organization>
+	
+	<licenses>
+		<license>
+			<name>Simplified BSD License</name>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+
+	<developers>
+		<developer>
+			<id>grupped</id>
+			<name>Gruppe D</name>
+			<url></url>
+			<roles>
+				<role>lead</role>
+				<role>developer</role>
+				<role>debugger</role>
+				<role>reviewer</role>
+				<role>support</role>
+				<role>maintainer</role>
+			</roles>
+		</developer>
+	</developers>
+	
+	<contributors>
+		<contributor>
+			<name>Gruppe D</name>
+			<url></url>
+			<roles><role>founder</role></roles>
+			<properties><id></id></properties>
+		</contributor>
+	</contributors>
+
+	<mailingLists>
+		<mailingList>
+			<name>Image.sc Forum</name>
+			<archive>https://forum.image.sc/</archive>
+		</mailingList>
+	</mailingLists>
+
+	<scm>
+		<connection>scm:git:git://github.com/BV-GruppeD/FabricClassification</connection>
+		<developerConnection>scm:git:git@github.com/BV-GruppeD/FabricClassification</developerConnection>
+		<tag>HEAD</tag>
+		<url>https://github.com/BV-GruppeD/FabricClassification</url>
+	</scm>
+	<issueManagement>
+		<system>GitHub Issues</system>
+		<url>https://github.com/BV-GruppeD/FabricClassification/issues</url>
+	</issueManagement>
+	<ciManagement>
+		<system>None</system>
+	</ciManagement>
+
+	<properties>
+		<package-name>com.mycompany.imagej</package-name>
+		<main-class>com.mycompany.imagej.Process_Pixels</main-class>
+		<license.licenseName>bsd_2</license.licenseName>
+		<license.copyrightOwners>My Company, Inc.</license.copyrightOwners>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>net.imagej</groupId>
+			<artifactId>ij</artifactId>
+		</dependency>
+	</dependencies>
+	<artifactId>Fabric_Classification</artifactId>
+	<url>fabricclassification/test.com</url>
+	<description>This project was done by Micha Beyer, Marcel Sandermann, Patrick Schlüter and Daniel Wolf.
+
+It is the result of the examination project of the module Bildverarbeitung at the University of Applied Science Ostwestfalen Lippe.</description>
+</project>

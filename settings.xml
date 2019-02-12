@@ -1,0 +1,13 @@
+<settings>
+  <proxies>
+    <proxy>
+      <id>genproxy</id>
+      <active>true</active>
+      <protocol>https</protocol>
+      <host>proxy.hs-owl.de</host>
+      <port>80</port>
+      <username></username>
+      <password></password>
+    </proxy>
+ </proxies>
+</settings>
