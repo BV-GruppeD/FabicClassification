@@ -1,5 +1,6 @@
 package ui;
 
+import java.awt.Dimension;
 import java.io.IOException;
 
 import javax.swing.JFrame;
@@ -10,13 +11,22 @@ import javafx.embed.swing.JFXPanel;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.stage.Stage;
 
-public class UserInterface {
+public class UserInterfaceView {
 
-    private void initAndShowGUI() {
+	public void show() {
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                initializeAndShowUI();
+            }
+        });
+    }
+	
+    private void initializeAndShowUI() {
         // This method is invoked on Swing thread
-        JFrame frame = new JFrame("FX");
+        JFrame frame = new JFrame("Stoffklassifikation");
+        frame.setMinimumSize(new Dimension(1080,720));
         final JFXPanel fxPanel = new JFXPanel();
         frame.add(fxPanel);
         frame.setVisible(true);
@@ -31,33 +41,18 @@ public class UserInterface {
 
     private void initFX(JFXPanel fxPanel) {
         // This method is invoked on JavaFX thread
-    	Parent root;
         try {
         	FXMLLoader loader = new FXMLLoader();
         	loader.setLocation(getClass().getClassLoader().getResource("MainPage.fxml"));
-            root = loader.load();
+        	Parent root = loader.load();
             
             Scene scene = new Scene(root, 450, 450);
             fxPanel.setScene(scene);
-            
-//            Stage stage = new Stage();
-//            stage.setTitle("My New Stage Title");
-//            stage.setScene(new Scene(root, 450, 450));
-//            stage.show();
         }
         catch (IOException e) {
             e.printStackTrace();
         }
-    	
-        
     }
 
-    public void start() {
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                initAndShowGUI();
-            }
-        });
-    }
+    
 }
