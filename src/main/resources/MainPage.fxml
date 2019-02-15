@@ -65,7 +65,7 @@
                                                 <Font size="22.0" />
                                              </font>
                                           </Label>
-                                          <Button fx:id="singleEvaluation" layoutX="275.0" layoutY="42.0" mnemonicParsing="false" prefHeight="29.0" prefWidth="124.0" text="..." />
+                                          <Button fx:id="singleEvaluation" layoutX="275.0" layoutY="42.0" mnemonicParsing="false" onAction="#evaluateImage" prefHeight="29.0" prefWidth="124.0" text="..." />
                                        </children>
                                     </AnchorPane>
                                   <AnchorPane maxHeight="-Infinity" minHeight="-Infinity" minWidth="0.0" prefHeight="90.0" prefWidth="443.0">
@@ -88,7 +88,7 @@
                     <items>
                         <AnchorPane>
                            <children>
-                              <ImageView fx:id="singleEvaluationImage" fitHeight="334.0" fitWidth="629.0" layoutX="101.0" layoutY="49.0" pickOnBounds="true" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="5.0" />
+                              <ImageView fx:id="evaluationImageView" fitHeight="334.0" fitWidth="629.0" layoutX="101.0" layoutY="49.0" pickOnBounds="true" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="5.0" />
                            </children>
                         </AnchorPane>
                         <AnchorPane prefHeight="200.0" prefWidth="200.0">

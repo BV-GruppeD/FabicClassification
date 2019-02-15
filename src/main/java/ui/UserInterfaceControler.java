@@ -3,6 +3,7 @@ package ui;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import javax.imageio.ImageIO;
 
@@ -10,9 +11,13 @@ import com.bv_gruppe_d.imagej.ImageData;
 import com.bv_gruppe_d.imagej.Lable;
 
 import ij.IJ;
+import ij.ImagePlus;
 import ij.process.ByteProcessor;
 import javafx.fxml.FXML;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.stage.DirectoryChooser;
+import javafx.stage.FileChooser;
 
 public class UserInterfaceControler {
 
@@ -26,6 +31,11 @@ public class UserInterfaceControler {
 	
 	private ArrayList<ImageData> trainingsData;
 	private ArrayList<ImageData> testData;
+	private ImageData evalutationImage;
+	
+	@FXML
+	private ImageView evaluationImageView;
+	
 	@FXML
 	private void readLabledTrainingsData() {
 		trainingsData = getLabledImageData();
@@ -34,6 +44,21 @@ public class UserInterfaceControler {
 	@FXML
 	private void readLabledTestData() {
 		testData = getLabledImageData();
+	}
+	
+	@FXML
+	private void evaluateImage() {
+		File selectedFile = getImageFileFromUser();
+		
+		try {
+			ByteProcessor bp = loadFileToImageProcessor(selectedFile);
+			evalutationImage = new ImageData(bp, Lable.UNKNOWN);
+			
+			URL url = selectedFile.toURI().toURL();
+			evaluationImageView.setImage(new Image(url.toExternalForm()));
+		} catch (IOException e) {
+			IJ.showMessage(e.getMessage());
+		}
 	}
 
 	private ArrayList<ImageData> getLabledImageData() {
@@ -66,11 +91,6 @@ public class UserInterfaceControler {
 		directoriesMessage = directoriesMessage.replace("]", " ");
 		
 		IJ.showMessage(countingMessage + directoriesMessage);
-	}
-
-	private File getDirectoryFromUser() {
-		final DirectoryChooser directoryChooser = new DirectoryChooser();
-	    return directoryChooser.showDialog(null);
 	}
 	
 	private ArrayList<File> getDictionariesWithLabledImages(final File folder) {
@@ -119,5 +139,18 @@ public class UserInterfaceControler {
 		default:
 			throw new Exception("Beim Labeln der Daten ist leider ein Fehler aufgetreten.");
 		}
+	}
+	
+	private File getDirectoryFromUser() {
+		final DirectoryChooser directoryChooser = new DirectoryChooser();
+	    return directoryChooser.showDialog(null);
+	}
+	
+	private File getImageFileFromUser() {
+		FileChooser fileChooser = new FileChooser();
+		FileChooser.ExtensionFilter imageFilter = new FileChooser.ExtensionFilter("Image Files", "*.jpg", "*.png");
+		fileChooser.getExtensionFilters().add(imageFilter);
+		File selectedFile = fileChooser.showOpenDialog(null);
+		return selectedFile;
 	}
 }
