@@ -10,17 +10,17 @@
 
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="720.0" prefWidth="1080.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.UserInterfaceControler">
    <children>
-      <SplitPane dividerPositions="0.41887905604719766" prefHeight="400.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <SplitPane dividerPositions="0.4007421150278293" prefHeight="400.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <items>
-            <AnchorPane prefHeight="200.0" prefWidth="200.0">
+            <AnchorPane minWidth="-Infinity" prefHeight="1080.0" prefWidth="425.0">
                <children>
-                  <SplitPane dividerPositions="0.6237373737373737" layoutX="37.0" layoutY="78.0" orientation="VERTICAL" prefHeight="398.0" prefWidth="234.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                  <SplitPane dividerPositions="0.6578212290502793" layoutX="37.0" layoutY="78.0" minWidth="-Infinity" orientation="VERTICAL" prefHeight="398.0" prefWidth="425.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                     <items>
-                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
+                      <AnchorPane minHeight="-Infinity" minWidth="-Infinity" prefHeight="440.0" prefWidth="425.0">
                            <children>
-                              <SplitPane dividerPositions="0.5" layoutX="36.0" layoutY="21.0" orientation="VERTICAL" prefHeight="242.0" prefWidth="232.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                              <SplitPane dividerPositions="0.5" layoutX="36.0" layoutY="21.0" minHeight="-Infinity" minWidth="-Infinity" orientation="VERTICAL" prefHeight="440.0" prefWidth="425.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                 <items>
-                                  <AnchorPane minHeight="-Infinity" minWidth="-Infinity" prefHeight="100.0" prefWidth="160.0">
+                                  <AnchorPane minHeight="-Infinity" minWidth="-Infinity" prefHeight="150.0" prefWidth="160.0">
                                        <children>
                                           <Label layoutX="12.0" layoutY="14.0" prefHeight="39.0" prefWidth="393.0" text="Trainingsdaten einlesen">
                                              <font>
@@ -32,10 +32,10 @@
                                                 <Font size="16.0" />
                                              </font>
                                           </Label>
-                                          <Button fx:id="readTrainingsData" layoutX="281.0" layoutY="14.0" mnemonicParsing="false" onAction="#handleButtonAction" prefHeight="30.0" prefWidth="124.0" text="..." textAlignment="CENTER" />
+                                          <Button fx:id="readTrainingsData" layoutX="281.0" layoutY="14.0" mnemonicParsing="false" onAction="#readLabledTrainingsData" prefHeight="30.0" prefWidth="124.0" text="..." textAlignment="CENTER" />
                                        </children>
                                     </AnchorPane>
-                                  <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
+                                  <AnchorPane minHeight="-Infinity" minWidth="0.0" prefHeight="150.0" prefWidth="160.0">
                                        <children>
                                           <Label layoutX="12.0" layoutY="14.0" prefHeight="39.0" prefWidth="393.0" text="Testdaten einlesen">
                                              <font>
@@ -47,31 +47,31 @@
                                                 <Font size="16.0" />
                                              </font>
                                           </Label>
-                                          <Button fx:id="readTestData" layoutX="279.0" layoutY="14.0" mnemonicParsing="false" onAction="#handleButtonAction" prefHeight="29.0" prefWidth="124.0" text="..." />
+                                          <Button fx:id="readTestData" layoutX="279.0" layoutY="14.0" mnemonicParsing="false" onAction="#readLabledTestData" prefHeight="29.0" prefWidth="124.0" text="..." />
                                        </children>
                                     </AnchorPane>
                                 </items>
                               </SplitPane>
                            </children>
                         </AnchorPane>
-                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
+                      <AnchorPane minHeight="-Infinity" minWidth="0.0" prefHeight="240.0" prefWidth="160.0">
                            <children>
-                              <SplitPane dividerPositions="0.6392156862745098" orientation="VERTICAL" prefHeight="144.0" prefWidth="232.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                              <SplitPane dividerPositions="0.6755725190839694" orientation="VERTICAL" prefHeight="144.0" prefWidth="232.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                 <items>
                                   <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
                                        <children>
-                                          <Label layoutX="12.0" layoutY="60.0" prefHeight="39.0" prefWidth="393.0" text="Einzeltest">
+                                          <Label layoutX="15.0" layoutY="42.0" prefHeight="39.0" prefWidth="393.0" text="Einzeltest">
                                              <font>
                                                 <Font size="22.0" />
                                              </font>
                                           </Label>
-                                          <Button fx:id="singleEvaluation" layoutX="279.0" layoutY="60.0" mnemonicParsing="false" prefHeight="29.0" prefWidth="124.0" text="..." />
+                                          <Button fx:id="singleEvaluation" layoutX="275.0" layoutY="42.0" mnemonicParsing="false" prefHeight="29.0" prefWidth="124.0" text="..." />
                                        </children>
                                     </AnchorPane>
-                                  <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="62.0" prefWidth="417.0">
+                                  <AnchorPane maxHeight="-Infinity" minHeight="-Infinity" minWidth="0.0" prefHeight="90.0" prefWidth="443.0">
                                        <children>
-                                          <Button layoutX="14.0" layoutY="24.0" mnemonicParsing="false" prefHeight="39.0" prefWidth="124.0" text="Laden" AnchorPane.leftAnchor="50.0" />
-                                          <Button layoutX="325.0" layoutY="24.0" mnemonicParsing="false" prefHeight="39.0" prefWidth="124.0" text="Speichern" AnchorPane.rightAnchor="50.0" />
+                                          <Button layoutX="49.0" layoutY="21.0" mnemonicParsing="false" prefHeight="39.0" prefWidth="124.0" text="Laden" AnchorPane.leftAnchor="49.0" />
+                                          <Button layoutX="269.0" layoutY="21.0" mnemonicParsing="false" prefHeight="39.0" prefWidth="124.0" text="Speichern" AnchorPane.rightAnchor="50.0" />
                                        </children>
                                     </AnchorPane>
                                 </items>
@@ -84,11 +84,11 @@
             </AnchorPane>
             <AnchorPane prefHeight="200.0" prefWidth="200.0">
                <children>
-                  <SplitPane dividerPositions="0.5" orientation="VERTICAL" prefHeight="398.0" prefWidth="294.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                  <SplitPane dividerPositions="0.48743016759776536" orientation="VERTICAL" prefHeight="398.0" prefWidth="294.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                     <items>
                         <AnchorPane>
                            <children>
-                              <ImageView fitHeight="334.0" fitWidth="574.0" layoutX="101.0" layoutY="49.0" pickOnBounds="true" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="5.0" />
+                              <ImageView fx:id="singleEvaluationImage" fitHeight="334.0" fitWidth="629.0" layoutX="101.0" layoutY="49.0" pickOnBounds="true" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="5.0" />
                            </children>
                         </AnchorPane>
                         <AnchorPane prefHeight="200.0" prefWidth="200.0">
