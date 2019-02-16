@@ -1,33 +1,21 @@
 package ui;
 
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
-import javax.imageio.ImageIO;
-
 import com.bv_gruppe_d.imagej.ImageData;
-import com.bv_gruppe_d.imagej.Lable;
-
 import ij.IJ;
-import ij.ImagePlus;
-import ij.process.ByteProcessor;
 import javafx.fxml.FXML;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 
+/**
+ * Provides methods for user inputs from the UserInterfaceView generated MainPage.fxml
+ */
 public class UserInterfaceControler {
-
-	private final ArrayList<String> expectedDirectories = new ArrayList<String>(){{
-	    add("geschert");
-	    add("keineDehnung");
-	    add("mittlereDehnung");
-	    add("maximaleDehnung");
-	    add("stoerung");
-	}};
 	
 	private ArrayList<ImageData> trainingsData;
 	private ArrayList<ImageData> testData;
@@ -36,23 +24,36 @@ public class UserInterfaceControler {
 	@FXML
 	private ImageView evaluationImageView;
 	
+	/**
+	 * Takes a directory from the user and maps the images in the subfolders to labled 
+	 * ImageData objects representing the trainings data for a classifier.
+	 */
 	@FXML
 	private void readLabledTrainingsData() {
-		trainingsData = getLabledImageData();
+		File upperDirectory = getDirectoryFromUser();		
+		trainingsData = ImageDataCreator.getLabledImageData(upperDirectory);
 	}
 	
+	/**
+	 * Takes a directory from the user and maps the images in the subfolders to labled 
+	 * ImageData objects representing the test data for a classifier.
+	 */
 	@FXML
 	private void readLabledTestData() {
-		testData = getLabledImageData();
+		File upperDirectory = getDirectoryFromUser();		
+		testData = ImageDataCreator.getLabledImageData(upperDirectory);
 	}
 	
+	/**
+	 * Takes a file path from the user to map the image to an unlabled ImageData object
+	 * for individual classification.
+	 */
 	@FXML
 	private void evaluateImage() {
 		File selectedFile = getImageFileFromUser();
 		
 		try {
-			ByteProcessor bp = loadFileToImageProcessor(selectedFile);
-			evalutationImage = new ImageData(bp, Lable.UNKNOWN);
+			evalutationImage = ImageDataCreator.getImageData(selectedFile);
 			
 			URL url = selectedFile.toURI().toURL();
 			evaluationImageView.setImage(new Image(url.toExternalForm()));
@@ -60,97 +61,24 @@ public class UserInterfaceControler {
 			IJ.showMessage(e.getMessage());
 		}
 	}
-
-	private ArrayList<ImageData> getLabledImageData() {
-		ArrayList<File> lableDirectories = new ArrayList<>();
-		ArrayList<ImageData> labledImages = new ArrayList<>();
-		
-		final File selectedDirectory = getDirectoryFromUser();
-	    if (selectedDirectory != null) {
-	    	lableDirectories = getDictionariesWithLabledImages(selectedDirectory);
-	    	for (File directory : lableDirectories) {
-	    		try {
-					labledImages.addAll(getLabledImagesFromDictionary(directory));
-				} catch (Exception e) {
-					IJ.showMessage(e.getMessage());
-				}
-			}
-	    }
-	    promptUserInformationForLoadingProcess(lableDirectories, labledImages);
-	    
-	    return labledImages;
-	}
-
-	private void promptUserInformationForLoadingProcess(ArrayList<File> lableDirectories,
-			ArrayList<ImageData> labledImages) {
-		String countingMessage = labledImages.size() + " Bilder erfolgreich hinzugefügt.\r\n\r\n";
-		
-		String directoriesMessage = "Genutze Ordner:\r\n" + lableDirectories.toString();
-		directoriesMessage = directoriesMessage.replaceAll(",", "\r\n");
-		directoriesMessage = directoriesMessage.replace("[", " ");
-		directoriesMessage = directoriesMessage.replace("]", " ");
-		
-		IJ.showMessage(countingMessage + directoriesMessage);
-	}
 	
-	private ArrayList<File> getDictionariesWithLabledImages(final File folder) {
-	    ArrayList<File> directories = new ArrayList<>();
-		for (File fileEntry : folder.listFiles()) {
-			if (fileEntry.isDirectory() && expectedDirectories.contains(fileEntry.getName())) {	           
-	            directories.add(fileEntry);
-	        }
-	    }
-		return directories;
-	}
-	
-	
-	private ArrayList<ImageData> getLabledImagesFromDictionary(File dictionary) throws Exception {
-		Lable lable = determineLableFromDictionary(dictionary);
-		
-		//Load all images
-		File[] files = dictionary.listFiles();
-		ArrayList<ImageData> labledImages = new ArrayList<>();
-		for (File file : files) {
-			if (file.isFile()) {
-				ByteProcessor bp = loadFileToImageProcessor(file);
-				labledImages.add(new ImageData(bp, lable));
-			}
-		}
-		return labledImages;
-	}
-
-	private ByteProcessor loadFileToImageProcessor(File file) throws IOException {
-		BufferedImage image = ImageIO.read(file);
-		return new ByteProcessor(image);
-	}
-
-	private Lable determineLableFromDictionary(File dictionary) throws Exception {
-		switch (dictionary.getName()) {
-		case "geschert":
-			return Lable.SHEARD;
-		case "keineDehnung":
-			return Lable.NO_STRETCH;
-		case "mittlereDehnung":
-			return Lable.MEDIUM_STRETCH;
-		case "maximaleDehnung":
-			return Lable.MAXIMUM_STRECH;
-		case "stoerung":
-			return Lable.DISTURBANCE;
-		default:
-			throw new Exception("Beim Labeln der Daten ist leider ein Fehler aufgetreten.");
-		}
-	}
-	
+	/**
+	 * Displays a directory chooser dialog for the user.
+	 * @return	The path to the selected directory.
+	 */
 	private File getDirectoryFromUser() {
 		final DirectoryChooser directoryChooser = new DirectoryChooser();
 	    return directoryChooser.showDialog(null);
 	}
 	
+	/**
+	 * Displays a file chooser dialog for the user where only .jpg and .png files can be selected.
+	 * @return The path to the selected file
+	 */
 	private File getImageFileFromUser() {
 		FileChooser fileChooser = new FileChooser();
 		FileChooser.ExtensionFilter imageFilter = new FileChooser.ExtensionFilter("Image Files", "*.jpg", "*.png");
 		fileChooser.getExtensionFilters().add(imageFilter);
-		File selectedFile = fileChooser.showOpenDialog(null);
-		return selectedFile;
+		return fileChooser.showOpenDialog(null);
 	}
 }
