@@ -31,7 +31,7 @@ public class UserInterfaceView {
     }
 	
     /**
-     *  -This method is invoked on Swing thread-
+     *  -This method is invoked on the Swing thread-
      * Initializes the interface for the user and specifies the components needed for compatibility
      * between the java.awx based ImageJ interface and the modern JavaFX interface for this plugin.
      * Also starts the process handling the JavaFX user interactions
@@ -53,7 +53,7 @@ public class UserInterfaceView {
     }
 
     /**
-     *  -This method is invoked on JavaFX thread-
+     *  -This method is invoked on the JavaFX thread-
      * Specifies the informations about the user interface in the given Swing component as described
      * in the MainPage.fxml file. The file was created with JavaFX Scene Builder.
      * @param fxPanel The Swing components that holds the JavaFX user interface.
