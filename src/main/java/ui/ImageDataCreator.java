@@ -15,12 +15,12 @@ import ij.process.ByteProcessor;
 
 
 /**
- * Provides utility methods to create labled and unlabled ImageData object from files in the file system.
+ * Provides utility methods to create labeled and unlabeled ImageData object from files in the file system.
  */
 public class ImageDataCreator {
 
 	/**
-	 * Provides the directory names expected for automatic labling of images on the file system.
+	 * Provides the directory names expected for automatic labeling of images on the file system.
 	 */
 	@SuppressWarnings("serial")
 	private static final ArrayList<String> expectedDirectories = new ArrayList<String>(){{
@@ -33,9 +33,9 @@ public class ImageDataCreator {
 	
 	/**
 	 * Given a valid upper directory this method iterates over the directories matching the expected
-	 * names for automatic labling and creates a list of ImageData objects from the files in the directories.
-	 * @param upperDirectory The directory that contains the folders named for automatic labling of the contained images.
-	 * @return All ImageData objects that could be labled automaticly from the subdirectories.
+	 * names for automatic labeling and creates a list of ImageData objects from the files in the directories.
+	 * @param upperDirectory The directory that contains the folders named for automatic labeling of the contained images.
+	 * @return All ImageData objects that could be labeled automatically from the sub-directories.
 	 */
 	public static ArrayList<ImageData> getLabledImageData(File upperDirectory) {
 		ArrayList<File> lableDirectories = new ArrayList<>();
@@ -57,9 +57,9 @@ public class ImageDataCreator {
 	}
 	
 	/**
-	 * Extracts the paths for directories contained in the given folder that can be used for automatic labling.
-	 * @param folder The directory containing the sub-directories named for automatic labling.
-	 * @return The paths to the sub-directories for automatic labling.
+	 * Extracts the paths for directories contained in the given folder that can be used for automatic labeling.
+	 * @param folder The directory containing the sub-directories named for automatic labeling.
+	 * @return The paths to the sub-directories for automatic labeling.
 	 */
 	private static ArrayList<File> getDirectoriesWithLabledImages(final File folder) {
 	    ArrayList<File> directories = new ArrayList<>();
@@ -72,10 +72,10 @@ public class ImageDataCreator {
 	}
 	
 	/**
-	 * Loads all images in the directory to ImageData objects and lables them depending on the name of the directory.
-	 * @param directory The directory containig the files to be loaded. 
+	 * Loads all images in the directory to ImageData objects and labels them depending on the name of the directory.
+	 * @param directory The directory containing the files to be loaded. 
 	 * @return The ImageData objects from the images in the directory.
-	 * @throws Exception Throws exceptions occuring in the process of image loading.
+	 * @throws Exception Throws exceptions occurring in the process of image loading.
 	 */
 	private static ArrayList<ImageData> getLabledImagesFromDirectory(File directory) throws Exception {
 		Lable lable = determineLableFromDirectory(directory);
@@ -93,9 +93,9 @@ public class ImageDataCreator {
 	}
 	
 	/**
-	 * Maps the given directory to the enum values of the Lable enumeration.
+	 * Maps the given directory to the enum values of the Label enumeration.
 	 * @param directory The directory to be decided upon.
-	 * @return An enum-value from the Lable enumeration.
+	 * @return An enum-value from the Label enumeration.
 	 * @throws Exception Throws an exception if no mapping could be achieved.
 	 */
 	private static Lable determineLableFromDirectory(File directory) throws Exception {
@@ -130,7 +130,8 @@ public class ImageDataCreator {
 	 * TDOD: move to ui controller
 	 */
 	/**
-	 * Prompts a notification for the user how many images where loaded and labeled. It also adds the paths to the directories used for automatic labling.
+	 * Prompts a notification for the user how many images where loaded and labeled. It also adds 
+	 * the paths to the directories used for automatic labeling.
 	 * @param lableDirectories The directories used for automatic labeling.
 	 * @param labledImages The ImageData objects that where created and labeled in the process.
 	 */
