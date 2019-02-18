@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import com.bv_gruppe_d.imagej.ImageData;
 import ij.IJ;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.DirectoryChooser;
@@ -60,6 +62,53 @@ public class UserInterfaceControler {
 		} catch (IOException e) {
 			IJ.showMessage(e.getMessage());
 		}
+	}
+	
+	
+	@FXML
+	private void testClassifier() {
+		if (testData == null) {
+			showNoTestDataDialog();
+		} else {
+			showNoClassifierDialog();
+		}
+	}
+
+	private void showNoClassifierDialog() {
+		Alert alert = new Alert(AlertType.INFORMATION);
+		alert.setTitle("Keine Klassifizierer gefunden");
+		alert.setHeaderText("Trainieren Sie zunächst einen Klassifizierer");
+		alert.setContentText("Um einen Klassifizierer zu Trainieren, lesen Sie im obigen Bereich Testdaten ein und betätigen "
+				+ "anschließend die Schaltfläche zum Trainieren eines Klassifizierers.");
+
+		alert.showAndWait();
+	}
+
+	private void showNoTestDataDialog() {
+		Alert alert = new Alert(AlertType.INFORMATION);
+		alert.setTitle("Keine Testdaten gefunden");
+		alert.setHeaderText("Bitte lesen Sie zunächst Testdaten ein.");
+		alert.setContentText("Um Testdaten einzulesen schließen Sie bitte diesen Dialog "
+				+ "und betätigen Sie die Schaltfläche oberhalb dieses Buttons.");
+
+		alert.showAndWait();
+	}
+
+	
+	
+	@FXML
+	private void trainClassifier() {
+		showNoTrainingsDataDialog();
+	}
+
+	private void showNoTrainingsDataDialog() {
+		Alert alert = new Alert(AlertType.INFORMATION);
+		alert.setTitle("Keine Trainingsdaten gefunden.");
+		alert.setHeaderText("Bitte lesen Sie zunächst Testdaten ein.");
+		alert.setContentText("Um Trainingsdaten einzulesen schließen Sie bitte diesen Dialog "
+				+ "und betätigen Sie die Schaltfläche oberhalb dieses Buttons.");
+
+		alert.showAndWait();
 	}
 	
 	/**
