@@ -126,7 +126,7 @@ public class DilateAndErode {
 	public static void binarize(ImageProcessor ip, int thresholdIncl) {
 		for (int x = 0; x < ip.getWidth(); x++) {
 			for (int y = 0; y < ip.getHeight(); y++) {
-				int value = ip.get(x, y) >= thresholdIncl ? WHITE : BLACK;
+				int value = (ip.get(x, y) & 0xff) >= thresholdIncl ? WHITE : BLACK;
 				ip.set(x, y, value);
 			}
 		}

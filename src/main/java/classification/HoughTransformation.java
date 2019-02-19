@@ -11,7 +11,8 @@ public class HoughTransformation {// TODO use camel case
 	private double max_b_squared;
 	private final ArrayList<ConstPoint> pixels;
 	private ArrayList<EllipsisData> results;
-	private double xc, yc, a, orientation;// to avoid passing them as arguments
+	private double a, orientation;// to avoid passing them as arguments
+	private ConstPoint center;
 
 	public HoughTransformation() {
 		this(4, 1.0, 4, Integer.MAX_VALUE);// Taken from the python as sane defaults
@@ -46,9 +47,16 @@ public class HoughTransformation {// TODO use camel case
 		}
 
 		// iterate over all possible combinations of p1 and p2
+		int startSize = pixels.size();
 		for (int p1 = 0; p1 < pixels.size(); ++p1) {
+			System.out.println("Testing point " + p1 + "/" + startSize);
 			for (int p2 = 0; p2 < p1; ++p2) {
-				internal_stuff(pixels.get(p1), pixels.get(p2));
+				if (internal_stuff(pixels.get(p1), pixels.get(p2))) {
+					//removed p1, p2 and p3
+					// p1 < p2
+					p1 -= 2;
+					break;
+				}
 			}
 		}
 
@@ -56,7 +64,7 @@ public class HoughTransformation {// TODO use camel case
 		return results;
 	}
 
-	private void internal_stuff(ConstPoint p1, ConstPoint p2) {
+	private boolean internal_stuff(ConstPoint p1, ConstPoint p2) {
 		// # Candidate: center (xc, yc) and main axis a
 		double dx = p1.x - p2.x;
 		double dy = p1.y - p2.y;
@@ -64,12 +72,12 @@ public class HoughTransformation {// TODO use camel case
 		if (a > 0.5 * min_major_length) {
 			ArrayList<Double> accumulator = new ArrayList<>();
 
-			xc = 0.5 * (p1.x + p2.x);
-			yc = 0.5 * (p1.y + p2.y);
+//			System.out.println(p1+" "+p2+" "+center);
+			center = new ConstPoint(0.5 * (p1.x + p2.x), 0.5 * (p1.y + p2.y));
 
 			for (ConstPoint p3 : pixels) {
-				dx = p3.x - xc;
-				dy = p3.y - yc;
+				dx = p3.x - center.x;
+				dy = p3.y - center.y;
 				double d = Math.sqrt(dx * dx + dy * dy);
 				if (d > min_major_length) {
 					dx = p3.x - p1.x;
@@ -90,13 +98,17 @@ public class HoughTransformation {// TODO use camel case
 			}
 
 			orientation = Math.atan2(p1.x - p2.x, p1.y - p2.y);
-			handle_accumulator(accumulator);
+			return handle_accumulator(accumulator);
 		}
+		return false;
 	}
 
-	private void handle_accumulator(ArrayList<Double> accumulator) {
+	private boolean handle_accumulator(ArrayList<Double> accumulator) {
 		if (!accumulator.isEmpty()) {
 			// A dynamically sized accumulator
+
+			double bin_max_center = 0;
+			int bin_max_count = 0;
 
 			double max = 0;
 			for (double d : accumulator) {
@@ -106,13 +118,13 @@ public class HoughTransformation {// TODO use camel case
 			int bin_count = 1 + (int) (max / acc_bin_size);
 			int[] bins = new int[bin_count];
 
+//			System.out.println("accu_size="+accumulator.size()+"  bin_count="+bin_count);
+
 			for (double d : accumulator) {
 				int index = (int) (d / acc_bin_size);
 				bins[index] += 1;
 			}
 
-			double bin_max_center = 0;
-			int bin_max_count = 0;
 			for (int i = 0; i < bins.length; ++i) {
 				if (bins[i] > bin_max_count) {
 					bin_max_count = bins[i];
@@ -140,31 +152,43 @@ public class HoughTransformation {// TODO use camel case
 					}
 				}
 				// end
-				results.add(new EllipsisData(xc, yc, a, b, bin_max_count, orientation));
+				results.add(new EllipsisData(center, a, b, bin_max_count, orientation));
+				return true;
 			}
 		}
+		return false;
 	}
 
-	public static final class EllipsisData {
+	public static final class EllipsisData implements Comparable<EllipsisData> {
 		public final int accumulator;
-		public final double xc, yc, a, b, orientation;
+		public final double a, b, orientation;
+		public final ConstPoint center;
 
-		private EllipsisData(double xc, double yc, double a, double b, int accumulator, double orientation) {
-			this.xc = xc;
-			this.yc = yc;
+		public EllipsisData(ConstPoint center, double a, double b, int accumulator, double orientation) {
+			this.center = center;
 			this.a = a;
 			this.b = b;
 			this.accumulator = accumulator;
 			this.orientation = orientation;
 		}
+
+		@Override
+		public int compareTo(EllipsisData o) {
+			return o.accumulator - accumulator;
+		}
 	}
 
-	private static final class ConstPoint {
-		private final int x, y;
+	public static final class ConstPoint {
+		public final double x, y;
 
-		private ConstPoint(int x, int y) {
+		public ConstPoint(double x, double y) {
 			this.x = x;
 			this.y = y;
+		}
+
+		@Override
+		public String toString() {
+			return "(" + x + "," + y + ")";
 		}
 	}
 }
