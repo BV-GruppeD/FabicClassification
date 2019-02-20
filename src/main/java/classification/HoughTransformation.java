@@ -52,7 +52,7 @@ public class HoughTransformation {// TODO use camel case
 			System.out.println("Testing point " + p1 + "/" + startSize);
 			for (int p2 = 0; p2 < p1; ++p2) {
 				if (internal_stuff(pixels.get(p1), pixels.get(p2))) {
-					//removed p1, p2 and p3
+					// removed p1, p2 and p3
 					// p1 < p2
 					p1 -= 2;
 					break;
@@ -163,6 +163,7 @@ public class HoughTransformation {// TODO use camel case
 		public final int accumulator;
 		public final double a, b, orientation;
 		public final ConstPoint center;
+		public int removed;
 
 		public EllipsisData(ConstPoint center, double a, double b, int accumulator, double orientation) {
 			this.center = center;
@@ -174,9 +175,27 @@ public class HoughTransformation {// TODO use camel case
 
 		@Override
 		public int compareTo(EllipsisData o) {
-			return o.accumulator - accumulator;
+			return o.removed - removed;
+		}
+
+		public ArrayList<ConstPoint> points() {
+			int pointCount = 10000;
+			ArrayList<ConstPoint> points = new ArrayList<ConstPoint>(pointCount);
+//			double approxPerimeter = Math.PI * (3*(a+b)-Math.sqrt((3*a + b)*(a+3*b)));
+			double stepWidth = 2 * Math.PI / pointCount;
+
+			for (double r = 0; r < 2 * Math.PI; r += stepWidth) {
+				double angle = r + orientation;
+				double x = a * Math.cos(angle);
+				double y = b * Math.sin(angle);
+				ConstPoint p = new ConstPoint(x, y);
+				points.add(p);
+			}
+			return points;
 		}
 	}
+
+	public static final double EQUAL_DIST = 5.0;
 
 	public static final class ConstPoint {
 		public final double x, y;
@@ -189,6 +208,18 @@ public class HoughTransformation {// TODO use camel case
 		@Override
 		public String toString() {
 			return "(" + x + "," + y + ")";
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (obj instanceof ConstPoint) {
+				ConstPoint o = (ConstPoint) obj;
+				double dx = o.x - x;
+				double dy = o.y - y;
+				double d2 = dx * dx + dy * dy;
+				return d2 <= EQUAL_DIST * EQUAL_DIST;
+			}
+			return false;
 		}
 	}
 }

@@ -1,10 +1,12 @@
 package test;
 
+import classification.HoughTransformation.ConstPoint;
 import test.DilateAndErode;
 
 import java.util.ArrayList;
 import java.util.Collections;
 
+import classification.Hough2;
 import classification.HoughTransformation;
 import classification.HoughTransformation.EllipsisData;
 import ij.ImagePlus;
@@ -17,11 +19,13 @@ public class Test_Hough implements PlugInFilter {
 	@Override
 	public void run(ImageProcessor ip) {
 		DilateAndErode.color2gray(ip);
+
+		System.out.println(new ConstPoint(0, 0).equals(new ConstPoint(1, 1)));
 		run_test(ip);
 	}
 
 	private void run_test(ImageProcessor ip) {
-		HoughTransformation ht = new HoughTransformation(100, 15.0, 4, 80);
+		Hough2 ht = new Hough2(10, 5.0, 4, 1000);
 		DilateAndErode.binarize(ip, 0x80);
 		DilateAndErode.invert(ip);
 
@@ -40,19 +44,22 @@ public class Test_Hough implements PlugInFilter {
 			}
 		}
 
-		new Thread() {
+		Thread t = new Thread() {
 			public void run() {
-				ArrayList<EllipsisData> ellipsisList = ht.findEllipsis(isEdge);
+				ArrayList<EllipsisData> ellipsisList = ht.findEllipsis(ip, isEdge);
 				System.out.println(ellipsisList.size() + " results");
 
 				Collections.sort(ellipsisList);
-				int cnt = Math.min(ellipsisList.size(), 10);
+				int cnt = Math.min(ellipsisList.size(), 30);
 				for (int i = 0; i < cnt; ++i) {
 					EllipsisData e = ellipsisList.get(i);
-					System.out.println(e.center + " " + e.a + "," + e.b + " " + e.orientation + "  vote_count=" + e.accumulator);
+					System.out.println(e.center + " " + e.a + "," + e.b + " " + e.orientation + "  vote_count=" + e.accumulator+" removed="+e.removed);
 				}
-			};
-		}.start();
+			}
+		};
+		boolean RUN_IN_OTHER_THREAD = false;
+		if (RUN_IN_OTHER_THREAD) t.start();
+		else t.run();
 	}
 
 	@Override

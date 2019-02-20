@@ -4,8 +4,9 @@ import java.util.ArrayList;
 
 import classification.HoughTransformation.ConstPoint;
 import classification.HoughTransformation.EllipsisData;
+import ij.process.ImageProcessor;
 
-class Hough2 {
+public class Hough2 {
 	private int i1, i2, i3;// indices of points
 	private final ArrayList<ConstPoint> edgePixels;
 	private ArrayList<EllipsisData> results;
@@ -15,31 +16,59 @@ class Hough2 {
 	private final int wanted_max_minor_length;
 	private final double acc_bin_size;
 	private double max_b_squared;
+	private ImageProcessor ip;
 
-	public Hough2() {
-		
-	}
-	
 	public Hough2(int acc_threshold, double acc_accuracy, int min_major_length, int max_minor_length) {
 		this.acc_threshold = acc_threshold;
 		this.min_major_length = min_major_length;
 		this.wanted_max_minor_length = max_minor_length;
 
 		this.acc_bin_size = acc_accuracy * acc_accuracy;
-		accumulator = new Accumulator(0, 100, 1);
+		accumulator = new Accumulator(0, max_minor_length, acc_bin_size);
 		edgePixels = new ArrayList<>();
 		results = new ArrayList<>();
 	}
 
-	void run() {
+	public ArrayList<EllipsisData> findEllipsis(ImageProcessor ip, boolean[][] isEdge) {
+		this.ip = ip;
 
-		while (i1 < edgePixels.size()) {
-			i2 = 0;
-			while (i2 < i1 && edgePixels.get(i2) != null) {
-				if (stuff()) {
-					break;
+		// Remove old data
+		edgePixels.clear();
+		results = new ArrayList<>();
+
+		// <= half image size
+		int maxDim = Math.max(isEdge.length, isEdge[0].length);
+		double max_minor_length = Math.min(wanted_max_minor_length, (maxDim + 1) / 2);
+		max_b_squared = max_minor_length * max_minor_length;
+
+		// find edge pixels
+		for (int a = 0; a < isEdge[0].length; a++) {// TODO check
+			for (int b = 0; b < isEdge.length; b++) {
+				if (isEdge[b][a]) {
+					edgePixels.add(new ConstPoint(b, a));
 				}
-				i2++;
+			}
+		}
+
+		// iterate over all possible combinations of p1 and p2
+		run();
+
+		edgePixels.clear(); // To save RAM
+		return results;
+	}
+
+	void run() {
+		while (i1 < edgePixels.size()) {
+			if (edgePixels.get(i1) != null) {
+				i2 = 0;
+				while (i2 < i1) {
+					if (edgePixels.get(i2) != null) {
+						if (stuff()) {
+							break;
+						}
+					}
+					i2++;
+				}
 			}
 			i1++;
 		}
@@ -58,22 +87,24 @@ class Hough2 {
 
 			for (i3 = 0; i3 < edgePixels.size(); ++i3) {
 				ConstPoint p3 = edgePixels.get(i3);
-				dx = p3.x - center.x;
-				dy = p3.y - center.y;
-				double d = Math.sqrt(dx * dx + dy * dy);
-				if (d > min_major_length) {
-					dx = p3.x - p1.x;
-					dy = p3.y - p1.y;
-					double cos_tau_squared = ((a * a + d * d - dx * dx - dy * dy) / (2.0 * a * d));
-					cos_tau_squared *= cos_tau_squared;
-					// # Consider b2 > 0 and avoid division by zero
-					double k = a * a - d * d * cos_tau_squared;
-					if (k > 0.0 && cos_tau_squared < 1.0) {
-						double b_squared = a * a * d * d * (1.0 - cos_tau_squared) / k;
-						// # b2 range is limited to avoid histogram memory
-						// # overflow
-						if (b_squared <= max_b_squared) {
-							accumulator.add(b_squared);
+				if (p3 != null) {
+					dx = p3.x - center.x;
+					dy = p3.y - center.y;
+					double d = Math.sqrt(dx * dx + dy * dy);
+					if (d > min_major_length) {
+						dx = p3.x - p1.x;
+						dy = p3.y - p1.y;
+						double cos_tau_squared = ((a * a + d * d - dx * dx - dy * dy) / (2.0 * a * d));
+						cos_tau_squared *= cos_tau_squared;
+						// # Consider b2 > 0 and avoid division by zero
+						double k = a * a - d * d * cos_tau_squared;
+						if (k > 0.0 && cos_tau_squared < 1.0) {
+							double b_squared = a * a * d * d * (1.0 - cos_tau_squared) / k;
+							// # b2 range is limited to avoid histogram memory
+							// # overflow
+							if (b_squared <= max_b_squared) {
+								accumulator.add(b_squared);
+							}
 						}
 					}
 				}
@@ -108,11 +139,38 @@ class Hough2 {
 	}
 
 	void addResult(ConstPoint center, double a, double b, double rot, int votes) {
-		results.add(new EllipsisData(center, a, b, votes, rot));
+		EllipsisData e = new EllipsisData(center, a, b, votes, rot);
+
+		ArrayList<ConstPoint> el = e.points();
+		ArrayList<Integer> indices = new ArrayList<Integer>();
+		for (ConstPoint p : el) {
+			int i = edgePixels.indexOf(p);
+			if (i >= 0) {
+				indices.add(i);
+			}
+		}
+
+		if (indices.size() > 5) {
+			for (Integer i : indices) {
+				edgePixels.set(i, null);
+			}
+			
+			for (ConstPoint p : el) {
+				int x = (int) (p.x + 0.5);
+				int y = (int) (p.y + 0.5);
+				try {
+					ip.set(x, y, ip.get(x, y) | 0xff0000);
+				} catch (Exception ex) {
+				}
+			}
+			results.add(e);
+		}
+//		System.out.println("Removed " + removedCount + " points that were on the ellipsis");
 
 		edgePixels.set(i1, null);
 		edgePixels.set(i2, null);
-		edgePixels.set(i3, null);
+
+		e.removed = indices.size();
 	}
 
 	private static class Accumulator {
@@ -132,13 +190,13 @@ class Hough2 {
 		}
 
 		public void add(double value) {
-			// TODO what about max
 			int index = binIndex(value);
 			try {
 				counts[index]++;
 				maxUsedIndex = Math.max(maxUsedIndex, index);
 			} catch (ArrayIndexOutOfBoundsException ex) {
-				ex.printStackTrace();
+				// TODO what?
+//				ex.printStackTrace();
 			}
 		}
 
