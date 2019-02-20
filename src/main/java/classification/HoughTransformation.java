@@ -2,6 +2,9 @@ package classification;
 
 import java.util.ArrayList;
 
+import classification.HoughTransformation.ConstPoint;
+import ij.process.ImageProcessor;
+
 // Loosely based on https://github.com/scikit-image/scikit-image/blob/master/skimage/transform/_hough_transform.pyx
 public class HoughTransformation {// TODO use camel case
 	private final int acc_threshold;
@@ -152,7 +155,7 @@ public class HoughTransformation {// TODO use camel case
 					}
 				}
 				// end
-				results.add(new EllipsisData(center, a, b, bin_max_count, orientation));
+//				results.add(new EllipsisData(center, a, b, bin_max_count, orientation));
 				return true;
 			}
 		}
@@ -175,7 +178,16 @@ public class HoughTransformation {// TODO use camel case
 
 		@Override
 		public int compareTo(EllipsisData o) {
-			return o.removed - removed;
+//			int score = o.accumulator - accumulator;
+//			if (score == 0) {
+//				score = o.removed - removed;
+//			}
+			
+			int score = o.removed - removed;
+			if (score == 0) {
+				score = o.accumulator - accumulator;
+			}
+			return score;
 		}
 
 		public ArrayList<ConstPoint> points() {
@@ -186,12 +198,23 @@ public class HoughTransformation {// TODO use camel case
 
 			for (double r = 0; r < 2 * Math.PI; r += stepWidth) {
 				double angle = r + orientation;
-				double x = a * Math.cos(angle);
-				double y = b * Math.sin(angle);
+				double x = center.x + a * Math.cos(angle);
+				double y = center.y + b * Math.sin(angle);
 				ConstPoint p = new ConstPoint(x, y);
 				points.add(p);
 			}
 			return points;
+		}
+		
+		public void drawTo(ImageProcessor ip) {
+			for (ConstPoint p : points()) {
+				int x = (int) (p.x + 0.5);
+				int y = (int) (p.y + 0.5);
+				try {
+					ip.set(x, y, ip.get(x, y) | 0xff0000);
+				} catch (Exception ex) {
+				}
+			}
 		}
 	}
 

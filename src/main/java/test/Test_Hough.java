@@ -25,7 +25,7 @@ public class Test_Hough implements PlugInFilter {
 	}
 
 	private void run_test(ImageProcessor ip) {
-		Hough2 ht = new Hough2(10, 5.0, 4, 1000);
+		Hough2 ht = new Hough2(40, 2.0, 20, 100);
 		DilateAndErode.binarize(ip, 0x80);
 		DilateAndErode.invert(ip);
 
@@ -49,10 +49,15 @@ public class Test_Hough implements PlugInFilter {
 				ArrayList<EllipsisData> ellipsisList = ht.findEllipsis(ip, isEdge);
 				System.out.println(ellipsisList.size() + " results");
 
+				int draw = 2;
 				Collections.sort(ellipsisList);
 				int cnt = Math.min(ellipsisList.size(), 30);
 				for (int i = 0; i < cnt; ++i) {
 					EllipsisData e = ellipsisList.get(i);
+
+					if (i < draw) {
+						e.drawTo(ip);
+					}
 					System.out.println(e.center + " " + e.a + "," + e.b + " " + e.orientation + "  vote_count=" + e.accumulator+" removed="+e.removed);
 				}
 			}

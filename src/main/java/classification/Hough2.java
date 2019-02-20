@@ -14,16 +14,15 @@ public class Hough2 {
 	private final int acc_threshold;
 	private final int min_major_length;
 	private final int wanted_max_minor_length;
-	private final double acc_bin_size;
 	private double max_b_squared;
 	private ImageProcessor ip;
 
-	public Hough2(int acc_threshold, double acc_accuracy, int min_major_length, int max_minor_length) {
+	public Hough2(int acc_threshold, double acc_bin_size, int min_major_length, int max_minor_length) {
 		this.acc_threshold = acc_threshold;
 		this.min_major_length = min_major_length;
 		this.wanted_max_minor_length = max_minor_length;
 
-		this.acc_bin_size = acc_accuracy * acc_accuracy;
+//		this.acc_bin_size = acc_accuracy * acc_accuracy;
 		accumulator = new Accumulator(0, max_minor_length, acc_bin_size);
 		edgePixels = new ArrayList<>();
 		results = new ArrayList<>();
@@ -103,7 +102,7 @@ public class Hough2 {
 							// # b2 range is limited to avoid histogram memory
 							// # overflow
 							if (b_squared <= max_b_squared) {
-								accumulator.add(b_squared);
+								accumulator.add(Math.sqrt(b_squared));
 							}
 						}
 					}
@@ -147,24 +146,18 @@ public class Hough2 {
 			int i = edgePixels.indexOf(p);
 			if (i >= 0) {
 				indices.add(i);
+//				edgePixels.set(i, null);
 			}
 		}
 
 		if (indices.size() > 5) {
-			for (Integer i : indices) {
-				edgePixels.set(i, null);
-			}
-			
-			for (ConstPoint p : el) {
-				int x = (int) (p.x + 0.5);
-				int y = (int) (p.y + 0.5);
-				try {
-					ip.set(x, y, ip.get(x, y) | 0xff0000);
-				} catch (Exception ex) {
-				}
-			}
-			results.add(e);
+//			for (Integer i : indices) {
+//				edgePixels.set(i, null);
+//			}
+//			results.add(e);
 		}
+		results.add(e);
+
 //		System.out.println("Removed " + removedCount + " points that were on the ellipsis");
 
 		edgePixels.set(i1, null);
