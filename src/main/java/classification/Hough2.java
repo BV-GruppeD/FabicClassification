@@ -16,14 +16,20 @@ public class Hough2 {
 	private final int wanted_max_minor_length;
 	private double max_b_squared;
 	private ImageProcessor ip;
+	private final double min_major, max_major;
+	private final double min_minor, max_minor;
 
 	public Hough2(int acc_threshold, double acc_bin_size, int min_major_length, int max_minor_length) {
+		min_major = 10;
+		max_major = 80;
+		min_minor = 10;
+		max_minor = 80;
 		this.acc_threshold = acc_threshold;
 		this.min_major_length = min_major_length;
 		this.wanted_max_minor_length = max_minor_length;
 
 //		this.acc_bin_size = acc_accuracy * acc_accuracy;
-		accumulator = new Accumulator(0, max_minor_length, acc_bin_size);
+		accumulator = new Accumulator(min_minor, max_minor, acc_bin_size);
 		edgePixels = new ArrayList<>();
 		results = new ArrayList<>();
 	}
@@ -48,6 +54,8 @@ public class Hough2 {
 				}
 			}
 		}
+
+		System.out.println("Edge pixel count: " + edgePixels.size());
 
 		// iterate over all possible combinations of p1 and p2
 		run();
@@ -80,7 +88,7 @@ public class Hough2 {
 		double dx = p1.x - p2.x;
 		double dy = p1.y - p2.y;
 		double a = 0.5 * Math.sqrt(dx * dx + dy * dy);
-		if (a > 0.5 * min_major_length) {
+		if (a > min_major) {
 //			System.out.println(p1+" "+p2+" "+center);
 			ConstPoint center = new ConstPoint(0.5 * (p1.x + p2.x), 0.5 * (p1.y + p2.y));
 
@@ -90,7 +98,7 @@ public class Hough2 {
 					dx = p3.x - center.x;
 					dy = p3.y - center.y;
 					double d = Math.sqrt(dx * dx + dy * dy);
-					if (d > min_major_length) {
+					if (d > min_minor) {
 						dx = p3.x - p1.x;
 						dy = p3.y - p1.y;
 						double cos_tau_squared = ((a * a + d * d - dx * dx - dy * dy) / (2.0 * a * d));
