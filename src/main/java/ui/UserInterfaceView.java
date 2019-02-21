@@ -63,6 +63,7 @@ public class UserInterfaceView {
         try {
         	FXMLLoader loader = new FXMLLoader();
         	loader.setLocation(getClass().getClassLoader().getResource("MainPage.fxml"));
+        	loader.setController(new UserInterfaceControler());
         	Parent root = loader.load();
             
             Scene scene = new Scene(root, 450, 450);
