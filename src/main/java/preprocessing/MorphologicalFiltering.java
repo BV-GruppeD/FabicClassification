@@ -43,7 +43,7 @@ public class MorphologicalFiltering implements IPreprocessingOperation
 		xor(other, imageData.getImageProcessor());
 
 
-		return null;
+		return null;//TODO shouldn't it return imageData?
 	}
 
 	public static void invert(ImageProcessor output) {
