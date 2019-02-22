@@ -1,5 +1,6 @@
 package classification;
 
+import java.awt.Point;
 import java.util.ArrayList;
 
 import classification.HoughTransformation.ConstPoint;
@@ -8,7 +9,7 @@ import ij.process.ImageProcessor;
 
 public class Hough2 {
 	private int i1, i2, i3;// indices of points
-	private final ArrayList<ConstPoint> edgePixels;
+	private ArrayList<Point> edgePixels;
 	private ArrayList<EllipsisData> results;
 	private Accumulator accumulator;
 	private final int acc_threshold;
@@ -34,26 +35,12 @@ public class Hough2 {
 		results = new ArrayList<>();
 	}
 
-	public ArrayList<EllipsisData> findEllipsis(ImageProcessor ip, boolean[][] isEdge) {
+	public ArrayList<EllipsisData> findEllipsis(ImageProcessor ip, ArrayList<Point> edgePixels) {
 		this.ip = ip;
 
 		// Remove old data
-		edgePixels.clear();
+		this.edgePixels = edgePixels;
 		results = new ArrayList<>();
-
-		// <= half image size
-		int maxDim = Math.max(isEdge.length, isEdge[0].length);
-		double max_minor_length = Math.min(wanted_max_minor_length, (maxDim + 1) / 2);
-		max_b_squared = max_minor_length * max_minor_length;
-
-		// find edge pixels
-		for (int a = 0; a < isEdge[0].length; a++) {// TODO check
-			for (int b = 0; b < isEdge.length; b++) {
-				if (isEdge[b][a]) {
-					edgePixels.add(new ConstPoint(b, a));
-				}
-			}
-		}
 
 		System.out.println("Edge pixel count: " + edgePixels.size());
 
@@ -82,8 +69,8 @@ public class Hough2 {
 	}
 
 	private boolean stuff() {
-		ConstPoint p1 = edgePixels.get(i1);
-		ConstPoint p2 = edgePixels.get(i2);
+		Point p1 = edgePixels.get(i1);
+		Point p2 = edgePixels.get(i2);
 
 		double dx = p1.x - p2.x;
 		double dy = p1.y - p2.y;
@@ -93,7 +80,7 @@ public class Hough2 {
 			ConstPoint center = new ConstPoint(0.5 * (p1.x + p2.x), 0.5 * (p1.y + p2.y));
 
 			for (i3 = 0; i3 < edgePixels.size(); ++i3) {
-				ConstPoint p3 = edgePixels.get(i3);
+				Point p3 = edgePixels.get(i3);
 				if (p3 != null) {
 					dx = p3.x - center.x;
 					dy = p3.y - center.y;
