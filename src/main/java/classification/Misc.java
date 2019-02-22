@@ -1,6 +1,7 @@
 package classification;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 import ij.process.ImageProcessor;
 
@@ -25,7 +26,7 @@ public class Misc {
 			if (score == 0) {
 				score = o.removed - removed;
 			}
-			
+
 //			int score = o.removed - removed;
 //			if (score == 0) {
 //				score = o.accumulator - accumulator;
@@ -48,7 +49,7 @@ public class Misc {
 			}
 			return points;
 		}
-		
+
 		public void drawTo(ImageProcessor ip) {
 			for (ConstPoint p : points()) {
 				int x = (int) (p.x + 0.5);
@@ -88,7 +89,7 @@ public class Misc {
 			return false;
 		}
 	}
-	
+
 	public static class Accumulator {
 		private final double binSize, minValue;
 		private final int[] counts;
@@ -138,6 +139,35 @@ public class Misc {
 				this.votes = votes;
 				this.center = center;
 			}
+		}
+	}
+
+	public static double average(ArrayList<Double> values) {
+		if (values.isEmpty()) {
+			return 0;
+		}
+
+		double sum = 0;
+		for (double d : values) {
+			sum += d;
+		}
+		return sum / values.size();
+	}
+
+	public static double median(ArrayList<Double> values) {
+		if (values.isEmpty()) {
+			return 0;
+		}
+
+		Collections.sort(values);
+		int size = values.size();
+		int center = size / 2;
+		if (size % 2 == 1) {
+			// uneven
+			return values.get(center);
+		} else {
+			// even
+			return 0.5 * (values.get(center) + values.get(center + 1));
 		}
 	}
 }

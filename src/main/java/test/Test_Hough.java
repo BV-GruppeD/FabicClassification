@@ -4,10 +4,12 @@ import test.DilateAndErode;
 
 import java.awt.Point;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 
 import com.bv_gruppe_d.imagej.ImageData;
 
+import classification.FeatureVector;
 import classification.HoughTransformation;
 import ij.ImagePlus;
 import ij.plugin.filter.PlugInFilter;
@@ -37,62 +39,9 @@ public class Test_Hough implements PlugInFilter {
 		DilateAndErode.xor(other, ip);
 //		DilateAndErode.invert(ip);
 
-		ArrayList<ArrayList<Point>> segments = new Segmenter(30).execute(new ImageData(ip, null));// DBG
-		ArrayList<Thread> threads = new ArrayList<Thread>();
-		
-		Object lock = new Object();
-
-		int ns = Math.min(segments.size(), 10000000);
-		for (int i = 0; i < ns; ++i) {
-			ArrayList<Point> segment = segments.get(i);
-			int r = 0;
-			int g = (int) (0xff * Math.random());
-			int b = (int) (0xff * Math.random());
-			int color = (r << 16) + (g << 8) + b;
-			for (Point p : segment) {
-				ip.set(p.x, p.y, color);
-			}
-
-			Thread t = new Thread() {
-				public void run() {
-					HoughTransformation ht = new HoughTransformation(4, 2.0, 4, 100);
-					ArrayList<EllipsisData> ellipsisList = ht.findEllipsis(segment);
-					System.out.println(ellipsisList.size() + " results");
-
-					int draw = 1;
-					Collections.sort(ellipsisList);
-					int cnt = Math.min(ellipsisList.size(), 3);
-					synchronized (lock) {
-						for (int i = 0; i < cnt; ++i) {
-							System.out.println("=================================================");
-							EllipsisData e = ellipsisList.get(i);
-
-							if (i < draw) {
-								e.drawTo(ip);
-							}
-							System.out.println(e.center + " " + e.a + "," + e.b + " " + e.orientation + "  vote_count="
-									+ e.accumulator + " removed=" + e.removed);
-						}
-					}
-				}
-			};
-			threads.add(t);
-		}
-
-		// start all threads
-		for (Thread t : threads) {
-			t.start();
-		}
-
-		// wait for all threads to finish
-		for (Thread t : threads) {
-			try {
-				t.join();
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
+		HoughTransformation ht = new HoughTransformation(4, 1, 4, 100);
+		FeatureVector fv = ht.execute(new ImageData(ip, null));
+		System.out.println(Arrays.toString(fv.getFeatureValues()));
 	}
 
 	@Override
