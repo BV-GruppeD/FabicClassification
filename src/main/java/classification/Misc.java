@@ -141,33 +141,4 @@ public class Misc {
 			}
 		}
 	}
-
-	public static double average(ArrayList<Double> values) {
-		if (values.isEmpty()) {
-			return 0;
-		}
-
-		double sum = 0;
-		for (double d : values) {
-			sum += d;
-		}
-		return sum / values.size();
-	}
-
-	public static double median(ArrayList<Double> values) {
-		if (values.isEmpty()) {
-			return 0;
-		}
-
-		Collections.sort(values);
-		int size = values.size();
-		int center = size / 2;
-		if (size % 2 == 1) {
-			// uneven
-			return values.get(center);
-		} else {
-			// even
-			return 0.5 * (values.get(center) + values.get(center + 1));
-		}
-	}
 }

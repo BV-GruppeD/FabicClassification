@@ -3,6 +3,7 @@ package classification;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import com.bv_gruppe_d.imagej.ImageData;
 
@@ -28,7 +29,7 @@ public class HoughTransformation {
 		this.accumulatorThreshold = accumulatorThreshold;
 	}
 
-	public FeatureVector execute(ImageData imageData) {
+	public List<EllipsisData> execute(ImageData imageData) {
 		ArrayList<ArrayList<Point>> segments = new Segmenter(30).execute(imageData);
 		ArrayList<Thread> threads = new ArrayList<Thread>();
 
@@ -93,20 +94,7 @@ public class HoughTransformation {
 				e.printStackTrace();
 			}
 		}
-		
-		int size = foundEllipsisList.size();
-		ArrayList<Double> ratios = new ArrayList<>(size);
-		ArrayList<Double> areas = new ArrayList<>(size);
-		for (EllipsisData e : foundEllipsisList) {
-			ratios.add(Math.max(e.a / e.b, e.b / e.a)); //make sure it is (bigger / smaller) radius
-			areas.add(Math.PI * e.a * e.b);
-		}
-		
-		double ratio = Misc.median(ratios);
-		double area = Misc.median(areas);
-		double ellipsisPerArea = foundEllipsisList.size() / (double) imageData.getImageProcessor().getPixelCount();
-		double[] features = {ratio, area, ellipsisPerArea};
-		return new FeatureVector(features, imageData.getLable());
+		return foundEllipsisList;
 	}
 
 	public ArrayList<EllipsisData> findEllipsis(ArrayList<Point> edgePixels) {
@@ -172,10 +160,9 @@ public class HoughTransformation {
 							// # Consider b2 > 0 and avoid division by zero
 							double k = a * a - d * d * cos_tau_squared;
 							if (k > 0.0 && cos_tau_squared < 1.0) {
-								double b_squared = a * a * d * d * (1.0 - cos_tau_squared) / k;
-								double b = Math.sqrt(b_squared);
+								double b = Math.sqrt(a * a * d * d * (1.0 - cos_tau_squared) / k);
 								if (b >= minMinor && b < maxMinor) {
-									accumulator.add(Math.sqrt(b_squared));
+									accumulator.add(b);
 								}
 							}
 						}

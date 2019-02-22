@@ -9,6 +9,7 @@ import java.util.Collections;
 
 import com.bv_gruppe_d.imagej.ImageData;
 
+import classification.FeatureExtractor;
 import classification.FeatureVector;
 import classification.HoughTransformation;
 import ij.ImagePlus;
@@ -40,7 +41,8 @@ public class Test_Hough implements PlugInFilter {
 //		DilateAndErode.invert(ip);
 
 		HoughTransformation ht = new HoughTransformation(4, 1, 4, 100);
-		FeatureVector fv = ht.execute(new ImageData(ip, null));
+		ImageData id = new ImageData(ip, null);
+		FeatureVector fv = new FeatureExtractor().execute(id, ht.execute(id));
 		System.out.println(Arrays.toString(fv.getFeatureValues()));
 	}
 
