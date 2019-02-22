@@ -16,7 +16,6 @@ public class Segmenter {
 	}
 
 	public ArrayList<ArrayList<Point>> execute(ImageData imageData) {
-		System.out.println("Starting segmenting");
 		ArrayList<ArrayList<Point>> shapeList = new ArrayList<>();
 		ImageProcessor ip = imageData.getImageProcessor();
 
@@ -39,7 +38,7 @@ public class Segmenter {
 			checkNext.add(start);
 			edgeMap.setEdge(start.x, start.y, false);
 
-			final int w = edgeMap.getHeight(), h = edgeMap.getHeight();
+			final int w = edgeMap.getWidth(), h = edgeMap.getHeight();
 			while (!checkNext.isEmpty()) {
 				Point current = checkNext.removeFirst();
 				shape.add(current);
@@ -58,7 +57,6 @@ public class Segmenter {
 			}
 			if (shape.size() > minSize) {
 				shapeList.add(shape);
-				System.out.println("Added shape: " + shape.size() + " points");
 			}
 		}
 
@@ -84,10 +82,6 @@ public class Segmenter {
 
 		public int getHeight() {
 			return height;
-		}
-
-		public int getEdgeCount() {
-			return edgeCount;
 		}
 
 		public boolean isEdge(int x, int y) {
