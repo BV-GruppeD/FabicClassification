@@ -23,7 +23,7 @@ public class Segmenter {
 		for (int x = 0; x < ip.getWidth(); ++x) {
 			for (int y = 0; y < ip.getHeight(); ++y) {
 				boolean isEdge = (ip.get(x, y) & 0xff) >= 0x80;
-				ip.set(x, y, isEdge ? 0x00ff00 : 0x000000);
+//				ip.set(x, y, isEdge ? 0x00ffff : 0x000000);
 				if (isEdge) {
 					edgeMap.setEdge(x, y, isEdge);
 				}
