@@ -19,19 +19,25 @@ public class Classificator {
 		svm_parameter parameters = createParametrizationForLearning();
 		
 		svm_problem data = createDataFormatForLearning(featureVectors);
-
-		if(svm.svm_check_parameter(data, parameters) == null) {
+		
+		String parameterCheck = svm.svm_check_parameter(data, parameters);
+		if(parameterCheck == null) {
 			IJ.showMessage("Klassifiziere wird trainiert.");
 			model = svm.svm_train(data, parameters);
+			IJ.showMessage("Training Done.");
+		} else {
+			IJ.showMessage(parameterCheck);
 		}
-		
-		IJ.showMessage("Done.");
 	}
 	
 	private svm_parameter createParametrizationForLearning() {
 		svm_parameter parameters = new svm_parameter();
 		parameters.svm_type = svm_parameter.NU_SVC;
 		parameters.kernel_type = svm_parameter.POLY;
+		parameters.cache_size = 100;
+		parameters.eps = 0.00001;
+		parameters.nu = 0.5;
+		
 		return parameters;
 	}
 
@@ -55,7 +61,7 @@ public class Classificator {
 			convertedFeatureVectors.add(features);
 		}		
 		
-		data.x = (svm_node[][]) convertedFeatureVectors.toArray();		// Features in sparse representation
+		data.x = convertedFeatureVectors.toArray(new svm_node[][] {});		// Features in sparse representation
 		
 		return data;
 	}
@@ -67,8 +73,8 @@ public class Classificator {
 			feature.index = j;
 			feature.value = featureVector.getFeatureValues()[j];
 			features[j] = feature;
+			
 		}
-		
 		return Lable.valueOf(svm.svm_predict(model, features));
 	}
 }

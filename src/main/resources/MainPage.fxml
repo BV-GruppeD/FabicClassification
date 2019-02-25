@@ -97,9 +97,9 @@
                               </AnchorPane>
                               <AnchorPane prefHeight="200.0" prefWidth="200.0">
                                  <children>
-                                    <ScatterChart layoutX="42.0" layoutY="-28.0" prefHeight="372.0" prefWidth="584.0" title="Merkmal" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="5.0">
+                                    <ScatterChart fx:id="scatterChart" layoutX="42.0" layoutY="-28.0" prefHeight="372.0" prefWidth="584.0" title="Merkmal" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="5.0">
                                       <xAxis>
-                                        <CategoryAxis side="BOTTOM" />
+                                        <NumberAxis side="BOTTOM" />
                                       </xAxis>
                                       <yAxis>
                                         <NumberAxis side="LEFT" />

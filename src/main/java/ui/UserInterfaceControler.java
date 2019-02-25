@@ -4,9 +4,17 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
+
 import com.bv_gruppe_d.imagej.ImageData;
+import com.bv_gruppe_d.imagej.Lable;
+import com.sun.glass.ui.delegate.ClipboardDelegate;
+
+import classification.Classificator;
+import classification.FeatureVector;
 import ij.IJ;
 import javafx.fxml.FXML;
+import javafx.scene.chart.ScatterChart;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.image.Image;
@@ -22,9 +30,14 @@ public class UserInterfaceControler {
 	private ArrayList<ImageData> trainingsData;
 	private ArrayList<ImageData> testData;
 	private ImageData evalutationImage;
+	private Classificator classificator;
 	
 	@FXML
 	private ImageView evaluationImageView;
+	
+	@FXML
+	private ScatterChart<Number,Number> scatterChart;
+	
 	
 	/**
 	 * Takes a directory from the user and maps the images in the subfolders to labled 
@@ -35,6 +48,7 @@ public class UserInterfaceControler {
 		File upperDirectory = getDirectoryFromUser();		
 		trainingsData = ImageDataCreator.getLabledImageData(upperDirectory);
 	}
+	
 	
 	/**
 	 * Takes a directory from the user and maps the images in the subfolders to labled 
@@ -69,8 +83,17 @@ public class UserInterfaceControler {
 	private void testClassifier() {
 		if (testData == null) {
 			showNoTestDataDialog();
-		} else {
+		} else if(classificator == null){
 			showNoClassifierDialog();
+		} else {
+			// TODO: Add code for testing
+			FeatureVector[] testVectors = generateExampleFeatureVectors();
+			StringBuilder sb = new StringBuilder();
+			for (FeatureVector featureVector : testVectors) {
+				Lable result = classificator.testClassifier(featureVector);
+				sb.append("Vorgabe: " + featureVector.getLable().toString() + " - Ergebnis: " + result.toString() + "\r\n");
+			}
+			IJ.showMessage(sb.toString());
 		}
 	}
 
@@ -93,12 +116,18 @@ public class UserInterfaceControler {
 
 		alert.showAndWait();
 	}
-
 	
 	
 	@FXML
 	private void trainClassifier() {
-		showNoTrainingsDataDialog();
+		if (trainingsData == null) {
+			showNoTrainingsDataDialog();
+		} else {
+			// TODO: Add code for training
+			classificator = new Classificator();
+			classificator.learnClassifier(generateExampleFeatureVectors());
+			new FabricClassificationScatterChartPopulator(scatterChart).populateScatterChartWithExampleData();
+		}
 	}
 
 	private void showNoTrainingsDataDialog() {
@@ -129,5 +158,22 @@ public class UserInterfaceControler {
 		FileChooser.ExtensionFilter imageFilter = new FileChooser.ExtensionFilter("Image Files", "*.jpg", "*.png");
 		fileChooser.getExtensionFilters().add(imageFilter);
 		return fileChooser.showOpenDialog(null);
+	}
+		
+	private static FeatureVector[] generateExampleFeatureVectors() {
+		ArrayList<FeatureVector> exampleVectors = new ArrayList<>(Arrays.asList(
+				new FeatureVector(new double[] {1,1}, Lable.NO_STRETCH),
+				new FeatureVector(new double[] {1.05,0.95}, Lable.NO_STRETCH),
+				new FeatureVector(new double[] {2,1}, Lable.MEDIUM_STRETCH),
+				new FeatureVector(new double[] {2.05,0.95}, Lable.MEDIUM_STRETCH),
+				new FeatureVector(new double[] {3,1}, Lable.MAXIMUM_STRECH),
+				new FeatureVector(new double[] {3.05,0.95}, Lable.MAXIMUM_STRECH),
+				new FeatureVector(new double[] {1.05,0.2}, Lable.DISTURBANCE),
+				new FeatureVector(new double[] {1,0.1}, Lable.DISTURBANCE),
+				new FeatureVector(new double[] {0.5,1.5}, Lable.SHEARD),
+				new FeatureVector(new double[] {0.5,1.95}, Lable.SHEARD)
+				
+			));	
+		return exampleVectors.toArray(new FeatureVector[] {});
 	}
 }

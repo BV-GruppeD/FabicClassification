@@ -12,7 +12,7 @@ public enum Lable {
 	UNKNOWN(6.0);
 	
     private double numericRepresentation;
-    private static Map representationMapping = new HashMap<>();
+    private static Map<Double, Lable> representationMapping = new HashMap<>();
 
     Lable(double numericRepresentation) {
         this.numericRepresentation = numericRepresentation;
