@@ -8,8 +8,6 @@ import java.util.Arrays;
 
 import com.bv_gruppe_d.imagej.ImageData;
 import com.bv_gruppe_d.imagej.Lable;
-import com.sun.glass.ui.delegate.ClipboardDelegate;
-
 import classification.Classificator;
 import classification.FeatureVector;
 import ij.IJ;
