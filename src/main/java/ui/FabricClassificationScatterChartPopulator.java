@@ -10,8 +10,11 @@ import ij.IJ;
 import javafx.scene.chart.ScatterChart;
 import javafx.scene.chart.XYChart;
 
+/**
+ * Provides utility methods to visualize two features of classified or unclassified data samples 
+ * in ScatterChart.
+ */
 public class FabricClassificationScatterChartPopulator {
-
 
 	private ScatterChart<Number,Number> scatterChart;
 	
@@ -22,13 +25,21 @@ public class FabricClassificationScatterChartPopulator {
 	private XYChart.Series<Number, Number> seriesSheard;  
 	private XYChart.Series<Number, Number> seriesUnknown;
 	
-	
+	/**
+	 * Creates a new scatter chart populator and initializes the data series for each label used 
+	 * in this application.
+	 * 
+	 * @param scatterChart The ScatterChart object that is populated by this object.
+	 */
 	public FabricClassificationScatterChartPopulator(ScatterChart<Number, Number> scatterChart) {
 		this.scatterChart = scatterChart;
 		
 		initializeDataSeries(); 
 	}
 
+	/**
+	 * Initializes the data series corresponding to the data labels.
+	 */
 	private void initializeDataSeries() {
 		this.seriesNoStretch = new XYChart.Series<Number, Number>();
 		this.seriesMediumStretch = new XYChart.Series<Number, Number>();
@@ -44,26 +55,14 @@ public class FabricClassificationScatterChartPopulator {
 		seriesSheard.setName("Sheard");
 		seriesUnknown.setName("Unknown");
 	}
-
-	public void populateScatterChartWithExampleData() {
-		ArrayList<FeatureVector> exampleVectors = new ArrayList<>(Arrays.asList(
-				new FeatureVector(new double[] {1,1}, Lable.NO_STRETCH),
-				new FeatureVector(new double[] {1.05,0.95}, Lable.NO_STRETCH),
-				new FeatureVector(new double[] {2,1}, Lable.MEDIUM_STRETCH),
-				new FeatureVector(new double[] {2.05,0.95}, Lable.MEDIUM_STRETCH),
-				new FeatureVector(new double[] {3,1}, Lable.MAXIMUM_STRECH),
-				new FeatureVector(new double[] {3.05,0.95}, Lable.MAXIMUM_STRECH),
-				new FeatureVector(new double[] {1.05,0.2}, Lable.DISTURBANCE),
-				new FeatureVector(new double[] {1,0.1}, Lable.DISTURBANCE),
-				new FeatureVector(new double[] {0.5,1.5}, Lable.SHEARD),
-				new FeatureVector(new double[] {0.5,1.95}, Lable.SHEARD)
-				
-			));	
-		scatterChart.setTitle("Example data");
-		
-		populateScatterChart(exampleVectors.toArray(new FeatureVector[] {}),"Axis Ratio", "Number of Ellipses");
-	}
 	
+	/**
+	 * Adds all data points from the given array to this scatter chart. Only the two dimensional 
+	 * data is accepted.
+	 * @param featureVectors The features to be plotted.
+	 * @param xLabel The label for the x-Axis (First values in the vector)
+	 * @param yLabel The label for the y-Axis (Second values in the vector)
+	 */
 	public void populateScatterChart(FeatureVector[] featureVectors, String xLabel, String yLabel) {
 		
 		scatterChart.getXAxis().setLabel(xLabel);
@@ -79,7 +78,13 @@ public class FabricClassificationScatterChartPopulator {
 		}
 		addDataSeriesToChart();
 	}
-
+		
+	/**
+	 * Depending on the label of the feature vector the data point is added to the corresponding 
+	 * data series. The first value of the vector provides the x value. The second value of the 
+	 * vector provides the y value.
+	 * @param featureVector The feature containing the x and y values that are added to a series.
+	 */	
 	private void addVectorToCorrectSeries(FeatureVector featureVector) {
 		double[] values = featureVector.getFeatureValues();
 		switch (featureVector.getLable()) {
@@ -104,6 +109,10 @@ public class FabricClassificationScatterChartPopulator {
 		}
 	}
 	
+	/**
+	 * Adds the data sets to the scatter chart.
+	 */
+	@SuppressWarnings("unchecked")
 	private void addDataSeriesToChart() {
 		scatterChart.getData().addAll(seriesNoStretch);
 		scatterChart.getData().addAll(seriesMediumStretch);
@@ -111,5 +120,28 @@ public class FabricClassificationScatterChartPopulator {
 		scatterChart.getData().addAll(seriesDisturbance);
 		scatterChart.getData().addAll(seriesSheard);
 		scatterChart.getData().addAll(seriesUnknown);
+	}
+	
+	/**
+	 * ONLY FOR DEBUG PURPOSES
+	 * TODO: Delete after sufficient testing.
+	 */
+	public void populateScatterChartWithExampleData() {
+		ArrayList<FeatureVector> exampleVectors = new ArrayList<>(Arrays.asList(
+				new FeatureVector(new double[] {1,1}, Lable.NO_STRETCH),
+				new FeatureVector(new double[] {1.05,0.95}, Lable.NO_STRETCH),
+				new FeatureVector(new double[] {2,1}, Lable.MEDIUM_STRETCH),
+				new FeatureVector(new double[] {2.05,0.95}, Lable.MEDIUM_STRETCH),
+				new FeatureVector(new double[] {3,1}, Lable.MAXIMUM_STRECH),
+				new FeatureVector(new double[] {3.05,0.95}, Lable.MAXIMUM_STRECH),
+				new FeatureVector(new double[] {1.05,0.2}, Lable.DISTURBANCE),
+				new FeatureVector(new double[] {1,0.1}, Lable.DISTURBANCE),
+				new FeatureVector(new double[] {0.5,1.5}, Lable.SHEARD),
+				new FeatureVector(new double[] {0.5,1.95}, Lable.SHEARD)
+				
+			));	
+		scatterChart.setTitle("Example data");
+		
+		populateScatterChart(exampleVectors.toArray(new FeatureVector[] {}),"Axis Ratio", "Number of Ellipses");
 	}
 }

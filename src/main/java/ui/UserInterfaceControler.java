@@ -31,10 +31,16 @@ public class UserInterfaceControler {
 	private ArrayList<ImageData> testData;
 	private ImageData evalutationImage;
 	private Classificator classificator;
-	
+
+	/**
+	 * The ImageView object that is displayed on the MainPage.fxml
+	 */
 	@FXML
 	private ImageView evaluationImageView;
 	
+	/**
+	 * The ScatterChart object that is displayed on the MainPage.fxml
+	 */
 	@FXML
 	private ScatterChart<Number,Number> scatterChart;
 	
@@ -78,7 +84,9 @@ public class UserInterfaceControler {
 		}
 	}
 	
-	
+	/**
+	 * TODO: Add comment after all logic is implemented.
+	 */
 	@FXML
 	private void testClassifier() {
 		if (testData == null) {
@@ -97,6 +105,9 @@ public class UserInterfaceControler {
 		}
 	}
 
+	/**
+	 * Displays a dialog to the user to notify him that no classifier exists yet.
+	 */
 	private void showNoClassifierDialog() {
 		Alert alert = new Alert(AlertType.INFORMATION);
 		alert.setTitle("Keine Klassifizierer gefunden");
@@ -107,6 +118,9 @@ public class UserInterfaceControler {
 		alert.showAndWait();
 	}
 
+	/**
+	 * Displays a dialog to the user to notify him that no data for testing exists yet.
+	 */
 	private void showNoTestDataDialog() {
 		Alert alert = new Alert(AlertType.INFORMATION);
 		alert.setTitle("Keine Testdaten gefunden");
@@ -118,6 +132,9 @@ public class UserInterfaceControler {
 	}
 	
 	
+	/**
+	 * TODO: Add comment after all logic is added
+	 */
 	@FXML
 	private void trainClassifier() {
 		if (trainingsData == null) {
@@ -130,6 +147,9 @@ public class UserInterfaceControler {
 		}
 	}
 
+	/**
+	 * Displays a dialog to the user to notify him that no data for training exists yet.
+	 */
 	private void showNoTrainingsDataDialog() {
 		Alert alert = new Alert(AlertType.INFORMATION);
 		alert.setTitle("Keine Trainingsdaten gefunden.");
@@ -160,6 +180,12 @@ public class UserInterfaceControler {
 		return fileChooser.showOpenDialog(null);
 	}
 		
+	/**
+	 * FOR DEBUGGING PURPOSE ONLY
+	 * Returns an example set of feature vectors
+	 * TODO: Remove after application is sufficiently tested.
+	 * @return
+	 */
 	private static FeatureVector[] generateExampleFeatureVectors() {
 		ArrayList<FeatureVector> exampleVectors = new ArrayList<>(Arrays.asList(
 				new FeatureVector(new double[] {1,1}, Lable.NO_STRETCH),

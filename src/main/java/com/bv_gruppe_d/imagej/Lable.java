@@ -3,6 +3,9 @@ package com.bv_gruppe_d.imagej;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Provides the different labels that are used for data classification in this application.
+ */
 public enum Lable {
 	NO_STRETCH(1.0),
 	MEDIUM_STRETCH(2.0),
@@ -18,17 +21,27 @@ public enum Lable {
         this.numericRepresentation = numericRepresentation;
     }
 
+    /**
+     * Provides a numeric representation for this label.
+     * @return A double value that is mapped to this label.
+     */
     public double getNumericRepresentation() {
         return numericRepresentation;
     }
     
+    /**
+     * Creates a dictionary for reverse mapping of the numeric representation.
+     */
     static {
         for (Lable label: Lable.values()) {
             representationMapping.put(label.numericRepresentation, label);
         }
     }
 
-    public static Lable valueOf(double label) {
-        return (Lable) representationMapping.get(label);
+    /**
+     * Maps the provided numeric representation to the corresponding label.
+     */
+    public static Lable valueOf(double numericRepresentation) {
+        return (Lable) representationMapping.get(numericRepresentation);
     }
 }
