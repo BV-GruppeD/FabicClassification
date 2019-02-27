@@ -23,4 +23,8 @@ public class ImageData {
 	public Lable getLable() {
 		return this.lable;
 	}
+	
+	public ImageData duplicate() {
+		return new ImageData(imageProcessor.duplicate(), lable);
+	}
 }

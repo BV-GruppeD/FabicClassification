@@ -29,7 +29,7 @@
                                                       <Font size="22.0" />
                                                    </font>
                                                 </Label>
-                                                <Label layoutX="12.0" layoutY="125.0" prefHeight="70.0" prefWidth="393.0" text="Beachten sie die geforderte Ordnerstruktur">
+                                                <Label layoutX="12.0" layoutY="125.0" prefHeight="70.0" prefWidth="393.0" text="Beachten Sie die geforderte Ordnerstruktur">
                                                    <font>
                                                       <Font size="16.0" />
                                                    </font>
@@ -45,7 +45,7 @@
                                                       <Font size="22.0" />
                                                    </font>
                                                 </Label>
-                                                <Label layoutX="13.0" layoutY="125.0" prefHeight="70.0" prefWidth="393.0" text="Beachten sie die geforderte Ordnerstruktur">
+                                                <Label layoutX="13.0" layoutY="125.0" prefHeight="70.0" prefWidth="393.0" text="Beachten Sie die geforderte Ordnerstruktur">
                                                    <font>
                                                       <Font size="16.0" />
                                                    </font>

@@ -18,7 +18,7 @@ public class HoughTransformation {
 	private final double accumulatorAccuracy;
 	private final double minMajor, maxMajor;
 	private final double minMinor, maxMinor;
-	private static final boolean DEBUG = true;
+	private static final boolean DEBUG = false;
 
 	public HoughTransformation(int accumulatorThreshold, double accumulatorAccuracy, int min, int max) {
 		minMajor = min;
@@ -53,26 +53,30 @@ public class HoughTransformation {
 			Thread t = new Thread() {
 				public void run() {
 					ArrayList<EllipsisData> ellipsisList = findEllipsis(segment);
+					if (!ellipsisList.isEmpty()) {
+						int draw = 1;
+						Collections.sort(ellipsisList);
+						synchronized (lock) {
+							// Use the best candidate
+							foundEllipsisList.add(ellipsisList.get(0));
 
-					int draw = 1;
-					Collections.sort(ellipsisList);
-					synchronized (lock) {
-						// Use the best candidate
-						foundEllipsisList.add(ellipsisList.get(0));
+							if (DEBUG) {
+								System.out.println(ellipsisList.size() + " results");
 
-						if (DEBUG) {
-							System.out.println(ellipsisList.size() + " results");
+								int cnt = Math.min(ellipsisList.size(), 3);
+								for (int i = 0; i < cnt; ++i) {
+									System.out.println("=================================================");
+									EllipsisData e = ellipsisList.get(i);
 
-							int cnt = Math.min(ellipsisList.size(), 3);
-							for (int i = 0; i < cnt; ++i) {
-								System.out.println("=================================================");
-								EllipsisData e = ellipsisList.get(i);
-
-								if (i < draw) {
-									e.drawTo(imageData.getImageProcessor());
+									if (i < draw) {
+										e.drawTo(imageData.getImageProcessor());
+									}
+									System.out.println(e.center + " " + e.a + "," + e.b + " " + e.orientation
+											+ "  vote_count=" + e.accumulator + " removed=" + e.removed);
 								}
-								System.out.println(e.center + " " + e.a + "," + e.b + " " + e.orientation
-										+ "  vote_count=" + e.accumulator + " removed=" + e.removed);
+							}else {
+								System.out.print(".");
+								System.out.flush();
 							}
 						}
 					}
@@ -94,6 +98,7 @@ public class HoughTransformation {
 				e.printStackTrace();
 			}
 		}
+		System.out.println("Hough done");
 		return foundEllipsisList;
 	}
 

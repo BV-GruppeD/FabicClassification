@@ -50,7 +50,7 @@ public class FeatureExtractor {
 			return values.get(center);
 		} else {
 			// even
-			return 0.5 * (values.get(center) + values.get(center + 1));
+			return 0.5 * (values.get(center - 1) + values.get(center));
 		}
 	}
 }
