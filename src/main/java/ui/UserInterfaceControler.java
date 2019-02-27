@@ -154,10 +154,10 @@ public class UserInterfaceControler {
 		if (trainingsData == null) {
 			showNoTrainingsDataDialog();
 		} else {
-			// TODO: Add code for training
+			FeatureVector[] vectors = generateFeatureVectors(trainingsData);
 			classificator = new Classificator();
-			classificator.learnClassifier(generateFeatureVectors(trainingsData));
-			new FabricClassificationScatterChartPopulator(scatterChart).populateScatterChartWithExampleData();
+			classificator.learnClassifier(vectors);
+			new FabricClassificationScatterChartPopulator(scatterChart).populateScatterChartWithData(vectors);
 		}
 	}
 
