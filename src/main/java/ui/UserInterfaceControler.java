@@ -334,26 +334,47 @@ public class UserInterfaceControler {
 	}
 	
 	@FXML
-	private void saveFeatureVectors() {
+	private void saveTrainingFeatureVectors() {
+		saveFeatureVector(trainingsFeatureVectors, "StoffklassifizierungTrainingFeatures.txt");
+	}
+
+	private void saveFeatureVector(FeatureVector[] vectors, String filename) {
 		try (ObjectOutputStream stream = new ObjectOutputStream(new FileOutputStream(
 				new File(System.getProperty("user.home"), "StoffklassifizierungFeatures.txt")))){
-			stream.writeObject(trainingsFeatureVectors);
+			stream.writeObject(vectors);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 	
 	@FXML
-	private void loadFeatureVectors() {
-		try (ObjectInputStream stream = new ObjectInputStream(
-				new FileInputStream(new File(System.getProperty("user.home"), "StoffklassifizierungFeatures.txt")))){
-			trainingsFeatureVectors = (FeatureVector[]) stream.readObject();
+	private void saveTestFeatureVectors() {
+		saveFeatureVector(testFeatureVectors, "StoffklassifizierungTestFeatures.txt");
+	}
+	
+	@FXML
+	private void loadTrainingFeatureVectors() {
+		trainingsFeatureVectors = loadFeatureVector("StoffklassifizierungTrainingFeatures.txt");
+		if (trainingsFeatureVectors != null) {
 			initializeScatterPlot();
+		}
+	}
+
+	private FeatureVector[] loadFeatureVector(String filename) {
+		FeatureVector[] vectors = null;
+		try (ObjectInputStream stream = new ObjectInputStream(
+				new FileInputStream(new File(System.getProperty("user.home"), filename)))){
+			vectors = (FeatureVector[]) stream.readObject();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		return vectors;
 	}
 	
+	@FXML
+	private void loadTestFeatureVectors() {
+		testFeatureVectors = loadFeatureVector("StoffklassifizierungTestFeatures.txt");
+	}
 
 	/*
 	 * // FOR DEBUGGING PURPOSE ONLY // Returns an example set of feature vectors //
