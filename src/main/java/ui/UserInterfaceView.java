@@ -38,7 +38,7 @@ public class UserInterfaceView {
      */
     private void createSwingComponentsForUI() {
         JFrame frame = new JFrame("Stoffklassifikation");
-        frame.setMinimumSize(new Dimension(1200,920));
+        frame.setMinimumSize(new Dimension(1280,920));
         final JFXPanel fxPanel = new JFXPanel();
         frame.add(fxPanel);
         frame.setVisible(true);
