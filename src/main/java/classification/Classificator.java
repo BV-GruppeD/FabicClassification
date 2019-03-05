@@ -40,7 +40,6 @@ public class Classificator {
 		// A library provided check for the integrety of the parameters
 		String parameterCheck = svm.svm_check_parameter(data, parameters);
 		if(parameterCheck == null) {
-			IJ.showMessage("Klassifiziere wird trainiert.");
 			model = svm.svm_train(data, parameters);
 			IJ.showMessage("Training Done.");
 		} else {
@@ -57,7 +56,7 @@ public class Classificator {
 	private svm_parameter createParametrizationForLearning() {
 		svm_parameter parameters = new svm_parameter();
 		parameters.svm_type = svm_parameter.NU_SVC;
-		parameters.kernel_type = svm_parameter.POLY;
+		parameters.kernel_type = svm_parameter.RBF;
 		parameters.cache_size = 100;
 		parameters.eps = 0.00001;
 		parameters.nu = 0.5;

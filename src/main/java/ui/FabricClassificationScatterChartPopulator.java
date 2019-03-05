@@ -25,6 +25,9 @@ public class FabricClassificationScatterChartPopulator {
 	private XYChart.Series<Number, Number> seriesSheard;
 	private XYChart.Series<Number, Number> seriesUnknown;
 
+	private int xIndex;
+	private int yIndex;
+	
 	/**
 	 * Creates a new scatter chart populator and initializes the data series for
 	 * each label used in this application.
@@ -33,7 +36,8 @@ public class FabricClassificationScatterChartPopulator {
 	 */
 	public FabricClassificationScatterChartPopulator(ScatterChart<Number, Number> scatterChart) {
 		this.scatterChart = scatterChart;
-
+		scatterChart.getData().clear();
+		
 		initializeDataSeries();
 	}
 
@@ -91,22 +95,22 @@ public class FabricClassificationScatterChartPopulator {
 		double[] values = featureVector.getFeatureValues();
 		switch (featureVector.getLable()) {
 		case NO_STRETCH:
-			seriesNoStretch.getData().add(new XYChart.Data<Number, Number>(values[0], values[1]));
+			seriesNoStretch.getData().add(new XYChart.Data<Number, Number>(values[xIndex], values[yIndex]));
 			break;
 		case MEDIUM_STRETCH:
-			seriesMediumStretch.getData().add(new XYChart.Data<Number, Number>(values[0], values[1]));
+			seriesMediumStretch.getData().add(new XYChart.Data<Number, Number>(values[xIndex], values[yIndex]));
 			break;
 		case MAXIMUM_STRECH:
-			seriesMaximumStretch.getData().add(new XYChart.Data<Number, Number>(values[0], values[1]));
+			seriesMaximumStretch.getData().add(new XYChart.Data<Number, Number>(values[xIndex], values[yIndex]));
 			break;
 		case DISTURBANCE:
-			seriesDisturbance.getData().add(new XYChart.Data<Number, Number>(values[0], values[1]));
+			seriesDisturbance.getData().add(new XYChart.Data<Number, Number>(values[xIndex], values[yIndex]));
 			break;
 		case SHEARD:
-			seriesSheard.getData().add(new XYChart.Data<Number, Number>(values[0], values[1]));
+			seriesSheard.getData().add(new XYChart.Data<Number, Number>(values[xIndex], values[yIndex]));
 			break;
 		default:
-			seriesUnknown.getData().add(new XYChart.Data<Number, Number>(values[0], values[1]));
+			seriesUnknown.getData().add(new XYChart.Data<Number, Number>(values[xIndex], values[yIndex]));
 			break;
 		}
 	}
@@ -128,5 +132,13 @@ public class FabricClassificationScatterChartPopulator {
 		scatterChart.setTitle("Training data");
 
 		populateScatterChart(vectors, "Axis Ratio", "Ellipsis Area");
+	}
+
+	public void setXIndex(int index) {
+		this.xIndex = index;
+	}
+
+	public void setYIndex(int index) {
+		this.yIndex = index;
 	}
 }

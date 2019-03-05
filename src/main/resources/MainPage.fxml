@@ -29,13 +29,14 @@
                                                       <Font size="22.0" />
                                                    </font>
                                                 </Label>
-                                                <Label layoutX="12.0" layoutY="125.0" prefHeight="70.0" prefWidth="393.0" text="Beachten Sie die geforderte Ordnerstruktur">
+                                                <Label layoutX="12.0" layoutY="144.0" prefHeight="51.0" prefWidth="393.0" text="Beachten Sie die geforderte Ordnerstruktur">
                                                    <font>
                                                       <Font size="16.0" />
                                                    </font>
                                                 </Label>
                                                 <Button fx:id="readTrainingsData" layoutX="281.0" layoutY="14.0" mnemonicParsing="false" onAction="#readLabledTrainingsData" prefHeight="30.0" prefWidth="124.0" text="..." textAlignment="CENTER" />
                                                 <Button fx:id="trainClassifierBtn" layoutX="111.0" layoutY="88.0" mnemonicParsing="false" onAction="#trainClassifier" text="Trainiere Klassifizierer" />
+                                                <ProgressBar fx:id="trainingProgressBar" layoutX="111.0" layoutY="127.0" prefHeight="9.0" prefWidth="196.0" progress="0.0" />
                                              </children>
                                           </AnchorPane>
                                         <AnchorPane minHeight="-Infinity" minWidth="0.0" prefHeight="150.0" prefWidth="160.0">
@@ -45,13 +46,14 @@
                                                       <Font size="22.0" />
                                                    </font>
                                                 </Label>
-                                                <Label layoutX="13.0" layoutY="125.0" prefHeight="70.0" prefWidth="393.0" text="Beachten Sie die geforderte Ordnerstruktur">
+                                                <Label layoutX="13.0" layoutY="143.0" prefHeight="52.0" prefWidth="393.0" text="Beachten Sie die geforderte Ordnerstruktur">
                                                    <font>
                                                       <Font size="16.0" />
                                                    </font>
                                                 </Label>
                                                 <Button fx:id="readTestData" layoutX="279.0" layoutY="14.0" mnemonicParsing="false" onAction="#readLabledTestData" prefHeight="29.0" prefWidth="124.0" text="..." />
                                                 <Button fx:id="testClassifierBtn" layoutX="114.0" layoutY="88.0" mnemonicParsing="false" onAction="#testClassifier" prefHeight="39.0" prefWidth="196.0" text="Teste Klassifizierer" />
+                                                <ProgressBar fx:id="testProgressBar" layoutX="114.0" layoutY="127.0" prefHeight="9.0" prefWidth="196.0" progress="0.0" />
                                              </children>
                                           </AnchorPane>
                                       </items>
@@ -74,8 +76,8 @@
                                           </AnchorPane>
                                         <AnchorPane maxHeight="-Infinity" minHeight="-Infinity" minWidth="0.0" prefHeight="90.0" prefWidth="443.0">
                                              <children>
-                                                <Button layoutX="49.0" layoutY="21.0" mnemonicParsing="false" prefHeight="39.0" prefWidth="124.0" text="Laden" AnchorPane.leftAnchor="49.0" />
-                                                <Button layoutX="269.0" layoutY="21.0" mnemonicParsing="false" prefHeight="39.0" prefWidth="124.0" text="Speichern" AnchorPane.rightAnchor="50.0" />
+                                                <Button fx:id="loadFeatures" layoutX="49.0" layoutY="21.0" mnemonicParsing="false" onAction="#loadFeatureVectors" prefHeight="39.0" prefWidth="124.0" text="Laden" AnchorPane.leftAnchor="49.0" />
+                                                <Button fx:id="saveFeatures" layoutX="269.0" layoutY="21.0" mnemonicParsing="false" onAction="#saveFeatureVectors" prefHeight="39.0" prefWidth="124.0" text="Speichern" AnchorPane.rightAnchor="50.0" />
                                              </children>
                                           </AnchorPane>
                                       </items>
@@ -97,14 +99,30 @@
                               </AnchorPane>
                               <AnchorPane prefHeight="200.0" prefWidth="200.0">
                                  <children>
-                                    <ScatterChart fx:id="scatterChart" layoutX="42.0" layoutY="-28.0" prefHeight="372.0" prefWidth="584.0" title="Merkmal" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="5.0">
-                                      <xAxis>
-                                        <NumberAxis side="BOTTOM" />
-                                      </xAxis>
-                                      <yAxis>
-                                        <NumberAxis side="LEFT" />
-                                      </yAxis>
-                                    </ScatterChart>
+                                    <SplitPane dividerPositions="0.09880239520958084" orientation="VERTICAL" prefHeight="336.0" prefWidth="639.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                      <items>
+                                        <AnchorPane maxHeight="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="40.0" prefWidth="160.0">
+                                             <children>
+                                                <ComboBox layoutX="169.0" layoutY="1.0" onAction="#updateScatterChart" prefWidth="150.0" fx:id="xValuesPicker" />
+                                                <ComboBox fx:id="yValuesPicker" layoutX="487.0" layoutY="1.0" onAction="#updateScatterChart" prefWidth="150.0" />
+                                                <Label layoutX="80.0" layoutY="7.0" prefHeight="27.0" prefWidth="89.0" text="X Values:" />
+                                                <Label layoutX="398.0" layoutY="7.0" prefHeight="27.0" prefWidth="89.0" text="Y Values:" />
+                                             </children>
+                                          </AnchorPane>
+                                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
+                                             <children>
+                                                <ScatterChart fx:id="scatterChart" prefHeight="372.0" prefWidth="584.0" title="Merkmal">
+                                                  <xAxis>
+                                                    <NumberAxis side="BOTTOM" />
+                                                  </xAxis>
+                                                  <yAxis>
+                                                    <NumberAxis side="LEFT" />
+                                                  </yAxis>
+                                                </ScatterChart>
+                                             </children>
+                                          </AnchorPane>
+                                      </items>
+                                    </SplitPane>
                                  </children>
                               </AnchorPane>
                           </items>

@@ -1,7 +1,11 @@
 package ui;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -14,10 +18,15 @@ import classification.FeatureVector;
 import classification.HoughTransformation;
 import ij.IJ;
 import ij.process.ImageProcessor;
+import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.chart.ScatterChart;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.DirectoryChooser;
@@ -32,7 +41,9 @@ import preprocessing.MorphologicalFiltering;
 public class UserInterfaceControler {
 
 	private ArrayList<ImageData> trainingsData;
+	private FeatureVector[] trainingsFeatureVectors;
 	private ArrayList<ImageData> testData;
+	private FeatureVector[] testFeatureVectors;
 	private ImageData evalutationImage;
 	private Classificator classificator;
 
@@ -48,6 +59,17 @@ public class UserInterfaceControler {
 	@FXML
 	private ScatterChart<Number, Number> scatterChart;
 
+	@FXML
+	private ProgressBar trainingProgressBar;
+	@FXML
+	private ProgressBar testProgressBar;
+	
+	@FXML
+	private ComboBox<Integer> yValuesPicker;
+	
+	@FXML
+	private ComboBox<Integer> xValuesPicker;
+	
 	/**
 	 * Takes a directory from the user and maps the images in the subfolders to
 	 * labled ImageData objects representing the trainings data for a classifier.
@@ -85,15 +107,34 @@ public class UserInterfaceControler {
 			if (classificator == null) {
 				showNoClassifierDialog();
 			} else {
-				ArrayList<ImageData> images = new ArrayList<>(1);
-				images.add(evalutationImage);
-				FeatureVector[] testVectors = generateFeatureVectors(images);
-				Lable result = classificator.testClassifier(testVectors[0]);
+				FeatureVector evaluationFeatureVector = generateEvaluationFeatureVector(evalutationImage);
+				Lable result = classificator.testClassifier(evaluationFeatureVector);
 				IJ.showMessage("Ergebnis: " + result);
 			}
 		} catch (IOException e) {
 			IJ.showMessage(e.getMessage());
 		}
+	}
+
+	private FeatureVector generateEvaluationFeatureVector(ImageData image) {
+		HoughTransformation ht = new HoughTransformation(2, 1.0, 4, 100);
+		FeatureExtractor fe = new FeatureExtractor();
+		Binarization bin = new Binarization();
+		MorphologicalFiltering mf = new MorphologicalFiltering();
+		
+		ImageData processImage = image.duplicate();// do not modify the original
+		// Processing the whole image takes waaaay toooo looong for testing, so we just
+		// use a part
+		// this might screw up the error detection
+		processImage.getImageProcessor().setRoi(0, 0, 200, 200);
+		processImage = new ImageData(processImage.getImageProcessor().crop(), processImage.getLable());
+					
+		// TODO @Daniel your code here: is this correct?
+		// Preprocessing
+		bin.execute(processImage);
+		mf.execute(processImage);
+
+		return fe.execute(image, ht.execute(image));	
 	}
 
 	/**
@@ -107,15 +148,30 @@ public class UserInterfaceControler {
 			showNoClassifierDialog();
 		} else {
 			// TODO: Add code for testing
-			FeatureVector[] testVectors = generateFeatureVectors(testData);
-			StringBuilder sb = new StringBuilder();
-			for (FeatureVector featureVector : testVectors) {
-				Lable result = classificator.testClassifier(featureVector);
-				sb.append("Vorgabe: " + featureVector.getLable().toString() + " - Ergebnis: " + result.toString()
-						+ "\r\n");
-			}
-			IJ.showMessage(sb.toString());
+			generateTestFeatures(testData);
 		}
+	}
+
+	private void generateTestFeatures(ArrayList<ImageData> images) {
+		
+		new Thread(){
+            public void run() {
+            	FeatureVector[] vectors = executeImageProcessingPipe(images, testProgressBar);
+            	testFeatureVectors = vectors;
+        		Platform.runLater(() -> testProgressBar.setProgress(0));
+        		Platform.runLater(()-> classifiy());
+            }
+
+			private void classifiy() {
+				StringBuilder sb = new StringBuilder();
+				for (FeatureVector featureVector : testFeatureVectors) {
+					Lable result = classificator.testClassifier(featureVector);
+					sb.append("Vorgabe: " + featureVector.getLable().toString() + " - Ergebnis: " + result.toString()
+							+ "\r\n");
+				}
+				IJ.showMessage(sb.toString());
+			}
+        }.start();
 	}
 
 	/**
@@ -151,14 +207,82 @@ public class UserInterfaceControler {
 	 */
 	@FXML
 	private void trainClassifier() {
-		if (trainingsData == null) {
-			showNoTrainingsDataDialog();
+		if (trainingsData != null) {
+			generateTrainingsFeatures(trainingsData);			
+		} else if(trainingsFeatureVectors != null) {
+			createClassificator();
 		} else {
-			FeatureVector[] vectors = generateFeatureVectors(trainingsData);
-			classificator = new Classificator();
-			classificator.learnClassifier(vectors);
-			new FabricClassificationScatterChartPopulator(scatterChart).populateScatterChartWithData(vectors);
+			showNoTrainingsDataDialog();
 		}
+	}
+
+	
+	private void generateTrainingsFeatures(ArrayList<ImageData> images) {
+		
+		new Thread(){
+            public void run() {
+            	FeatureVector[] vectors = executeImageProcessingPipe(images, trainingProgressBar);
+        		trainingsFeatureVectors = vectors;
+        		Platform.runLater(() -> trainingProgressBar.setProgress(0));
+        		Platform.runLater(()-> createClassificator());
+            }
+        }.start();
+	}
+	
+	private final void createClassificator() {
+		classificator = new Classificator();
+		classificator.learnClassifier(trainingsFeatureVectors);
+		
+		initializeScatterPlot();
+	}
+	
+	/**
+	 * @return Returns an set of feature vectors corresponding to the given images
+	 */
+	private FeatureVector[] executeImageProcessingPipe(ArrayList<ImageData> images, ProgressBar progress) {
+		FeatureVector[] vectors = new FeatureVector[images.size()];
+    	HoughTransformation ht = new HoughTransformation(2, 1.0, 4, 100);
+		FeatureExtractor fe = new FeatureExtractor();
+		Binarization bin = new Binarization();
+		MorphologicalFiltering mf = new MorphologicalFiltering();
+
+		
+		for (int i = 0; i < vectors.length; ++i) {
+			final double vectorNumber = (double)i;
+			Platform.runLater(() -> progress.setProgress(vectorNumber/vectors.length));
+			
+			ImageData image = images.get(i).duplicate();// do not modify the original
+			// Processing the whole image takes waaaay toooo looong for testing, so we just
+			// use a part
+			// this might screw up the error detection
+			image.getImageProcessor().setRoi(0, 0, 200, 200);
+			image = new ImageData(image.getImageProcessor().crop(), image.getLable());
+
+			// TODO @Daniel your code here: is this correct?
+			// Preprocessing
+			bin.execute(image);
+			mf.execute(image);
+
+			// HoughTransformation and feature extraction
+			vectors[i] = fe.execute(image, ht.execute(image));
+		}
+		return vectors;
+	}
+	
+	private void initializeScatterPlot() {
+		ObservableList<Integer> featureDimensions = FXCollections.observableArrayList();
+		for (int i = 0; i < trainingsFeatureVectors[0].getFeatureValues().length; i++) {
+			featureDimensions.add(i);
+		}
+		xValuesPicker.setItems(featureDimensions);
+		xValuesPicker.setValue(0);
+		yValuesPicker.setItems(featureDimensions);
+		yValuesPicker.setValue(1);
+		
+		FabricClassificationScatterChartPopulator populator = new FabricClassificationScatterChartPopulator(scatterChart);
+		populator.setXIndex(0);
+		populator.setYIndex(1);
+		populator.populateScatterChartWithData(trainingsFeatureVectors);
 	}
 
 	/**
@@ -198,50 +322,56 @@ public class UserInterfaceControler {
 		return fileChooser.showOpenDialog(null);
 	}
 
-	/**
-	 * @return Returns an set of feature vectors corresponding to the given images
-	 */
-	private static FeatureVector[] generateFeatureVectors(ArrayList<ImageData> images) {
-		HoughTransformation ht = new HoughTransformation(2, 1.0, 4, 100);
-		FeatureExtractor fe = new FeatureExtractor();
-		Binarization bin = new Binarization();
-		MorphologicalFiltering mf = new MorphologicalFiltering();
+	
+	
+	@FXML
+	private void updateScatterChart() {
+		FabricClassificationScatterChartPopulator populator = new FabricClassificationScatterChartPopulator(scatterChart);
+		populator.setXIndex((xValuesPicker.getValue() != null)? xValuesPicker.getValue():0);
+		populator.setYIndex((yValuesPicker.getValue() != null)? yValuesPicker.getValue():1);
+		populator.populateScatterChartWithData(trainingsFeatureVectors);
 
-		FeatureVector[] vectors = new FeatureVector[images.size()];
-		for (int i = 0; i < vectors.length; ++i) {
-			ImageData image = images.get(i).duplicate();// do not modify the original
-			// Processing the whole image takes waaaay toooo looong for testing, so we just
-			// use a part
-			// this might screw up the error detection
-			image.getImageProcessor().setRoi(0, 0, 200, 200);
-			image = new ImageData(image.getImageProcessor().crop(), image.getLable());
-
-			// TODO @Daniel your code here: is this correct?
-			// Preprocessing
-			bin.execute(image);
-			mf.execute(image);
-
-			// HoughTransformation and feature extraction
-			vectors[i] = fe.execute(image, ht.execute(image));
-		}
-		return vectors;
-
-		/*
-		 * // FOR DEBUGGING PURPOSE ONLY // Returns an example set of feature vectors //
-		 * TODO: Remove after application is sufficiently tested.
-		 * 
-		 * ArrayList<FeatureVector> exampleVectors = new ArrayList<>( Arrays.asList(new
-		 * FeatureVector(new double[] { 1, 1 }, Lable.NO_STRETCH), new FeatureVector(new
-		 * double[] { 1.05, 0.95 }, Lable.NO_STRETCH), new FeatureVector(new double[] {
-		 * 2, 1 }, Lable.MEDIUM_STRETCH), new FeatureVector(new double[] { 2.05, 0.95 },
-		 * Lable.MEDIUM_STRETCH), new FeatureVector(new double[] { 3, 1 },
-		 * Lable.MAXIMUM_STRECH), new FeatureVector(new double[] { 3.05, 0.95 },
-		 * Lable.MAXIMUM_STRECH), new FeatureVector(new double[] { 1.05, 0.2 },
-		 * Lable.DISTURBANCE), new FeatureVector(new double[] { 1, 0.1 },
-		 * Lable.DISTURBANCE), new FeatureVector(new double[] { 0.5, 1.5 },
-		 * Lable.SHEARD), new FeatureVector(new double[] { 0.5, 1.95 }, Lable.SHEARD)
-		 * 
-		 * )); return exampleVectors.toArray(new FeatureVector[] {});//
-		 */
 	}
+	
+	@FXML
+	private void saveFeatureVectors() {
+		try (ObjectOutputStream stream = new ObjectOutputStream(new FileOutputStream(
+				new File(System.getProperty("user.home"), "StoffklassifizierungFeatures.txt")))){
+			stream.writeObject(trainingsFeatureVectors);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	@FXML
+	private void loadFeatureVectors() {
+		try (ObjectInputStream stream = new ObjectInputStream(
+				new FileInputStream(new File(System.getProperty("user.home"), "StoffklassifizierungFeatures.txt")))){
+			trainingsFeatureVectors = (FeatureVector[]) stream.readObject();
+			initializeScatterPlot();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+
+	/*
+	 * // FOR DEBUGGING PURPOSE ONLY // Returns an example set of feature vectors //
+	 * TODO: Remove after application is sufficiently tested.
+	 * 
+	 * ArrayList<FeatureVector> exampleVectors = new ArrayList<>( Arrays.asList(new
+	 * FeatureVector(new double[] { 1, 1 }, Lable.NO_STRETCH), new FeatureVector(new
+	 * double[] { 1.05, 0.95 }, Lable.NO_STRETCH), new FeatureVector(new double[] {
+	 * 2, 1 }, Lable.MEDIUM_STRETCH), new FeatureVector(new double[] { 2.05, 0.95 },
+	 * Lable.MEDIUM_STRETCH), new FeatureVector(new double[] { 3, 1 },
+	 * Lable.MAXIMUM_STRECH), new FeatureVector(new double[] { 3.05, 0.95 },
+	 * Lable.MAXIMUM_STRECH), new FeatureVector(new double[] { 1.05, 0.2 },
+	 * Lable.DISTURBANCE), new FeatureVector(new double[] { 1, 0.1 },
+	 * Lable.DISTURBANCE), new FeatureVector(new double[] { 0.5, 1.5 },
+	 * Lable.SHEARD), new FeatureVector(new double[] { 0.5, 1.95 }, Lable.SHEARD)
+	 * 
+	 * )); return exampleVectors.toArray(new FeatureVector[] {});//
+	 */
+
+
 }
