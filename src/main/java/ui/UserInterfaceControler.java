@@ -142,13 +142,14 @@ public class UserInterfaceControler {
 	 */
 	@FXML
 	private void testClassifier() {
-		if (testData == null) {
-			showNoTestDataDialog();
+		if (testData != null && classificator != null) {
+			generateTestFeatures(testData);
+		} else if (testFeatureVectors != null && classificator != null) {
+			classifiy();
 		} else if (classificator == null) {
 			showNoClassifierDialog();
-		} else {
-			// TODO: Add code for testing
-			generateTestFeatures(testData);
+		} else if (testData == null) {
+			showNoTestDataDialog();
 		}
 	}
 
@@ -161,19 +162,19 @@ public class UserInterfaceControler {
         		Platform.runLater(() -> testProgressBar.setProgress(0));
         		Platform.runLater(()-> classifiy());
             }
-
-			private void classifiy() {
-				StringBuilder sb = new StringBuilder();
-				for (FeatureVector featureVector : testFeatureVectors) {
-					Lable result = classificator.testClassifier(featureVector);
-					sb.append("Vorgabe: " + featureVector.getLable().toString() + " - Ergebnis: " + result.toString()
-							+ "\r\n");
-				}
-				IJ.showMessage(sb.toString());
-			}
         }.start();
 	}
 
+	private void classifiy() {
+		StringBuilder sb = new StringBuilder();
+		for (FeatureVector featureVector : testFeatureVectors) {
+			Lable result = classificator.testClassifier(featureVector);
+			sb.append("Vorgabe: " + featureVector.getLable().toString() + " - Ergebnis: " + result.toString()
+					+ "\r\n");
+		}
+		IJ.showMessage(sb.toString());
+	}
+	
 	/**
 	 * Displays a dialog to the user to notify him that no classifier exists yet.
 	 */
@@ -342,6 +343,7 @@ public class UserInterfaceControler {
 		try (ObjectOutputStream stream = new ObjectOutputStream(new FileOutputStream(
 				new File(System.getProperty("user.home"), "StoffklassifizierungFeatures.txt")))){
 			stream.writeObject(vectors);
+			IJ.showMessage("Feature Vectors gespeichert.");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -365,6 +367,7 @@ public class UserInterfaceControler {
 		try (ObjectInputStream stream = new ObjectInputStream(
 				new FileInputStream(new File(System.getProperty("user.home"), filename)))){
 			vectors = (FeatureVector[]) stream.readObject();
+			IJ.showMessage("Feature Vectors geladen.");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -374,6 +377,7 @@ public class UserInterfaceControler {
 	@FXML
 	private void loadTestFeatureVectors() {
 		testFeatureVectors = loadFeatureVector("StoffklassifizierungTestFeatures.txt");
+		
 	}
 
 	/*
