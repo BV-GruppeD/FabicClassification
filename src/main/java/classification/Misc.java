@@ -1,8 +1,6 @@
 package classification;
 
 import java.util.ArrayList;
-import java.util.Collections;
-
 import ij.process.ImageProcessor;
 
 public class Misc {

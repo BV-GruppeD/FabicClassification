@@ -2,11 +2,7 @@ package test;
 
 import test.DilateAndErode;
 
-import java.awt.Point;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-
 import com.bv_gruppe_d.imagej.ImageData;
 
 import classification.FeatureExtractor;
@@ -15,7 +11,6 @@ import classification.HoughTransformation;
 import ij.ImagePlus;
 import ij.plugin.filter.PlugInFilter;
 import ij.process.ImageProcessor;
-import preprocessing.Segmenter;
 import test.DilateAndErode.StructureElement;
 import classification.Misc.*;
 

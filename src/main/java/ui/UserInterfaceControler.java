@@ -8,8 +8,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
-
 import com.bv_gruppe_d.imagej.ImageData;
 import com.bv_gruppe_d.imagej.Lable;
 import classification.Classificator;
@@ -17,7 +15,6 @@ import classification.FeatureExtractor;
 import classification.FeatureVector;
 import classification.HoughTransformation;
 import ij.IJ;
-import ij.process.ImageProcessor;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;

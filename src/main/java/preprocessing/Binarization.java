@@ -1,7 +1,6 @@
 package preprocessing;
 
 import com.bv_gruppe_d.imagej.ImageData;
-import ij.process.AutoThresholder;
 import ij.process.ImageProcessor;
 
 public class Binarization implements IPreprocessingOperation {

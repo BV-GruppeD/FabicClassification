@@ -1,10 +1,5 @@
 package ui;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-
-import com.bv_gruppe_d.imagej.Lable;
-
 import classification.FeatureVector;
 import ij.IJ;
 import javafx.scene.chart.ScatterChart;
