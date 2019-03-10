@@ -338,7 +338,7 @@ public class UserInterfaceControler {
 
 	private void saveFeatureVector(FeatureVector[] vectors, String filename) {
 		try (ObjectOutputStream stream = new ObjectOutputStream(new FileOutputStream(
-				new File(System.getProperty("user.home"), "StoffklassifizierungFeatures.txt")))){
+				new File(System.getProperty("user.home"), filename)))){
 			stream.writeObject(vectors);
 			IJ.showMessage("Feature Vectors gespeichert.");
 		} catch (Exception e) {
