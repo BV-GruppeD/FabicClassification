@@ -26,6 +26,8 @@ public class Classificator {
 	
 	private svm_model model;
 	
+	private double[] scalingFaktor;
+	
 	/**
 	 * Initializes the classifier and optimizes a multi-class support vector machine to fit the 
 	 * provided data. The one-versus-one approach is used internally.
@@ -34,8 +36,8 @@ public class Classificator {
 	 */
 	public void learnClassifier(FeatureVector[] featureVectors) {
 		svm_parameter parameters = createParametrizationForLearning();
-		
-		svm_problem data = createDataFormatForLearning(featureVectors);
+		FeatureVector[] scaledFeatureVectors = getScaledVectors(featureVectors);
+		svm_problem data = createDataFormatForLearning(scaledFeatureVectors);
 		
 		// A library provided check for the integrety of the parameters
 		String parameterCheck = svm.svm_check_parameter(data, parameters);
@@ -47,6 +49,38 @@ public class Classificator {
 		}
 	}
 	
+	private FeatureVector[] getScaledVectors(FeatureVector[] featureVectors) {
+		int numberOfFeatures = featureVectors[0].getFeatureValues().length;
+		
+		// Find min and max
+		double[] maximums = new double[numberOfFeatures];
+		for (int i = 0; i < numberOfFeatures; i++) {
+			for (int j = 0; j < featureVectors.length; j++) {
+				maximums[i] = Math.max(Math.abs(featureVectors[j].getFeatureValues()[i]), maximums[i]); 
+			}
+		}
+		
+		// Calculate Scaling Factors
+		scalingFaktor = new double[numberOfFeatures];
+		for (int i = 0; i < numberOfFeatures; i++) {
+			scalingFaktor[i] = 1 / maximums[i]; // Scale feature values to the interval [-1,1]
+		}
+		
+		// Scale Feature Vectors
+		FeatureVector[] scaledFeatureVectors = new FeatureVector[featureVectors.length];
+		for (int i = 0; i < featureVectors.length; i++) {
+			
+			double[] scaledFeatureValues = new double[numberOfFeatures];
+			for (int j = 0; j < numberOfFeatures; j++) {
+				scaledFeatureValues[j] = featureVectors[i].getFeatureValues()[j] * scalingFaktor[j];
+			}
+			
+			scaledFeatureVectors[i] = new FeatureVector(scaledFeatureValues, featureVectors[i].getLable());
+		}
+		
+		return scaledFeatureVectors;
+	}
+
 	/**
 	 * Defines the parameter set used internally in the library. For descriptions of the parameters 
 	 * the above mentioned link provides informations.
@@ -57,9 +91,11 @@ public class Classificator {
 		svm_parameter parameters = new svm_parameter();
 		parameters.svm_type = svm_parameter.NU_SVC;
 		parameters.kernel_type = svm_parameter.RBF;
-		parameters.cache_size = 100;
+		parameters.cache_size = 1000;
 		parameters.eps = 0.00001;
 		parameters.nu = 0.5;
+		parameters.C = 1;
+		parameters.gamma = 0.33;
 		
 		return parameters;
 	}
@@ -83,7 +119,7 @@ public class Classificator {
 			svm_node[] features = new svm_node[featureVectors[i].getFeatureValues().length];
 			for (int j = 0; j < featureVectors[i].getFeatureValues().length; j++) {
 				svm_node feature = new svm_node();
-				feature.index = j;
+				feature.index = j+1; // Indexes in LibSVM start with 1
 				feature.value = featureVectors[i].getFeatureValues()[j];
 				features[j] = feature;
 			}
@@ -104,14 +140,26 @@ public class Classificator {
 	 * @return The Label which the classifier determined for the data point.
 	 */
 	public Lable testClassifier(FeatureVector featureVector) {
-		svm_node[] features = new svm_node[featureVector.getFeatureValues().length];
-		for (int j = 0; j < featureVector.getFeatureValues().length; j++) {
+		FeatureVector scaledFeatureVector = getScaledFeatureVector(featureVector);
+		svm_node[] features = new svm_node[scaledFeatureVector.getFeatureValues().length];
+		for (int j = 0; j < scaledFeatureVector.getFeatureValues().length; j++) {
 			svm_node feature = new svm_node();
-			feature.index = j;
-			feature.value = featureVector.getFeatureValues()[j];
+			feature.index = j+1; // Indexes in LibsSVM start with 1
+			feature.value = scaledFeatureVector.getFeatureValues()[j];
 			features[j] = feature;
-			
 		}
+		
 		return Lable.valueOf(svm.svm_predict(model, features));
+	}
+
+	private FeatureVector getScaledFeatureVector(FeatureVector featureVector) {
+		int numberOfFeatures = featureVector.getFeatureValues().length;
+		
+		double[] scaledFeatureValues = new double[numberOfFeatures];
+		for (int j = 0; j < numberOfFeatures; j++) {
+			scaledFeatureValues[j] = featureVector.getFeatureValues()[j] * scalingFaktor[j];
+		}
+		
+		return new FeatureVector(scaledFeatureValues, featureVector.getLable());
 	}
 }
