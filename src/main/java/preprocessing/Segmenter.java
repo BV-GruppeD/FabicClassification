@@ -8,6 +8,10 @@ import com.bv_gruppe_d.imagej.ImageData;
 
 import ij.process.ImageProcessor;
 
+/**
+ * This class splits a image into multiple segments
+ * @author Patrick
+ */
 public class Segmenter {
 	private final int minSize;
 
@@ -23,7 +27,6 @@ public class Segmenter {
 		for (int x = 0; x < ip.getWidth(); ++x) {
 			for (int y = 0; y < ip.getHeight(); ++y) {
 				boolean isEdge = (ip.get(x, y) & 0xff) >= 0x80;
-//				ip.set(x, y, isEdge ? 0x00ffff : 0x000000);
 				if (isEdge) {
 					edgeMap.setEdge(x, y, isEdge);
 				}
@@ -31,8 +34,9 @@ public class Segmenter {
 		}
 
 		Point start;
+		//While there are unassigned edge points, chose one at random
 		while ((start = edgeMap.getRandomPoint()) != null) {
-			// Breadth first search
+			// Then add all the neighbors using a breadth first search
 			ArrayList<Point> shape = new ArrayList<Point>();
 			LinkedList<Point> checkNext = new LinkedList<Point>();
 			checkNext.add(start);
@@ -55,6 +59,7 @@ public class Segmenter {
 					}
 				}
 			}
+			// Ignore any shapes that are to small
 			if (shape.size() > minSize) {
 				shapeList.add(shape);
 			}
@@ -64,6 +69,10 @@ public class Segmenter {
 		return shapeList;
 	}
 
+	/**
+	 * This class stores a modifiable edge map 
+	 * @author Patrick
+	 */
 	private static class EdgeMap {
 		private final boolean[][] isEdge;
 		private final int width, height;

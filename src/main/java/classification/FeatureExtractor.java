@@ -6,15 +6,18 @@ import java.util.List;
 
 import com.bv_gruppe_d.imagej.ImageData;
 
-import classification.Misc.EllipsisData;
-
+/**
+ * This class converts a list of ellipses to a single FeatureVector. If necessary a median is used,
+ * which has the advantage that partial ellipses (at the edges of the image) don't distort the result.
+ * @author Patrick
+ */
 public class FeatureExtractor {
 	public FeatureVector execute(ImageData imageData, List<EllipsisData> ellipsisList) {
 		int size = ellipsisList.size();
 		ArrayList<Double> ratios = new ArrayList<>(size);
 		ArrayList<Double> areas = new ArrayList<>(size);
 		for (EllipsisData e : ellipsisList) {
-			ratios.add(Math.max(e.a / e.b, e.b / e.a)); //make sure it is (bigger / smaller) radius
+			ratios.add(Math.max(e.a / e.b, e.b / e.a)); //make sure it is bigger radius divided by smaller radius
 			areas.add(Math.PI * e.a * e.b);
 		}
 		

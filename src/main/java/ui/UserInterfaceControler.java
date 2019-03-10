@@ -126,7 +126,6 @@ public class UserInterfaceControler {
 		processImage.getImageProcessor().setRoi(0, 0, 200, 200);
 		processImage = new ImageData(processImage.getImageProcessor().crop(), processImage.getLable());
 					
-		// TODO @Daniel your code here: is this correct?
 		// Preprocessing
 		bin.execute(processImage);
 		mf.execute(processImage);
