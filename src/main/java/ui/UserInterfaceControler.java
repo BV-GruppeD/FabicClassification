@@ -14,13 +14,13 @@ import classification.Classificator;
 import classification.FeatureExtractor;
 import classification.FeatureVector;
 import classification.HoughTransformation;
-import ij.IJ;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.chart.ScatterChart;
 import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ProgressBar;
@@ -37,6 +37,7 @@ import preprocessing.MorphologicalFiltering;
  */
 public class UserInterfaceControler {
 
+	// Session variables
 	private ArrayList<ImageData> trainingsData;
 	private FeatureVector[] trainingsFeatureVectors;
 	private ArrayList<ImageData> testData;
@@ -44,42 +45,42 @@ public class UserInterfaceControler {
 	private ImageData evalutationImage;
 	private Classificator classificator;
 
-	/**
-	 * The ImageView object that is displayed on the MainPage.fxml
-	 */
+	// Objects displayed on the user interface
 	@FXML
 	private ImageView evaluationImageView;
-
-	/**
-	 * The ScatterChart object that is displayed on the MainPage.fxml
-	 */
 	@FXML
 	private ScatterChart<Number, Number> scatterChart;
-
 	@FXML
 	private ProgressBar trainingProgressBar;
 	@FXML
 	private ProgressBar testProgressBar;
-	
 	@FXML
 	private ComboBox<Integer> yValuesPicker;
-	
 	@FXML
 	private ComboBox<Integer> xValuesPicker;
 	
 	/**
 	 * Takes a directory from the user and maps the images in the subfolders to
-	 * labled ImageData objects representing the trainings data for a classifier.
+	 * labeled ImageData objects representing the training data for a classifier.
 	 */
 	@FXML
 	private void readLabledTrainingsData() {
 		File upperDirectory = getDirectoryFromUser();
 		trainingsData = ImageDataCreator.getLabledImageData(upperDirectory);
 	}
+	
+	/**
+	 * Displays a directory chooser dialog for the user.
+	 * @return The path to the selected directory.
+	 */
+	private File getDirectoryFromUser() {
+		final DirectoryChooser directoryChooser = new DirectoryChooser();
+		return directoryChooser.showDialog(null);
+	}
 
 	/**
 	 * Takes a directory from the user and maps the images in the subfolders to
-	 * labled ImageData objects representing the test data for a classifier.
+	 * labeled ImageData objects representing the test data for a classifier.
 	 */
 	@FXML
 	private void readLabledTestData() {
@@ -88,7 +89,237 @@ public class UserInterfaceControler {
 	}
 
 	/**
-	 * Takes a file path from the user to map the image to an unlabled ImageData
+	 * Initializes the preprocessing of the provided Test Data. If no is provided checks if Feature Vectors 
+	 * for testing were loaded and provides notifications otherwise.
+	 */
+	@FXML
+	private void testClassifier() {
+		if (testData != null && classificator != null) {
+			generateTestFeatures(testData);
+		} else if (testFeatureVectors != null && classificator != null) {
+			classifiyTestFeatureVectors();
+		} else if (testData == null) {
+			new Alert(AlertType.INFORMATION, "Bitte lesen Sie zunächst Testdaten ein.", ButtonType.OK)
+				.showAndWait();
+		} else if (classificator == null) {
+			new Alert(AlertType.INFORMATION, "Trainieren Sie zunächst einen Klassifizierer", ButtonType.OK)
+				.showAndWait();
+		} else {
+			new Alert(AlertType.ERROR, "Bei der Bearbeitung ist leider ein Fehler aufgetreten", ButtonType.OK)
+				.showAndWait();
+		}
+	}
+
+	/**
+	 * Starts a new Thread to generate the Feature Vectors for testing and to classify them afterwards.
+	 * @param images The images to process and test.
+	 */
+	private void generateTestFeatures(ArrayList<ImageData> images) {
+		
+		new Thread(){
+            public void run() {
+            	testFeatureVectors = executeImageProcessingPipe(images, testProgressBar);
+        		Platform.runLater(() -> testProgressBar.setProgress(0));
+        		Platform.runLater(()-> classifiyTestFeatureVectors());
+            }
+        }.start();
+	}
+	
+	/**
+	 * @return Returns a set of Feature Vectors corresponding to the given images.
+	 */
+	private FeatureVector[] executeImageProcessingPipe(ArrayList<ImageData> images, ProgressBar progress) {
+		FeatureVector[] vectors = new FeatureVector[images.size()];
+    	HoughTransformation ht = new HoughTransformation(2, 1.0, 4, 100);
+		FeatureExtractor fe = new FeatureExtractor();
+		Binarization bin = new Binarization();
+		MorphologicalFiltering mf = new MorphologicalFiltering();
+
+		
+		for (int i = 0; i < vectors.length; ++i) {
+			final double vectorNumber = (double)i;
+			Platform.runLater(() -> progress.setProgress(vectorNumber/vectors.length));
+			
+			//TODO: Kann man das noch ausgliedern, damit es keinen redundanten code mehr gibt?
+			ImageData image = images.get(i).duplicate();// do not modify the original
+			// Processing the whole image takes waaaay toooo looong for testing, so we just
+			// use a part
+			// this might screw up the error detection
+			image.getImageProcessor().setRoi(0, 0, 200, 200);
+			image = new ImageData(image.getImageProcessor().crop(), image.getLable());
+
+			// TODO @Daniel your code here: is this correct?
+			// Preprocessing
+			bin.execute(image);
+			mf.execute(image);
+
+			// HoughTransformation and feature extraction
+			vectors[i] = fe.execute(image, ht.execute(image));
+		}
+		return vectors;
+	}
+
+	/**
+	 * Classifies all Feature Vectors for testing. Prompts the ratio of correct classification afterwards.
+	 */
+	private void classifiyTestFeatureVectors() {
+		StringBuilder sb = new StringBuilder();
+		int countCorrectlyClassified = 0;
+		for (FeatureVector featureVector : testFeatureVectors) {
+			Lable result = classificator.testClassifier(featureVector);
+			sb.append("Vorgabe: " + featureVector.getLable().toString() + " - Ergebnis: "
+						+ result.toString() + "\r\n");
+			if (featureVector.getLable() == result) {
+				countCorrectlyClassified++;
+			}
+		}
+		sb.append("\r\nKorrekt Klassifiziert: " + countCorrectlyClassified +" von "
+					+ testFeatureVectors.length + "\r\n" + "Klassifikationsrate: " + 
+					((double)testFeatureVectors.length)/countCorrectlyClassified * 100 + "%");
+		new Alert(AlertType.INFORMATION, sb.toString(), ButtonType.OK)
+			.showAndWait();
+	}
+
+	/**
+	 * Initializes the preprocessing of the provided Training Data. If no is provided checks if Feature Vectors 
+	 * for training were loaded and provides a notifications otherwise.
+	 */
+	@FXML
+	private void trainClassifier() {
+		if (trainingsData != null) {
+			generateTrainingsFeatures(trainingsData);			
+		} else if(trainingsFeatureVectors != null) {
+			createClassificator();
+		} else {
+			new Alert(AlertType.INFORMATION, "Bitte lesen Sie zunächst Testdaten ein.", ButtonType.OK)
+				.showAndWait();
+		}
+	}
+	
+	/**
+	 * Starts a new Thread to generate the Feature Vectors for training and to create the classifier afterwards.
+	 * @param images The images to process and train with.
+	 */
+	private void generateTrainingsFeatures(ArrayList<ImageData> images) {
+		new Thread(){
+            public void run() {
+        		trainingsFeatureVectors = executeImageProcessingPipe(images, trainingProgressBar);
+        		Platform.runLater(() -> initializeScatterPlot());
+        		Platform.runLater(() -> trainingProgressBar.setProgress(0));
+        		Platform.runLater(()-> createClassificator());
+            }
+        }.start();
+	}
+	
+	/**
+	 * Fills the DropDown menus for Feature selection and populates the scatter chart.
+	 */
+	private void initializeScatterPlot() {
+		ObservableList<Integer> featureDimensions = FXCollections.observableArrayList();
+		for (int i = 0; i < trainingsFeatureVectors[0].getFeatureValues().length; i++) {
+			featureDimensions.add(i);
+		}
+		xValuesPicker.setItems(featureDimensions);
+		xValuesPicker.setValue(0);
+		yValuesPicker.setItems(featureDimensions);
+		yValuesPicker.setValue(1);
+		
+		FabricClassificationScatterChartPopulator populator = new FabricClassificationScatterChartPopulator(scatterChart);
+		populator.setXIndex(0);
+		populator.setYIndex(1);
+		populator.populateScatterChart(trainingsFeatureVectors);
+	}
+	
+	/**
+	 * Creates and trains the classifier with the Training Feature Vectors.
+	 */
+	private final void createClassificator() {
+		classificator = new Classificator();
+		try {
+			classificator.learnClassifier(trainingsFeatureVectors);
+			
+			new Alert(AlertType.INFORMATION, "Training abgeschlossen", ButtonType.OK).showAndWait();
+		} catch (Exception e) {
+			new Alert(AlertType.ERROR, e.getMessage(), ButtonType.OK).showAndWait();
+			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * Refreshes the Scatter Chart
+	 */
+	@FXML
+	private void updateScatterChart() {
+		FabricClassificationScatterChartPopulator populator = new FabricClassificationScatterChartPopulator(scatterChart);
+		populator.setXIndex((xValuesPicker.getValue() != null)? xValuesPicker.getValue():0);
+		populator.setYIndex((yValuesPicker.getValue() != null)? yValuesPicker.getValue():1);
+		populator.populateScatterChart(trainingsFeatureVectors);
+
+	}
+	
+	@FXML
+	private void saveTrainingFeatureVectors() {
+		saveFeatureVector(trainingsFeatureVectors, "StoffklassifizierungTrainingFeatures.txt");
+	}
+
+	/**
+	 * Stores the FeatureVector array in the home directory (which depends on the operating system)
+	 * with the given filename. Overwrites previous files that were stored in this way.
+	 * @param vectors The object to save.
+	 * @param filename The name of the created file.
+	 */
+	private void saveFeatureVector(FeatureVector[] vectors, String filename) {
+		try (ObjectOutputStream stream = new ObjectOutputStream(new FileOutputStream(
+				new File(System.getProperty("user.home"), filename)))){
+			stream.writeObject(vectors);
+			new Alert(AlertType.INFORMATION, "Feature Vectors gespeichert.", ButtonType.OK)
+				.showAndWait();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	@FXML
+	private void saveTestFeatureVectors() {
+		saveFeatureVector(testFeatureVectors, "StoffklassifizierungTestFeatures.txt");
+	}
+	
+	@FXML
+	private void loadTrainingFeatureVectors() {
+		trainingsFeatureVectors = loadFeatureVector("StoffklassifizierungTrainingFeatures.txt");
+		if (trainingsFeatureVectors != null) {
+			initializeScatterPlot();
+		}
+	}
+
+	/**
+	 * Loads the stored FeatureVector array from the home directory (which depends on the operating system) 
+	 * saved under the given filename.
+	 * @param filename The name of the file in which the Feature Vectors are stored.
+	 * @return The array created from the file content.
+	 */
+	private FeatureVector[] loadFeatureVector(String filename) {
+		FeatureVector[] vectors = null;
+		try (ObjectInputStream stream = new ObjectInputStream(
+				new FileInputStream(new File(System.getProperty("user.home"), filename)))){
+			vectors = (FeatureVector[]) stream.readObject();
+			new Alert(AlertType.INFORMATION, "Feature Vektoren geladen.", ButtonType.OK)
+				.showAndWait();
+		} catch (Exception e) {
+			new Alert(AlertType.ERROR, "Beim Laden der Datei ist ein Fehler aufgetreten. Prüfen Sie "
+					+ "ob eine Datei im Nutzerverzeichnis existiert.", ButtonType.OK).showAndWait();
+			e.printStackTrace();
+		}
+		return vectors;
+	}
+	
+	@FXML
+	private void loadTestFeatureVectors() {
+		testFeatureVectors = loadFeatureVector("StoffklassifizierungTestFeatures.txt");
+	}
+	
+	/**
+	 * Takes a file path from the user to map the image to an unlabeled ImageData
 	 * object for individual classification.
 	 */
 	@FXML
@@ -96,21 +327,35 @@ public class UserInterfaceControler {
 		File selectedFile = getImageFileFromUser();
 
 		try {
-			evalutationImage = ImageDataCreator.getImageData(selectedFile);
-
-			URL url = selectedFile.toURI().toURL();
-			evaluationImageView.setImage(new Image(url.toExternalForm()));
-
 			if (classificator == null) {
-				showNoClassifierDialog();
+				new Alert(AlertType.INFORMATION, "Trainieren Sie zunächst einen Klassifizierer", ButtonType.OK)
+					.showAndWait();
 			} else {
+				evalutationImage = ImageDataCreator.getImageData(selectedFile);
+
+				URL url = selectedFile.toURI().toURL();
+				evaluationImageView.setImage(new Image(url.toExternalForm()));
+
 				FeatureVector evaluationFeatureVector = generateEvaluationFeatureVector(evalutationImage);
 				Lable result = classificator.testClassifier(evaluationFeatureVector);
-				IJ.showMessage("Ergebnis: " + result);
+				new Alert(AlertType.INFORMATION, "Ergebnis: " + result, ButtonType.OK).showAndWait();
 			}
 		} catch (IOException e) {
-			IJ.showMessage(e.getMessage());
+			new Alert(AlertType.ERROR, e.getMessage(), ButtonType.OK).showAndWait();
 		}
+	}
+	
+	/**
+	 * Displays a file chooser dialog for the user where only .jpg and .png files
+	 * can be selected.
+	 * 
+	 * @return The path to the selected file
+	 */
+	private File getImageFileFromUser() {
+		FileChooser fileChooser = new FileChooser();
+		FileChooser.ExtensionFilter imageFilter = new FileChooser.ExtensionFilter("Image Files", "*.jpg", "*.png");
+		fileChooser.getExtensionFilters().add(imageFilter);
+		return fileChooser.showOpenDialog(null);
 	}
 
 	private FeatureVector generateEvaluationFeatureVector(ImageData image) {
@@ -132,250 +377,6 @@ public class UserInterfaceControler {
 
 		return fe.execute(image, ht.execute(image));	
 	}
-
-	/**
-	 * TODO: Add comment after all logic is implemented.
-	 */
-	@FXML
-	private void testClassifier() {
-		if (testData != null && classificator != null) {
-			generateTestFeatures(testData);
-		} else if (testFeatureVectors != null && classificator != null) {
-			classifiy();
-		} else if (classificator == null) {
-			showNoClassifierDialog();
-		} else if (testData == null) {
-			showNoTestDataDialog();
-		}
-	}
-
-	private void generateTestFeatures(ArrayList<ImageData> images) {
-		
-		new Thread(){
-            public void run() {
-            	FeatureVector[] vectors = executeImageProcessingPipe(images, testProgressBar);
-            	testFeatureVectors = vectors;
-        		Platform.runLater(() -> testProgressBar.setProgress(0));
-        		Platform.runLater(()-> classifiy());
-            }
-        }.start();
-	}
-
-	private void classifiy() {
-		StringBuilder sb = new StringBuilder();
-		for (FeatureVector featureVector : testFeatureVectors) {
-			Lable result = classificator.testClassifier(featureVector);
-			sb.append("Vorgabe: " + featureVector.getLable().toString() + " - Ergebnis: " + result.toString()
-					+ "\r\n");
-		}
-		IJ.showMessage(sb.toString());
-	}
-	
-	/**
-	 * Displays a dialog to the user to notify him that no classifier exists yet.
-	 */
-	private void showNoClassifierDialog() {
-		Alert alert = new Alert(AlertType.INFORMATION);
-		alert.setTitle("Keine Klassifizierer gefunden");
-		alert.setHeaderText("Trainieren Sie zunächst einen Klassifizierer");
-		alert.setContentText(
-				"Um einen Klassifizierer zu Trainieren, lesen Sie im obigen Bereich Testdaten ein und betätigen "
-						+ "anschließend die Schaltfläche zum Trainieren eines Klassifizierers.");
-
-		alert.showAndWait();
-	}
-
-	/**
-	 * Displays a dialog to the user to notify him that no data for testing exists
-	 * yet.
-	 */
-	private void showNoTestDataDialog() {
-		Alert alert = new Alert(AlertType.INFORMATION);
-		alert.setTitle("Keine Testdaten gefunden");
-		alert.setHeaderText("Bitte lesen Sie zunächst Testdaten ein.");
-		alert.setContentText("Um Testdaten einzulesen schließen Sie bitte diesen Dialog "
-				+ "und betätigen Sie die Schaltfläche oberhalb dieses Buttons.");
-
-		alert.showAndWait();
-	}
-
-	/**
-	 * TODO: Add comment after all logic is added
-	 */
-	@FXML
-	private void trainClassifier() {
-		if (trainingsData != null) {
-			generateTrainingsFeatures(trainingsData);			
-		} else if(trainingsFeatureVectors != null) {
-			createClassificator();
-		} else {
-			showNoTrainingsDataDialog();
-		}
-	}
-
-	
-	private void generateTrainingsFeatures(ArrayList<ImageData> images) {
-		
-		new Thread(){
-            public void run() {
-            	FeatureVector[] vectors = executeImageProcessingPipe(images, trainingProgressBar);
-        		trainingsFeatureVectors = vectors;
-        		Platform.runLater(() -> trainingProgressBar.setProgress(0));
-        		Platform.runLater(()-> createClassificator());
-            }
-        }.start();
-	}
-	
-	private final void createClassificator() {
-		classificator = new Classificator();
-		classificator.learnClassifier(trainingsFeatureVectors);
-		
-		initializeScatterPlot();
-	}
-	
-	/**
-	 * @return Returns an set of feature vectors corresponding to the given images
-	 */
-	private FeatureVector[] executeImageProcessingPipe(ArrayList<ImageData> images, ProgressBar progress) {
-		FeatureVector[] vectors = new FeatureVector[images.size()];
-    	HoughTransformation ht = new HoughTransformation(2, 1.0, 4, 100);
-		FeatureExtractor fe = new FeatureExtractor();
-		Binarization bin = new Binarization();
-		MorphologicalFiltering mf = new MorphologicalFiltering();
-
-		
-		for (int i = 0; i < vectors.length; ++i) {
-			final double vectorNumber = (double)i;
-			Platform.runLater(() -> progress.setProgress(vectorNumber/vectors.length));
-			
-			ImageData image = images.get(i).duplicate();// do not modify the original
-			// Processing the whole image takes waaaay toooo looong for testing, so we just
-			// use a part
-			// this might screw up the error detection
-			image.getImageProcessor().setRoi(0, 0, 200, 200);
-			image = new ImageData(image.getImageProcessor().crop(), image.getLable());
-
-			// TODO @Daniel your code here: is this correct?
-			// Preprocessing
-			bin.execute(image);
-			mf.execute(image);
-
-			// HoughTransformation and feature extraction
-			vectors[i] = fe.execute(image, ht.execute(image));
-		}
-		return vectors;
-	}
-	
-	private void initializeScatterPlot() {
-		ObservableList<Integer> featureDimensions = FXCollections.observableArrayList();
-		for (int i = 0; i < trainingsFeatureVectors[0].getFeatureValues().length; i++) {
-			featureDimensions.add(i);
-		}
-		xValuesPicker.setItems(featureDimensions);
-		xValuesPicker.setValue(0);
-		yValuesPicker.setItems(featureDimensions);
-		yValuesPicker.setValue(1);
-		
-		FabricClassificationScatterChartPopulator populator = new FabricClassificationScatterChartPopulator(scatterChart);
-		populator.setXIndex(0);
-		populator.setYIndex(1);
-		populator.populateScatterChartWithData(trainingsFeatureVectors);
-	}
-
-	/**
-	 * Displays a dialog to the user to notify him that no data for training exists
-	 * yet.
-	 */
-	private void showNoTrainingsDataDialog() {
-		Alert alert = new Alert(AlertType.INFORMATION);
-		alert.setTitle("Keine Trainingsdaten gefunden.");
-		alert.setHeaderText("Bitte lesen Sie zunächst Testdaten ein.");
-		alert.setContentText("Um Trainingsdaten einzulesen schließen Sie bitte diesen Dialog "
-				+ "und betätigen Sie die Schaltfläche oberhalb dieses Buttons.");
-
-		alert.showAndWait();
-	}
-
-	/**
-	 * Displays a directory chooser dialog for the user.
-	 * 
-	 * @return The path to the selected directory.
-	 */
-	private File getDirectoryFromUser() {
-		final DirectoryChooser directoryChooser = new DirectoryChooser();
-		return directoryChooser.showDialog(null);
-	}
-
-	/**
-	 * Displays a file chooser dialog for the user where only .jpg and .png files
-	 * can be selected.
-	 * 
-	 * @return The path to the selected file
-	 */
-	private File getImageFileFromUser() {
-		FileChooser fileChooser = new FileChooser();
-		FileChooser.ExtensionFilter imageFilter = new FileChooser.ExtensionFilter("Image Files", "*.jpg", "*.png");
-		fileChooser.getExtensionFilters().add(imageFilter);
-		return fileChooser.showOpenDialog(null);
-	}
-
-	
-	
-	@FXML
-	private void updateScatterChart() {
-		FabricClassificationScatterChartPopulator populator = new FabricClassificationScatterChartPopulator(scatterChart);
-		populator.setXIndex((xValuesPicker.getValue() != null)? xValuesPicker.getValue():0);
-		populator.setYIndex((yValuesPicker.getValue() != null)? yValuesPicker.getValue():1);
-		populator.populateScatterChartWithData(trainingsFeatureVectors);
-
-	}
-	
-	@FXML
-	private void saveTrainingFeatureVectors() {
-		saveFeatureVector(trainingsFeatureVectors, "StoffklassifizierungTrainingFeatures.txt");
-	}
-
-	private void saveFeatureVector(FeatureVector[] vectors, String filename) {
-		try (ObjectOutputStream stream = new ObjectOutputStream(new FileOutputStream(
-				new File(System.getProperty("user.home"), filename)))){
-			stream.writeObject(vectors);
-			IJ.showMessage("Feature Vectors gespeichert.");
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-	
-	@FXML
-	private void saveTestFeatureVectors() {
-		saveFeatureVector(testFeatureVectors, "StoffklassifizierungTestFeatures.txt");
-	}
-	
-	@FXML
-	private void loadTrainingFeatureVectors() {
-		trainingsFeatureVectors = loadFeatureVector("StoffklassifizierungTrainingFeatures.txt");
-		if (trainingsFeatureVectors != null) {
-			initializeScatterPlot();
-		}
-	}
-
-	private FeatureVector[] loadFeatureVector(String filename) {
-		FeatureVector[] vectors = null;
-		try (ObjectInputStream stream = new ObjectInputStream(
-				new FileInputStream(new File(System.getProperty("user.home"), filename)))){
-			vectors = (FeatureVector[]) stream.readObject();
-			IJ.showMessage("Feature Vectors geladen.");
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return vectors;
-	}
-	
-	@FXML
-	private void loadTestFeatureVectors() {
-		testFeatureVectors = loadFeatureVector("StoffklassifizierungTestFeatures.txt");
-		
-	}
-
 	/*
 	 * // FOR DEBUGGING PURPOSE ONLY // Returns an example set of feature vectors //
 	 * TODO: Remove after application is sufficiently tested.
@@ -393,6 +394,4 @@ public class UserInterfaceControler {
 	 * 
 	 * )); return exampleVectors.toArray(new FeatureVector[] {});//
 	 */
-
-
 }

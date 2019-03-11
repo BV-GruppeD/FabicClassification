@@ -12,6 +12,9 @@ import com.bv_gruppe_d.imagej.Lable;
 
 import ij.IJ;
 import ij.process.ByteProcessor;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ButtonType;
 
 
 /**
@@ -22,8 +25,8 @@ public class ImageDataCreator {
 	/**
 	 * Provides the directory names expected for automatic labeling of images on the file system.
 	 */
-	@SuppressWarnings("serial")
-	private static final ArrayList<String> expectedDirectories = new ArrayList<String>(){{
+	@SuppressWarnings("serial") // This class will not be serialized.
+	private final static ArrayList<String> expectedDirectories = new ArrayList<String>(){{
 	    add("geschert");
 	    add("keineDehnung");
 	    add("mittlereDehnung");
@@ -144,7 +147,8 @@ public class ImageDataCreator {
 		directoriesMessage = directoriesMessage.replace("[", " ");
 		directoriesMessage = directoriesMessage.replace("]", " ");
 		
-		IJ.showMessage(countingMessage + directoriesMessage);
+		new Alert(AlertType.INFORMATION, countingMessage + directoriesMessage, ButtonType.OK)
+			.showAndWait();
 	}
 	
 	/**

@@ -1,9 +1,11 @@
 package ui;
 
 import classification.FeatureVector;
-import ij.IJ;
 import javafx.scene.chart.ScatterChart;
 import javafx.scene.chart.XYChart;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ButtonType;
 
 /**
  * Provides utility methods to visualize two features of classified or
@@ -60,19 +62,15 @@ public class FabricClassificationScatterChartPopulator {
 	 * dimensional data is accepted.
 	 * 
 	 * @param featureVectors The features to be plotted.
-	 * @param xLabel         The label for the x-Axis (First values in the vector)
-	 * @param yLabel         The label for the y-Axis (Second values in the vector)
 	 */
-	public void populateScatterChart(FeatureVector[] featureVectors, String xLabel, String yLabel) {
-
-		scatterChart.getXAxis().setLabel(xLabel);
-		scatterChart.getYAxis().setLabel(yLabel);
+	public void populateScatterChart(FeatureVector[] featureVectors) {
 
 		for (FeatureVector featureVector : featureVectors) {
 			if (featureVector.getFeatureValues().length >= 2) {
-				addVectorToCorrectSeries(featureVector);// will ignore extra dimensions
+				addVectorToCorrectSeries(featureVector);
 			} else {
-				IJ.showMessage("Der Datensatz kann nicht in einem 2D-Graphen angezeigt werden.");
+				new Alert(AlertType.ERROR,"Der Datensatz kann nicht in einem 2D-Graphen angezeigt werden.", 
+						ButtonType.OK).showAndWait();
 			}
 		}
 		addDataSeriesToChart();
@@ -121,12 +119,6 @@ public class FabricClassificationScatterChartPopulator {
 		scatterChart.getData().addAll(seriesDisturbance);
 		scatterChart.getData().addAll(seriesSheard);
 		scatterChart.getData().addAll(seriesUnknown);
-	}
-
-	public void populateScatterChartWithData(FeatureVector[] vectors) {
-		scatterChart.setTitle("Training data");
-
-		populateScatterChart(vectors, "Axis Ratio", "Ellipsis Area");
 	}
 
 	public void setXIndex(int index) {
