@@ -7,9 +7,9 @@ import java.util.List;
 import com.bv_gruppe_d.imagej.ImageData;
 
 /**
- * This class converts a list of ellipses to a single FeatureVector. If necessary a median is used,
- * which has the advantage that partial ellipses (at the edges of the image) don't distort the result.
- * @author Patrick
+ * This class converts a list of ellipses to a single FeatureVector. If
+ * necessary a median is used, which has the advantage that partial ellipses (at
+ * the edges of the image) don't distort the result.
  */
 public class FeatureExtractor {
 	public FeatureVector execute(ImageData imageData, List<EllipsisData> ellipsisList) {
@@ -17,17 +17,20 @@ public class FeatureExtractor {
 		ArrayList<Double> ratios = new ArrayList<>(size);
 		ArrayList<Double> areas = new ArrayList<>(size);
 		for (EllipsisData e : ellipsisList) {
-			ratios.add(Math.max(e.a / e.b, e.b / e.a)); //make sure it is bigger radius divided by smaller radius
+			// make sure it is bigger radius divided by smaller radius
+			ratios.add(Math.max(e.a / e.b, e.b / e.a));
 			areas.add(Math.PI * e.a * e.b);
 		}
-		
+
 		double ratio = median(ratios);
 		double area = median(areas);
 		double ellipsisPerArea = size / (double) imageData.getImageProcessor().getPixelCount();
-		double[] features = {ratio, area, ellipsisPerArea};
-		return new FeatureVector(features, imageData.getLable());
+
+		String[] featureNames = { "median axis ratio", "median area", "ellipsis per pixel" };
+		double[] features = { ratio, area, ellipsisPerArea };
+		return new FeatureVector(featureNames, features, imageData.getLable());
 	}
-	
+
 	public static double average(ArrayList<Double> values) {
 		if (values.isEmpty()) {
 			return 0;

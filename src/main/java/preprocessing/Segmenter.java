@@ -10,7 +10,11 @@ import ij.process.ImageProcessor;
 
 /**
  * This class splits a image into multiple segments
- * @author Patrick
+ * A segment is a list of pixels which are connected. All segments with less elements than minSize are ignored
+ * 
+ * The image is interpreted as a undirected graph, where each 
+ * white pixel is a node and all white pixels that are directly next to each other
+ * (horizontal or vertical) are connected by an edge. Each segment is a connected subgraph.
  */
 public class Segmenter {
 	private final int minSize;
@@ -69,60 +73,5 @@ public class Segmenter {
 		return shapeList;
 	}
 
-	/**
-	 * This class stores a modifiable edge map 
-	 * @author Patrick
-	 */
-	private static class EdgeMap {
-		private final boolean[][] isEdge;
-		private final int width, height;
-		private int edgeCount;
-
-		public EdgeMap(int width, int height) {
-			this.width = width;
-			this.height = height;
-			isEdge = new boolean[width][height];
-			edgeCount = 0;
-		}
-
-		public int getWidth() {
-			return width;
-		}
-
-		public int getHeight() {
-			return height;
-		}
-
-		public boolean isEdge(int x, int y) {
-			return isEdge[x][y];
-		}
-
-		public void setEdge(int x, int y, boolean newValue) {
-			boolean oldValue = isEdge[x][y];
-			if (oldValue != newValue) {
-				isEdge[x][y] = newValue;
-				if (newValue) {
-					edgeCount++;
-				} else {
-					edgeCount--;
-				}
-			}
-		}
-
-		public Point getRandomPoint() {
-			if (edgeCount <= 0) {
-				return null;
-			}
-
-			for (int x = 0; x < width; ++x) {
-				for (int y = 0; y < height; ++y) {
-					if (isEdge[x][y]) {
-						return new Point(x, y);
-					}
-				}
-			}
-
-			throw new IllegalStateException("edgeCount > 0, but no edge found");
-		}
-	}
+	
 }

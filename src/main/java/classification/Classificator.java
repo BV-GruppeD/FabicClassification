@@ -38,12 +38,12 @@ public class Classificator {
 		svm_parameter parameters = createParametrizationForLearning();		
 		svm_problem data = createDataFormatForLearning(featureVectors);
 		
-		// A library provided check for the integrety of the parameters
+		// A library provided check for the integrity of the parameters
 		String parameterCheck = svm.svm_check_parameter(data, parameters);
 		if(parameterCheck == null) {
 			model = svm.svm_train(data, parameters);
 		} else {
-			throw new Exception("Die Parameter zum lernen des Klassifizierers sind ungültig", new Throwable(parameterCheck));
+			throw new Exception("Die Parameter zum Lernen des Klassifizierers sind ungültig", new Throwable(parameterCheck));
 		}
 	}
 	

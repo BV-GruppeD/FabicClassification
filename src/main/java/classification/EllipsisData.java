@@ -4,8 +4,6 @@ import java.awt.geom.Point2D;
 
 /**
  * A object that contains all the information about an ellipsis. Can be compared to find which is a better match (smaller = better)
- * @author Patrick
- *
  */
 public class EllipsisData implements Comparable<EllipsisData> {
 	public final int accumulator;
