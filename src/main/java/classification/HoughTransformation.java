@@ -11,8 +11,8 @@ import com.bv_gruppe_d.imagej.ImageData;
 import preprocessing.Segmenter;
 
 /**
- * This class uses the hough transformation to extract ellipsis information from an edge image
- * @author Patrick
+ * This class uses the hough transformation to extract ellipsis information from
+ * an edge image
  */
 public class HoughTransformation {
 	private final int accumulatorThreshold;
@@ -20,6 +20,16 @@ public class HoughTransformation {
 	private final double minMajor, maxMajor;
 	private final double minMinor, maxMinor;
 
+	/**
+	 * 
+	 * @param accumulatorThreshold the minimum number of values in one bin to return
+	 *                             a result
+	 * @param accumulatorAccuracy  the bin size of the accumulator
+	 * @param min                  the minimal length of the ellipsis short axis
+	 *                             (edge to center)
+	 * @param max                  the maximal length of the ellipsis long axis
+	 *                             (edge to center)
+	 */
 	public HoughTransformation(int accumulatorThreshold, double accumulatorAccuracy, int min, int max) {
 		minMajor = min;
 		maxMajor = max;
@@ -30,17 +40,19 @@ public class HoughTransformation {
 	}
 
 	public List<EllipsisData> execute(ImageData imageData) {
-		// Split the image into segments (each ellipse is one segment) to speed up calculation time and improve accuracy
+		// Split the image into segments (each ellipse is one segment) to speed up
+		// calculation time and improve accuracy
 		ArrayList<ArrayList<Point>> segments = new Segmenter(30).execute(imageData);
 		ArrayList<Thread> threads = new ArrayList<Thread>();
 
 		Object lock = new Object();
 		ArrayList<EllipsisData> foundEllipsisList = new ArrayList<>();
 
-		// Create a new thread for every segment. The best result will be stored in foundEllipsisList
+		// Create a new thread for every segment. The best result will be stored in
+		// foundEllipsisList
 		for (int i = 0; i < segments.size(); ++i) {
 			ArrayList<Point> segment = segments.get(i);
-			
+
 			Thread t = new Thread() {
 				public void run() {
 					ArrayList<EllipsisData> ellipsisList = findEllipsis(segment);
@@ -83,8 +95,8 @@ public class HoughTransformation {
 	}
 
 	/**
-	 * The logic is in its own class so that the findEllipsis method can be called on the same
-	 * object on multiple threads
+	 * The logic is in its own class so that the findEllipsis method can be called
+	 * on the same object on multiple threads
 	 */
 	private class InternalLogic {
 		private int i1, i2, i3;// indices of points
@@ -156,61 +168,6 @@ public class HoughTransformation {
 					EllipsisData e = new EllipsisData(center, a, b, max.votes, orientation);
 					results.add(e);
 				}
-			}
-		}
-	}
-	
-	/**
-	 * An accumulator used to vote for an ellipsis parameter
-	 * @author Patrick
-	 */
-	private static class Accumulator {
-		private final double binSize, minValue;
-		private final int[] counts;
-		private int maxUsedIndex;
-
-		public Accumulator(double minValue, double maxValue, double binSize) {
-			this.minValue = minValue;
-			this.binSize = binSize;
-			maxUsedIndex = 0;
-			counts = new int[binIndex(maxValue) + 1];
-		}
-
-		private int binIndex(double value) {
-			return (int) ((value - minValue) / binSize);
-		}
-
-		public void add(double value) {
-			int index = binIndex(value);
-			try {
-				counts[index]++;
-				maxUsedIndex = Math.max(maxUsedIndex, index);
-			} catch (ArrayIndexOutOfBoundsException ex) {
-				// Value is not between min and max, so we can savely ignore it
-			}
-		}
-
-		public Max findMaxAndClear() {
-			int max = 0, maxi = 0;
-			for (int i = 0; i < maxUsedIndex; ++i) {
-				if (counts[i] > max) {
-					maxi = i;
-					max = counts[i];
-					counts[i] = 0;
-				}
-			}
-			maxUsedIndex = 0;
-			return new Max(max, minValue + (maxi + 0.5) * binSize);
-		}
-
-		public static class Max {
-			public final int votes;
-			public final double center;
-
-			private Max(int votes, double center) {
-				super();
-				this.votes = votes;
-				this.center = center;
 			}
 		}
 	}

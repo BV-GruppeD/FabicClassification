@@ -1,5 +1,6 @@
 package classification;
 
+//TODO explain why we need this class?
 public class FeatureScaling {
 	
 	private double[] scalingFactors;
@@ -54,6 +55,6 @@ public class FeatureScaling {
 			scaledFeatureValues[j] = vector.getFeatureValues()[j] * scalingFactors[j];
 		}
 		
-		return new FeatureVector(scaledFeatureValues, vector.getLable());
+		return new FeatureVector(vector.getFeatureNames(), scaledFeatureValues, vector.getLable());
 	}
 }

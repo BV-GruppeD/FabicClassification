@@ -34,6 +34,14 @@ public class ImageDataCreator {
 	    add("stoerung");
 	}};
 	
+	/*//TODO I suggest something like 
+	static {
+	expectedDirectories = new ArrayList<String>();
+	expectedDirectories.add("geschert");
+	...
+	}
+	//to prevent this @SuppressWarnings("serial"). It is the first time I ever saw an anonymous subclass to initialize a list
+	*/
 	/**
 	 * Given a valid upper directory this method iterates over the directories matching the expected
 	 * names for automatic labeling and creates a list of ImageData objects from the files in the directories.
@@ -143,7 +151,7 @@ public class ImageDataCreator {
 		String countingMessage = labledImages.size() + " Bilder erfolgreich hinzugefügt.\r\n\r\n";
 		
 		String directoriesMessage = "Genutze Ordner:\r\n" + lableDirectories.toString();
-		directoriesMessage = directoriesMessage.replaceAll(",", "\r\n");
+		directoriesMessage = directoriesMessage.replaceAll(",", System.lineSeparator());
 		directoriesMessage = directoriesMessage.replace("[", " ");
 		directoriesMessage = directoriesMessage.replace("]", " ");
 		

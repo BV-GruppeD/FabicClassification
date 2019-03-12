@@ -3,7 +3,7 @@ package preprocessing;
 import com.bv_gruppe_d.imagej.ImageData;
 import ij.process.ImageProcessor;
 
-public class MorphologicalFiltering implements IPreprocessingOperation
+public class MorphologicalFiltering
 {
 
 	private final StructureElement edgeDetection = createCenteredSquare(5);

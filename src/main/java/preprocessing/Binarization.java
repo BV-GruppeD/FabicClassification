@@ -3,11 +3,10 @@ package preprocessing;
 import com.bv_gruppe_d.imagej.ImageData;
 import ij.process.ImageProcessor;
 
-public class Binarization implements IPreprocessingOperation {
-
+//TODO comment
+public class Binarization {
 	private static final int THRESHOLDINC = 128, WHITE = 0xFFFFFF, BLACK = 0x000000;
 
-	@Override
 	public ImageData execute(ImageData imageData) {
 		ImageProcessor imageProcessor = imageData.getImageProcessor();
 
@@ -25,5 +24,4 @@ public class Binarization implements IPreprocessingOperation {
 
 		return imageData;
 	}
-
 }

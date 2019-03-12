@@ -22,6 +22,7 @@ public class FabricClassificationScatterChartPopulator {
 	private XYChart.Series<Number, Number> seriesSheard;
 	private XYChart.Series<Number, Number> seriesUnknown;
 
+	//TODO maybe add a comment for these two?
 	private int xIndex;
 	private int yIndex;
 	
