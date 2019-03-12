@@ -1,15 +1,12 @@
 package ui;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.bv_gruppe_d.imagej.CsvIO;
 import com.bv_gruppe_d.imagej.ImageData;
 import com.bv_gruppe_d.imagej.Lable;
 import classification.Classificator;
@@ -278,9 +275,9 @@ public class UserInterfaceControler {
 	 * @param filename The name of the created file.
 	 */
 	private void saveFeatureVector(FeatureVector[] vectors, String filename) {
-		try (ObjectOutputStream stream = new ObjectOutputStream(
-				new FileOutputStream(new File(System.getProperty("user.home"), filename)))) {
-			stream.writeObject(vectors);
+		try {
+			String path = new File(System.getProperty("user.home"), filename).getAbsolutePath();
+			CsvIO.write(path, vectors);
 			new Alert(AlertType.INFORMATION, "Feature Vectors gespeichert.", ButtonType.OK).showAndWait();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -309,9 +306,9 @@ public class UserInterfaceControler {
 	 */
 	private FeatureVector[] loadFeatureVector(String filename) {
 		FeatureVector[] vectors = null;
-		try (ObjectInputStream stream = new ObjectInputStream(
-				new FileInputStream(new File(System.getProperty("user.home"), filename)))) {
-			vectors = (FeatureVector[]) stream.readObject();
+		try  {
+			String path = new File(System.getProperty("user.home"), filename).getAbsolutePath();
+			vectors = CsvIO.read(path);
 			new Alert(AlertType.INFORMATION, "Feature Vektoren geladen.", ButtonType.OK).showAndWait();
 		} catch (Exception e) {
 			new Alert(AlertType.ERROR, "Beim Laden der Datei ist ein Fehler aufgetreten. Prüfen Sie "
