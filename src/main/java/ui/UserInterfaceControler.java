@@ -127,10 +127,6 @@ public class UserInterfaceControler {
 		new Thread() {
 			public void run() {
 				testFeatureVectors = executeImageProcessingPipe(images, testProgressBar);
-				Platform.runLater(() -> testProgressBar.setProgress(0));
-				// TODO Not needed, the executeImageProcessingPipe will set it
-				// it might create a race condition or something like that (multithreading
-				// stuff)
 				Platform.runLater(() -> classifiyTestFeatureVectors());
 			}
 		}.start();
@@ -157,7 +153,7 @@ public class UserInterfaceControler {
 	private void classifiyTestFeatureVectors() {
 		final String newLine = System.lineSeparator(); // To be cross platform
 		StringBuilder sb = new StringBuilder();
-		int countCorrectlyClassified = 0;
+		double countCorrectlyClassified = 0;
 		for (FeatureVector featureVector : testFeatureVectors) {
 			Lable result = classificator.testClassifier(featureVector);
 			sb.append("Vorgabe: ").append(featureVector.getLable());
@@ -166,12 +162,14 @@ public class UserInterfaceControler {
 				countCorrectlyClassified++;
 			}
 		}
-		sb.append(newLine).append("Korrekt Klassifiziert: ").append(countCorrectlyClassified).append(" von ")
-				.append(testFeatureVectors.length);
+		sb.append(newLine).append("Korrekt Klassifiziert: ").append(countCorrectlyClassified)
+				.append(" von ").append(testFeatureVectors.length);
 		sb.append(newLine).append("Klassifikationsrate: ")
-				// TODO muss das nicht andersherum sein? (korrekt / gesammt)
-				.append(((double) testFeatureVectors.length) / countCorrectlyClassified * 100).append("%");
-		new Alert(AlertType.INFORMATION, sb.toString(), ButtonType.OK).showAndWait();
+				.append(Double.toString(countCorrectlyClassified / testFeatureVectors.length * 100))
+				.append("%");
+		Alert resultsBox = new Alert(AlertType.INFORMATION, sb.toString(), ButtonType.OK);
+		resultsBox.setWidth(720);
+		resultsBox.showAndWait();
 	}
 
 	/**
@@ -201,8 +199,6 @@ public class UserInterfaceControler {
 			public void run() {
 				trainingsFeatureVectors = executeImageProcessingPipe(images, trainingProgressBar);
 				Platform.runLater(() -> initializeScatterPlot());
-				Platform.runLater(() -> trainingProgressBar.setProgress(0));// TODO again this is probably not needed
-																			// and might cause problems
 				Platform.runLater(() -> createClassificator());
 			}
 		}.start();
@@ -376,6 +372,7 @@ public class UserInterfaceControler {
 		processImage = new ImageData(processImage.getImageProcessor().crop(), processImage.getLable());
 
 		preprocessing.execute(processImage);
+		
 		List<EllipsisData> ellipses = houghTransformation.execute(processImage);
 		return featureExtractor.execute(processImage, ellipses);
 	}

@@ -1,6 +1,11 @@
 package classification;
 
-//TODO explain why we need this class?
+/**
+ * Provides Methods to determine a factor for linear scaling of a set of Feature Vectors to the 
+ * interval [-1,1] and the scaling itself. This is absolutely necessary before training a Support
+ * Vector Machine (SVM). An unscaled set of features causes numerical problems when training and 
+ * thereby leads to poor classification rates.
+ */
 public class FeatureScaling {
 	
 	private double[] scalingFactors;
