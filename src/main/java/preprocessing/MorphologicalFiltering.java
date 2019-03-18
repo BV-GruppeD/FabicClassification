@@ -34,8 +34,7 @@ public class MorphologicalFiltering
 
 	public ImageData execute(ImageData imageData) {
 
-		Binarization binarization = new Binarization();
-		binarization.execute(imageData);
+		Binarization.execute(imageData, 0);
 		invert(imageData.getImageProcessor());
 		close(imageData.getImageProcessor(), closeHoles);
 		ImageProcessor other = imageData.getImageProcessor().duplicate();
@@ -43,7 +42,7 @@ public class MorphologicalFiltering
 		xor(other, imageData.getImageProcessor());
 
 
-		return null;//TODO shouldn't it return imageData?
+		return imageData;
 	}
 
 	public static void invert(ImageProcessor output) {

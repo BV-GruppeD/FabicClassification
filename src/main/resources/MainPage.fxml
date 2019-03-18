@@ -34,7 +34,7 @@
                                                       <Font size="16.0" />
                                                    </font>
                                                 </Label>
-                                                <Button fx:id="readTrainingsData" layoutX="281.0" layoutY="14.0" mnemonicParsing="false" onAction="#readLabledTrainingsData" prefHeight="30.0" prefWidth="124.0" text="..." textAlignment="CENTER" />
+                                                <Button fx:id="readTrainingsData" layoutX="281.0" layoutY="14.0" mnemonicParsing="false" onAction="#readLabledTrainingsData" onMouseClicked="#readLabledTrainingsData" prefHeight="30.0" prefWidth="124.0" text="..." textAlignment="CENTER" />
                                                 <Button fx:id="trainClassifierBtn" layoutX="111.0" layoutY="88.0" mnemonicParsing="false" onAction="#trainClassifier" text="Trainiere Klassifizierer" />
                                                 <ProgressBar fx:id="trainingProgressBar" layoutX="111.0" layoutY="127.0" prefHeight="9.0" prefWidth="196.0" progress="0.0" />
                                              </children>
