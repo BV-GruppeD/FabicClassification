@@ -27,7 +27,7 @@ public class Segmenter {
 		ArrayList<ArrayList<Point>> shapeList = new ArrayList<>();
 		ImageProcessor ip = imageData.getImageProcessor();
 
-		EdgeMap edgeMap = new EdgeMap(ip.getWidth(), ip.getHeight());
+		EdgeMap edgeMap = /**/new EdgeMap(ip.getWidth(), ip.getHeight());
 		for (int x = 0; x < ip.getWidth(); ++x) {
 			for (int y = 0; y < ip.getHeight(); ++y) {
 				boolean isEdge = (ip.get(x, y) & 0xff) >= 0x80;
@@ -35,7 +35,7 @@ public class Segmenter {
 					edgeMap.setEdge(x, y, isEdge);
 				}
 			}
-		}
+		}// TODO: extract method something like createEdgeMap
 
 		Point start;
 		//While there are unassigned edge points, chose one at random
@@ -46,6 +46,7 @@ public class Segmenter {
 			checkNext.add(start);
 			edgeMap.setEdge(start.x, start.y, false);
 
+			// TODO: Is there a point in setting these final?
 			final int w = edgeMap.getWidth(), h = edgeMap.getHeight();
 			while (!checkNext.isEmpty()) {
 				Point current = checkNext.removeFirst();
@@ -56,6 +57,7 @@ public class Segmenter {
 					for (int dy = -1; dy < 2; dy++) {
 						int x = current.x + dx;
 						int y = current.y + dy;
+						// TODO: extract boolean expression to give it a descriptive name
 						if (x >= 0 && x < w && y >= 0 && y < h && edgeMap.isEdge(x, y)) {
 							checkNext.addLast(new Point(x, y));
 							edgeMap.setEdge(x, y, false);

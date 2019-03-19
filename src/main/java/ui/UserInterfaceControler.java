@@ -48,6 +48,7 @@ public class UserInterfaceControler {
 
 	// Initialize instances of the image processing pipeline
 	private final PreProcessing preprocessing = new PreProcessing();
+	// TODO: Magic numbers (i think in this case an explenation would be even better than just naming the numbers)
 	private final HoughTransformation houghTransformation = new HoughTransformation(2, 1.0, 4, 100);
 	private final FeatureExtractor featureExtractor = new FeatureExtractor();
 

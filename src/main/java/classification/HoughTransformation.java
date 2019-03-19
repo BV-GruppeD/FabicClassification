@@ -10,6 +10,7 @@ import com.bv_gruppe_d.imagej.ImageData;
 
 import preprocessing.Segmenter;
 
+// TODO: Check if hough transformation begins with capital letters in englisch
 /**
  * This class uses the hough transformation to extract ellipsis information from
  * an edge image
@@ -53,6 +54,7 @@ public class HoughTransformation {
 		for (int i = 0; i < segments.size(); ++i) {
 			ArrayList<Point> segment = segments.get(i);
 
+			// TODO: Extract method createHoughThread oderso
 			Thread t = new Thread() {
 				public void run() {
 					ArrayList<EllipsisData> ellipsisList = findEllipsis(segment);
@@ -71,6 +73,7 @@ public class HoughTransformation {
 			threads.add(t);
 		}
 
+		// TODO: Maybe make threads a field of the object and extraxt methods?
 		// start all threads
 		for (Thread t : threads) {
 			t.start();
@@ -127,6 +130,8 @@ public class HoughTransformation {
 			}
 		}
 
+		// TODO: Well that is heavy stuff, maybe u could add a small explenation of the generell procedure as a javadoc or extract methods 
+		// honestly i don't get this calculation. Maybe even refer to the paper as an explenation
 		private void findEllipsis() {
 			Point p1 = edgePixels.get(i1);
 			Point p2 = edgePixels.get(i2);

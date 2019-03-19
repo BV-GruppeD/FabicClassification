@@ -8,6 +8,8 @@ public class Accumulator {
 	private final int[] counts;
 	private int maxUsedIndex;
 
+	// TODO: Add javadoc with parameter explanation. 
+	// Maybe (Possibly) its because of me but i am not so familiar with the concept of an accumulator and would not directly now whats the meaning of the parameters.
 	public Accumulator(double minValue, double maxValue, double binSize) {
 		this.minValue = minValue;
 		this.binSize = binSize;
@@ -19,6 +21,7 @@ public class Accumulator {
 		return (int) ((value - minValue) / binSize);
 	}
 
+	// TODO: Add javadoc because its a public method and because the name says add but the method actually increases a counter
 	public void add(double value) {
 		int index = binIndex(value);
 		try {
@@ -29,6 +32,7 @@ public class Accumulator {
 		}
 	}
 
+	// TODO: Add javadoc because its a public method and because the name says add but the method actually increases a counter
 	public Max findMaxAndClear() {
 		int max = 0, maxi = 0;
 		for (int i = 0; i < maxUsedIndex; ++i) {
@@ -42,6 +46,8 @@ public class Accumulator {
 		return new Max(max, minValue + (maxi + 0.5) * binSize);
 	}
 
+	// TODO: Add comment to explain the construct of a static class with a constructor who explicitly calls the super constructor
+	// And tells what this structure is the maximum of
 	public static class Max {
 		public final int votes;
 		public final double center;

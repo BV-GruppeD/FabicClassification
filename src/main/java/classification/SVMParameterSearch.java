@@ -37,7 +37,7 @@ public class SVMParameterSearch {
 			for (int nuIndex = -4; nuIndex < 5; nuIndex++) {
 				for (int gammaIndex = -5; gammaIndex < 5; gammaIndex++) {
 					double nu = promisingNU + Math.pow(10, -(i+1)) * nuIndex;
-					
+					// TODO: Remove magic number
 					double gammaExp = promisingGammaExp + Math.pow(10, -i) * gammaIndex;
 					double gamma = Math.pow(0.3, gammaExp);
 					
