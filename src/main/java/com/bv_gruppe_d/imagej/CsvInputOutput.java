@@ -11,9 +11,10 @@ import org.supercsv.io.CsvListReader;
 import org.supercsv.io.CsvListWriter;
 import org.supercsv.prefs.CsvPreference;
 
+import classification.ClassifierTestMapping;
 import classification.FeatureVector;
 
-public class CsvIO {
+public class CsvInputOutput {
 	public static void write(String filePath, FeatureVector[] data) throws IOException {
 		CsvListWriter writer = new CsvListWriter(new FileWriter(filePath), CsvPreference.STANDARD_PREFERENCE);
 		try {
@@ -73,5 +74,30 @@ public class CsvIO {
 			listReader.close();
 		}
 		return featureVectors.toArray(new FeatureVector[featureVectors.size()]);
+	}
+	
+	public static void writeGridSearchLog(String filePath, List<ClassifierTestMapping> parameterResultMap) {
+		try (CsvListWriter writer = new CsvListWriter(new FileWriter(filePath), CsvPreference.STANDARD_PREFERENCE)){
+			if (parameterResultMap != null && parameterResultMap.size() >= 0) {
+				// write the header
+				List<String> elements = new ArrayList<String>();
+				elements.add("nu");
+				elements.add("Gamma");
+				elements.add("Crossvalidation Classification Rate");
+				writer.write(elements);
+
+				// Write the entries
+				for (ClassifierTestMapping mapping : parameterResultMap) {
+					elements.clear();
+					elements.add(Double.toString(mapping.getNu()));
+					elements.add(Double.toString(mapping.getGamma()));
+					elements.add(Double.toString(mapping.getClassificationRate()));
+					writer.write(elements);
+				}
+			}
+			writer.flush();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 }

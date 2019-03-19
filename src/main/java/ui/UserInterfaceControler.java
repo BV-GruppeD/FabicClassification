@@ -6,7 +6,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.bv_gruppe_d.imagej.CsvIO;
+import com.bv_gruppe_d.imagej.CsvInputOutput;
 import com.bv_gruppe_d.imagej.ImageData;
 import com.bv_gruppe_d.imagej.Lable;
 import classification.Classificator;
@@ -26,6 +26,7 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.Region;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import preprocessing.PreProcessing;
@@ -147,29 +148,40 @@ public class UserInterfaceControler {
 	}
 
 	/**
+	 * Applies the image processing chain up to and including the feature extractor
+	 * and returns the resulting FeatureVector
+	 */
+	private FeatureVector generateFeatureVector(ImageData image) {
+		// do not modify the original
+		ImageData processImage = image.duplicate();
+		// Processing the whole image takes way too long for testing, so we just
+		// use a part. This might negatively affect up the error detection
+		processImage.getImageProcessor().setRoi(0, 0, 200, 200);
+		processImage = new ImageData(processImage.getImageProcessor().crop(), processImage.getLable());
+
+		preprocessing.execute(processImage);
+		
+		List<EllipsisData> ellipses = houghTransformation.execute(processImage);
+		return featureExtractor.execute(processImage, ellipses);
+	}
+	
+	/**
 	 * Classifies all Feature Vectors for testing. Prompts the ratio of correct
 	 * classification afterwards.
 	 */
 	private void classifiyTestFeatureVectors() {
-		final String newLine = System.lineSeparator(); // To be cross platform
-		StringBuilder sb = new StringBuilder();
-		double countCorrectlyClassified = 0;
-		for (FeatureVector featureVector : testFeatureVectors) {
-			Lable result = classificator.testClassifier(featureVector);
-			sb.append("Vorgabe: ").append(featureVector.getLable());
-			sb.append(" - Ergebnis: ").append(result).append(newLine);
-			if (featureVector.getLable() == result) {
-				countCorrectlyClassified++;
-			}
+		
+		Lable[] results = new Lable[testFeatureVectors.length];
+		for (int i = 0; i < testFeatureVectors.length; i++) {
+			results[i] = classificator.testClassifier(testFeatureVectors[i]);
 		}
-		sb.append(newLine).append("Korrekt Klassifiziert: ").append(countCorrectlyClassified)
-				.append(" von ").append(testFeatureVectors.length);
-		sb.append(newLine).append("Klassifikationsrate: ")
-				.append(Double.toString(countCorrectlyClassified / testFeatureVectors.length * 100))
-				.append("%");
-		Alert resultsBox = new Alert(AlertType.INFORMATION, sb.toString(), ButtonType.OK);
-		resultsBox.setWidth(720);
-		resultsBox.showAndWait();
+		
+		ResultAnalysis analysis = new ResultAnalysis();
+		String formatedResults = analysis.getFormatedResultAnalysis(testFeatureVectors, results);
+		
+		Alert resultsBox = new Alert(AlertType.INFORMATION, formatedResults, ButtonType.OK);
+		resultsBox.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
+		resultsBox.show();
 	}
 
 	/**
@@ -228,13 +240,16 @@ public class UserInterfaceControler {
 	 * Creates and trains the classifier with the Training Feature Vectors.
 	 */
 	private final void createClassificator() {
-		classificator = new Classificator();
+		
 		try {
+			classificator = new Classificator();
 			classificator.learnClassifier(trainingsFeatureVectors);
-
-			new Alert(AlertType.INFORMATION, "Training abgeschlossen", ButtonType.OK).showAndWait();
+			new Alert(AlertType.INFORMATION, "Training abgeschlossen" + System.lineSeparator() 
+			+ "nu = " + classificator.getNu() + "\r\nGamma = " + classificator.getGamma(), ButtonType.OK)
+			.showAndWait();
 		} catch (Exception e) {
-			new Alert(AlertType.ERROR, e.getMessage(), ButtonType.OK).showAndWait();
+			new Alert(AlertType.ERROR, "Leider ist beim lernen ein Fehler aufgetreten" + 
+					System.lineSeparator() + e.getMessage(), ButtonType.OK).showAndWait();
 			e.printStackTrace();
 		}
 	}
@@ -273,7 +288,7 @@ public class UserInterfaceControler {
 	private void saveFeatureVector(FeatureVector[] vectors, String filename) {
 		try {
 			String path = new File(System.getProperty("user.home"), filename).getAbsolutePath();
-			CsvIO.write(path, vectors);
+			CsvInputOutput.write(path, vectors);
 			new Alert(AlertType.INFORMATION, "Feature Vectors gespeichert.", ButtonType.OK).showAndWait();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -304,7 +319,7 @@ public class UserInterfaceControler {
 		FeatureVector[] vectors = null;
 		try  {
 			String path = new File(System.getProperty("user.home"), filename).getAbsolutePath();
-			vectors = CsvIO.read(path);
+			vectors = CsvInputOutput.read(path);
 			new Alert(AlertType.INFORMATION, "Feature Vektoren geladen.", ButtonType.OK).showAndWait();
 		} catch (Exception e) {
 			new Alert(AlertType.ERROR, "Beim Laden der Datei ist ein Fehler aufgetreten. Prüfen Sie "
@@ -329,17 +344,21 @@ public class UserInterfaceControler {
 
 		try {
 			if (classificator == null) {
-				new Alert(AlertType.INFORMATION, "Trainieren Sie zunächst einen Klassifizierer", ButtonType.OK)
+				new Alert(AlertType.INFORMATION, "Trainieren Sie zunächst einen Klassifizierer.", ButtonType.OK)
 						.showAndWait();
 			} else {
 				evalutationImage = ImageDataCreator.getImageData(selectedFile);
 
 				URL url = selectedFile.toURI().toURL();
 				evaluationImageView.setImage(new Image(url.toExternalForm()));
-
-				FeatureVector evaluationFeatureVector = generateFeatureVector(evalutationImage);
-				Lable result = classificator.testClassifier(evaluationFeatureVector);
-				new Alert(AlertType.INFORMATION, "Ergebnis: " + result, ButtonType.OK).showAndWait();
+				
+				new Thread() {
+					public void run() {
+						FeatureVector evaluationFeatureVector = generateFeatureVector(evalutationImage);
+						Lable result = classificator.testClassifier(evaluationFeatureVector);
+						new Alert(AlertType.INFORMATION, "Ergebnis: " + result, ButtonType.OK).showAndWait();
+					}
+				}.start();
 			}
 		} catch (IOException e) {
 			new Alert(AlertType.ERROR, e.getMessage(), ButtonType.OK).showAndWait();
@@ -357,23 +376,5 @@ public class UserInterfaceControler {
 		FileChooser.ExtensionFilter imageFilter = new FileChooser.ExtensionFilter("Image Files", "*.jpg", "*.png");
 		fileChooser.getExtensionFilters().add(imageFilter);
 		return fileChooser.showOpenDialog(null);
-	}
-
-	/**
-	 * Applies the image processing chain up to and including the feature extractor
-	 * and returns the resulting FeatureVector
-	 */
-	private FeatureVector generateFeatureVector(ImageData image) {
-		// do not modify the original
-		ImageData processImage = image.duplicate();
-		// Processing the whole image takes way too long for testing, so we just
-		// use a part. This might negatively affect up the error detection
-		processImage.getImageProcessor().setRoi(0, 0, 200, 200);
-		processImage = new ImageData(processImage.getImageProcessor().crop(), processImage.getLable());
-
-		preprocessing.execute(processImage);
-		
-		List<EllipsisData> ellipses = houghTransformation.execute(processImage);
-		return featureExtractor.execute(processImage, ellipses);
 	}
 }
