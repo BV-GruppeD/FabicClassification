@@ -41,6 +41,7 @@ public class EdgeMap {
 		}
 	}
 
+	// TODO: Add java doc, specifically the exception should be explained shortly
 	public Point getRandomPoint() {
 		if (edgeCount <= 0) {
 			return null;

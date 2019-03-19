@@ -44,4 +44,18 @@ public enum Lable {
     public static Lable valueOf(double numericRepresentation) {
         return (Lable) representationMapping.get(numericRepresentation);
     }
+    
+    /**
+     * Checks of two elements of this type are of the same value.
+     * @param actualLabel First value to compare.
+     * @param targetLabel Second value to compare.
+     * @return True if the parameters contain the same value.
+     */
+    public static boolean areEqual(Lable actualLabel, Lable targetLabel) {
+    	// Because this type only contains integer like values an unprecise check is sufficient.
+    	if (Math.abs(targetLabel.getNumericRepresentation()-actualLabel.getNumericRepresentation())<0.1) {
+			return true;
+		}
+    	return false;
+    }
 }

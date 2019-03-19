@@ -26,6 +26,18 @@ public class Classificator {
 	private svm_model model;
 	private FeatureScaling scaling;
 	
+	// Model parameter
+	private double nu;
+	private double gamma;
+	
+	public double getNu() {
+		return this.nu;
+	}
+	
+	public double getGamma() {
+		return this.gamma;
+	}
+	
 	/**
 	 * Initializes the classifier and optimizes a multi-class support vector machine to fit the 
 	 * provided data. The one-versus-one approach is used internally.
@@ -34,36 +46,22 @@ public class Classificator {
 	 * @throws Exception Thrown if the parameters are unsuited or incomplete for learning a classifier.
 	 */
 	public void learnClassifier(FeatureVector[] featureVectors) throws Exception {
-		//TODO: Add crossvalidation for C and gamma
-		svm_parameter parameters = createParametrizationForLearning();		
 		svm_problem data = createDataFormatForLearning(featureVectors);
-		
+
+		SVMParameterSearch search = new SVMParameterSearch();
+		svm_parameter parameters = search.parameterGridSearch(data,3);
+
 		// A library provided check for the integrity of the parameters
 		String parameterCheck = svm.svm_check_parameter(data, parameters);
 		if(parameterCheck == null) {
+			nu = parameters.nu;
+			gamma = parameters.gamma;
 			model = svm.svm_train(data, parameters);
+			search.saveParameterSearchLogToFile();
 		} else {
-			throw new Exception("Die Parameter zum Lernen des Klassifizierers sind ungültig", new Throwable(parameterCheck));
+			throw new Exception("Die Parameter zum Lernen des Klassifizierers sind ungültig", 
+					new Throwable(parameterCheck));
 		}
-	}
-	
-	/**
-	 * Defines the parameter set used internally in the library. For descriptions of the parameters 
-	 * the link mentioned above provides informations.
-	 * 
-	 * @return The initialized parameter set for the training algorithm in LibSVM
-	 */
-	private svm_parameter createParametrizationForLearning() {
-		svm_parameter parameters = new svm_parameter();
-		parameters.svm_type = svm_parameter.NU_SVC;
-		parameters.kernel_type = svm_parameter.RBF;
-		parameters.cache_size = 1000;
-		parameters.eps = 0.00001;
-		parameters.nu = 0.5;
-		parameters.C = 0.01;
-		parameters.gamma = 333;
-		
-		return parameters;
 	}
 	
 	/**
@@ -94,6 +92,11 @@ public class Classificator {
 		return data;
 	}
 	
+	/**
+	 * Converts the application specific data format in the format required from LibSVM.
+	 * @param featureVector The data to be converted.
+	 * @return A representation of input data in the LibSVM data format
+	 */
 	private svm_node[] convertFeatureVector(FeatureVector featureVector) {
 		svm_node[] features = new svm_node[featureVector.getFeatureValues().length];
 		for (int j = 0; j < featureVector.getFeatureValues().length; j++) {
