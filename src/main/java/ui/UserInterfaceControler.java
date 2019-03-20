@@ -36,6 +36,31 @@ import preprocessing.PreProcessing;
  * MainPage.fxml
  */
 public class UserInterfaceControler {
+	/**
+	 * How many votes the maximum of the accumulator needs to be considered a valid
+	 * ellipsis. Increasing this number leads to fewer ellipses. Choosing a too
+	 * small number will make almost anything like an ellipsis
+	 */
+	private static final int HOUGH_ACCUMULATOR_THRESHOLD = 2;
+
+	/**
+	 * How big the bin size of the accumulator is. The bigger it is the less
+	 * accurate the ellipsis parameters, but if it is chosen too small no ellipsis
+	 * will be found
+	 */
+	private static final double HOUGH_ACCUMULATOR_BIN_SIZE = 1.0;
+
+	/**
+	 * How small the minor (small) axis of an ellipsis may be. Smaller ellipses will
+	 * be ignored
+	 */
+	private static final double HOUGH_ELLIPSIS_AXIS_MIN = 4;
+
+	/**
+	 * How big the major (big) axis of an ellipsis may be. Bigger ellipses will be
+	 * ignored
+	 */
+	private static final double HOUGH_ELLIPSIS_AXIS_MAX = 100;
 
 	// Session variables
 	private ArrayList<ImageData> trainingsData;
@@ -48,8 +73,9 @@ public class UserInterfaceControler {
 
 	// Initialize instances of the image processing pipeline
 	private final PreProcessing preprocessing = new PreProcessing();
-	// TODO: Magic numbers (i think in this case an explenation would be even better than just naming the numbers)
-	private final HoughTransformation houghTransformation = new HoughTransformation(2, 1.0, 4, 100);
+
+	private final HoughTransformation houghTransformation = new HoughTransformation(HOUGH_ACCUMULATOR_THRESHOLD,
+			HOUGH_ACCUMULATOR_BIN_SIZE, HOUGH_ELLIPSIS_AXIS_MIN, HOUGH_ELLIPSIS_AXIS_MAX);
 	private final FeatureExtractor featureExtractor = new FeatureExtractor();
 
 	// Objects displayed on the user interface
@@ -161,25 +187,25 @@ public class UserInterfaceControler {
 		processImage = new ImageData(processImage.getImageProcessor().crop(), processImage.getLable());
 
 		preprocessing.execute(processImage);
-		
+
 		List<EllipsisData> ellipses = houghTransformation.execute(processImage);
 		return featureExtractor.execute(processImage, ellipses);
 	}
-	
+
 	/**
 	 * Classifies all Feature Vectors for testing. Prompts the ratio of correct
 	 * classification afterwards.
 	 */
 	private void classifiyTestFeatureVectors() {
-		
+
 		Lable[] results = new Lable[testFeatureVectors.length];
 		for (int i = 0; i < testFeatureVectors.length; i++) {
 			results[i] = classificator.testClassifier(testFeatureVectors[i]);
 		}
-		
+
 		ResultAnalysis analysis = new ResultAnalysis();
 		String formatedResults = analysis.getFormatedResultAnalysis(testFeatureVectors, results);
-		
+
 		Alert resultsBox = new Alert(AlertType.INFORMATION, formatedResults, ButtonType.OK);
 		resultsBox.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
 		resultsBox.show();
@@ -241,16 +267,16 @@ public class UserInterfaceControler {
 	 * Creates and trains the classifier with the Training Feature Vectors.
 	 */
 	private final void createClassificator() {
-		
+
 		try {
 			classificator = new Classificator();
 			classificator.learnClassifier(trainingsFeatureVectors);
-			new Alert(AlertType.INFORMATION, "Training abgeschlossen" + System.lineSeparator() 
-			+ "nu = " + classificator.getNu() + "\r\nGamma = " + classificator.getGamma(), ButtonType.OK)
-			.showAndWait();
+			new Alert(AlertType.INFORMATION, "Training abgeschlossen" + System.lineSeparator() + "nu = "
+					+ classificator.getNu() + "\r\nGamma = " + classificator.getGamma(), ButtonType.OK).showAndWait();
 		} catch (Exception e) {
-			new Alert(AlertType.ERROR, "Leider ist beim lernen ein Fehler aufgetreten" + 
-					System.lineSeparator() + e.getMessage(), ButtonType.OK).showAndWait();
+			new Alert(AlertType.ERROR,
+					"Leider ist beim lernen ein Fehler aufgetreten" + System.lineSeparator() + e.getMessage(),
+					ButtonType.OK).showAndWait();
 			e.printStackTrace();
 		}
 	}
@@ -318,7 +344,7 @@ public class UserInterfaceControler {
 	 */
 	private FeatureVector[] loadFeatureVector(String filename) {
 		FeatureVector[] vectors = null;
-		try  {
+		try {
 			String path = new File(System.getProperty("user.home"), filename).getAbsolutePath();
 			vectors = CsvInputOutput.read(path);
 			new Alert(AlertType.INFORMATION, "Feature Vektoren geladen.", ButtonType.OK).showAndWait();
@@ -352,7 +378,7 @@ public class UserInterfaceControler {
 
 				URL url = selectedFile.toURI().toURL();
 				evaluationImageView.setImage(new Image(url.toExternalForm()));
-				
+
 				new Thread() {
 					public void run() {
 						FeatureVector evaluationFeatureVector = generateFeatureVector(evalutationImage);

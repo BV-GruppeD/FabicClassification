@@ -31,7 +31,11 @@ public class FeatureExtractor {
 		return new FeatureVector(featureNames, features, imageData.getLable());
 	}
 
-	// TODO: add short Javadoc cause its a public method
+	/**
+	 * 
+	 * @param values the list of values
+	 * @return the average of the list of values or 0 if the list is empty
+	 */
 	public static double average(ArrayList<Double> values) {
 		if (values.isEmpty()) {
 			return 0;
@@ -45,7 +49,11 @@ public class FeatureExtractor {
 	}
 
 
-	// TODO: add short Javadoc cause its a public method
+	/**
+	 * 
+	 * @param values the list of values
+	 * @return the median of the list of values or 0 if the list is empty
+	 */
 	public static double median(ArrayList<Double> values) {
 		if (values.isEmpty()) {
 			return 0;
