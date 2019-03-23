@@ -217,13 +217,20 @@ public class UserInterfaceControler {
 	 */
 	@FXML
 	private void trainClassifier() {
-		if (trainingsData != null) {
-			generateTrainingsFeatures(trainingsData);
-		} else if (trainingsFeatureVectors != null) {
-			new Thread(() -> createClassificator(), "hsowl_createClassificator").start();
-		} else {
-			new Alert(AlertType.INFORMATION, "Bitte lesen Sie zunächst Testdaten ein.", ButtonType.OK).showAndWait();
-		}
+		new Thread("hs_owl.trainClassifier") {
+			@Override
+			public void run() {
+				if (trainingsData != null) {
+					trainingsFeatureVectors = executeImageProcessingPipe(trainingsData, trainingProgressBar);
+					Platform.runLater(() -> initializeScatterPlot());
+					createClassificator();
+				} else if (trainingsFeatureVectors != null) {
+					createClassificator();
+				} else {
+					showDialogAndWait(AlertType.INFORMATION, "Bitte lesen Sie zunächst Testdaten ein.");
+				}
+			}
+		}.start();
 	}
 
 	/**
@@ -279,7 +286,7 @@ public class UserInterfaceControler {
 	}
 
 	private static void showDialogAndWait(AlertType type, String text) {
-		//TODO does this need to run on the gui thread?
+		// TODO does this need to run on the gui thread?
 		Platform.runLater(() -> new Alert(type, text, ButtonType.OK).showAndWait());
 	}
 
@@ -327,7 +334,8 @@ public class UserInterfaceControler {
 
 	@FXML
 	private void saveTestFeatureVectors() {
-		saveFeatureVector(testFeatureVectors, "StoffklassifizierungTestFeatures.txt");// TODO put name in variable
+		Runnable r = ()->saveFeatureVector(testFeatureVectors, "StoffklassifizierungTestFeatures.txt");// TODO put name in variable
+		new Thread(r, "hsowl_saveTestFeatureVectors").start();
 	}
 
 	@FXML
