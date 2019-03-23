@@ -53,6 +53,8 @@ public class HoughTransformation {
 		for (int i = 0; i < segments.size(); ++i) {
 			ArrayList<Point> segment = segments.get(i);
 			Thread t = new WorkerThread(lock, segment, foundEllipsisList);
+			t.setDaemon(true);
+			t.setName("HoughWorker#" + i);
 
 			// Add the thread to the list and start it
 			threads.add(t);
@@ -78,7 +80,8 @@ public class HoughTransformation {
 	}
 
 	/**
-	 * A thread that tries to finds an ellipse in one segment and add it to the resultList
+	 * A thread that tries to finds an ellipse in one segment and add it to the
+	 * resultList
 	 */
 	private class WorkerThread extends Thread {
 		private final Object lock;
@@ -142,10 +145,11 @@ public class HoughTransformation {
 		}
 
 		/**
-		 * For an explaination of the math see:
-		 * "A New Efficient Ellipse Detection Method" (Yonghong Xie Qiang , Qiang Ji / 2002)
+		 * For an explaination of the math see: "A New Efficient Ellipse Detection
+		 * Method" (Yonghong Xie Qiang , Qiang Ji / 2002)
 		 * 
-		 * There is also a python implementation (as of 2019-03-20, the link may be invalidated by future updates to scikit-image):
+		 * There is also a python implementation (as of 2019-03-20, the link may be
+		 * invalidated by future updates to scikit-image):
 		 * https://github.com/scikit-image/scikit-image/blob/master/skimage/transform/_hough_transform.pyx#L101
 		 * 
 		 */

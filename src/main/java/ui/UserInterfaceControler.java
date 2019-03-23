@@ -151,8 +151,7 @@ public class UserInterfaceControler {
 	 * @param images The images to process and test.
 	 */
 	private void generateTestFeatures(ArrayList<ImageData> images) {
-
-		new Thread() {
+		new Thread("hsowl_executeImageProcessingPipe") {
 			public void run() {
 				testFeatureVectors = executeImageProcessingPipe(images, testProgressBar);
 				Platform.runLater(() -> classifiyTestFeatureVectors());
@@ -221,7 +220,7 @@ public class UserInterfaceControler {
 		if (trainingsData != null) {
 			generateTrainingsFeatures(trainingsData);
 		} else if (trainingsFeatureVectors != null) {
-			new Thread(() -> createClassificator()).start();
+			new Thread(() -> createClassificator(), "hsowl_createClassificator").start();
 		} else {
 			new Alert(AlertType.INFORMATION, "Bitte lesen Sie zunächst Testdaten ein.", ButtonType.OK).showAndWait();
 		}
@@ -384,11 +383,11 @@ public class UserInterfaceControler {
 				URL url = selectedFile.toURI().toURL();
 				evaluationImageView.setImage(new Image(url.toExternalForm()));
 
-				new Thread() {
+				new Thread("hsowl_evaluateImage") {
 					public void run() {
 						FeatureVector evaluationFeatureVector = generateFeatureVector(evalutationImage);
 						Lable result = classificator.testClassifier(evaluationFeatureVector);
-						new Alert(AlertType.INFORMATION, "Ergebnis: " + result, ButtonType.OK).showAndWait();
+						showDialogAndWait(AlertType.INFORMATION, "Ergebnis: " + result);
 					}
 				}.start();
 			}
