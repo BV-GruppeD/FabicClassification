@@ -134,11 +134,11 @@ public class UserInterfaceControler {
 		} else if (testFeatureVectors != null && classificator != null) {
 			classifiyTestFeatureVectors();
 		} else if (testData == null) {
-			showDialogAndWait(AlertType.INFORMATION, "Bitte lesen Sie zunächst Testdaten ein.");
+			showDialog(AlertType.INFORMATION, "Bitte lesen Sie zunächst Testdaten ein.");
 		} else if (classificator == null) {
-			showDialogAndWait(AlertType.INFORMATION, "Trainieren Sie zunächst einen Klassifizierer");
+			showDialog(AlertType.INFORMATION, "Trainieren Sie zunächst einen Klassifizierer");
 		} else {
-			showDialogAndWait(AlertType.ERROR, "Bei der Bearbeitung ist leider ein Fehler aufgetreten");
+			showDialog(AlertType.ERROR, "Bei der Bearbeitung ist leider ein Fehler aufgetreten");
 		}
 	}
 
@@ -215,6 +215,7 @@ public class UserInterfaceControler {
 	 */
 	@FXML
 	private void trainClassifier() {
+		classificator = new Classificator();
 		new Thread("hs_owl.trainClassifier") {
 			@Override
 			public void run() {
@@ -225,7 +226,7 @@ public class UserInterfaceControler {
 				} else if (trainingsFeatureVectors != null) {
 					createClassificator();
 				} else {
-					showDialogAndWait(AlertType.INFORMATION, "Bitte lesen Sie zunächst Testdaten ein.");
+					showDialog(AlertType.INFORMATION, "Bitte lesen Sie zunächst Testdaten ein.");
 				}
 			}
 		}.start();
@@ -272,20 +273,19 @@ public class UserInterfaceControler {
 	 */
 	private final void createClassificator() {
 		try {
-			classificator = new Classificator();
 			classificator.learnClassifier(trainingsFeatureVectors);
-			showDialogAndWait(AlertType.INFORMATION, "Training abgeschlossen" + System.lineSeparator() + "nu = "
+			showDialog(AlertType.INFORMATION, "Training abgeschlossen" + System.lineSeparator() + "nu = "
 					+ classificator.getNu() + "\r\nGamma = " + classificator.getGamma());
 		} catch (Exception e) {
-			showDialogAndWait(AlertType.ERROR,
+			showDialog(AlertType.ERROR,
 					"Leider ist beim Lernen ein Fehler aufgetreten" + System.lineSeparator() + e.getMessage());
 			e.printStackTrace();
 		}
 	}
 
-	private static void showDialogAndWait(AlertType type, String text) {
+	private static void showDialog(AlertType type, String text) {
 		System.out.println("[DIALOG] '" + text + "'");
-		Platform.runLater(() -> new Alert(type, text, ButtonType.OK).showAndWait());
+		Platform.runLater(() -> new Alert(type, text, ButtonType.OK).show());
 	}
 
 	/**
@@ -324,7 +324,7 @@ public class UserInterfaceControler {
 		try {
 			String path = new File(System.getProperty("user.home"), filename).getAbsolutePath();
 			CsvInputOutput.write(path, vectors);
-			showDialogAndWait(AlertType.INFORMATION, "Feature-Vectoren gespeichert.");
+			showDialog(AlertType.INFORMATION, "Feature-Vectoren gespeichert.");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -359,9 +359,9 @@ public class UserInterfaceControler {
 		try {
 			String path = new File(System.getProperty("user.home"), filename).getAbsolutePath();
 			vectors = CsvInputOutput.read(path);
-			showDialogAndWait(AlertType.INFORMATION, "Feature Vektoren geladen.");
+			showDialog(AlertType.INFORMATION, "Feature Vektoren geladen.");
 		} catch (Exception e) {
-			showDialogAndWait(AlertType.ERROR, "Beim Laden der Datei ist ein Fehler aufgetreten. Prüfen Sie "
+			showDialog(AlertType.ERROR, "Beim Laden der Datei ist ein Fehler aufgetreten. Prüfen Sie "
 					+ "ob die Datei '" + filename + "' im Nutzerverzeichnis existiert.");
 			e.printStackTrace();
 		}
@@ -383,7 +383,7 @@ public class UserInterfaceControler {
 
 		try {
 			if (classificator == null) {
-				showDialogAndWait(AlertType.INFORMATION, "Trainieren Sie zunächst den Klassifizierer.");
+				showDialog(AlertType.INFORMATION, "Trainieren Sie zunächst den Klassifizierer.");
 			} else {
 				evalutationImage = ImageDataCreator.getImageData(selectedFile);
 
@@ -394,12 +394,12 @@ public class UserInterfaceControler {
 					public void run() {
 						FeatureVector evaluationFeatureVector = generateFeatureVector(evalutationImage);
 						Lable result = classificator.testClassifier(evaluationFeatureVector);
-						showDialogAndWait(AlertType.INFORMATION, "Ergebnis: " + result);
+						showDialog(AlertType.INFORMATION, "Ergebnis: " + result);
 					}
 				}.start();
 			}
 		} catch (IOException e) {
-			showDialogAndWait(AlertType.ERROR, e.getMessage());
+			showDialog(AlertType.ERROR, e.getMessage());
 		}
 	}
 
