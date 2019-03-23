@@ -134,13 +134,11 @@ public class UserInterfaceControler {
 		} else if (testFeatureVectors != null && classificator != null) {
 			classifiyTestFeatureVectors();
 		} else if (testData == null) {
-			new Alert(AlertType.INFORMATION, "Bitte lesen Sie zunächst Testdaten ein.", ButtonType.OK).showAndWait();
+			showDialogAndWait(AlertType.INFORMATION, "Bitte lesen Sie zunächst Testdaten ein.");
 		} else if (classificator == null) {
-			new Alert(AlertType.INFORMATION, "Trainieren Sie zunächst einen Klassifizierer", ButtonType.OK)
-					.showAndWait();
+			showDialogAndWait(AlertType.INFORMATION, "Trainieren Sie zunächst einen Klassifizierer");
 		} else {
-			new Alert(AlertType.ERROR, "Bei der Bearbeitung ist leider ein Fehler aufgetreten", ButtonType.OK)
-					.showAndWait();
+			showDialogAndWait(AlertType.ERROR, "Bei der Bearbeitung ist leider ein Fehler aufgetreten");
 		}
 	}
 
@@ -286,7 +284,7 @@ public class UserInterfaceControler {
 	}
 
 	private static void showDialogAndWait(AlertType type, String text) {
-		// TODO does this need to run on the gui thread?
+		System.out.println("[DIALOG] '" + text + "'");
 		Platform.runLater(() -> new Alert(type, text, ButtonType.OK).showAndWait());
 	}
 
@@ -326,7 +324,7 @@ public class UserInterfaceControler {
 		try {
 			String path = new File(System.getProperty("user.home"), filename).getAbsolutePath();
 			CsvInputOutput.write(path, vectors);
-			new Alert(AlertType.INFORMATION, "Feature-Vectoren gespeichert.", ButtonType.OK).showAndWait();
+			showDialogAndWait(AlertType.INFORMATION, "Feature-Vectoren gespeichert.");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -334,7 +332,9 @@ public class UserInterfaceControler {
 
 	@FXML
 	private void saveTestFeatureVectors() {
-		Runnable r = ()->saveFeatureVector(testFeatureVectors, "StoffklassifizierungTestFeatures.txt");// TODO put name in variable
+		Runnable r = () -> saveFeatureVector(testFeatureVectors, "StoffklassifizierungTestFeatures.txt");// TODO put
+																											// name in
+																											// variable
 		new Thread(r, "hsowl_saveTestFeatureVectors").start();
 	}
 
@@ -359,10 +359,10 @@ public class UserInterfaceControler {
 		try {
 			String path = new File(System.getProperty("user.home"), filename).getAbsolutePath();
 			vectors = CsvInputOutput.read(path);
-			new Alert(AlertType.INFORMATION, "Feature Vektoren geladen.", ButtonType.OK).showAndWait();
+			showDialogAndWait(AlertType.INFORMATION, "Feature Vektoren geladen.");
 		} catch (Exception e) {
-			new Alert(AlertType.ERROR, "Beim Laden der Datei ist ein Fehler aufgetreten. Prüfen Sie " + "ob die Datei '"
-					+ filename + "' im Nutzerverzeichnis existiert.", ButtonType.OK).showAndWait();
+			showDialogAndWait(AlertType.ERROR, "Beim Laden der Datei ist ein Fehler aufgetreten. Prüfen Sie "
+					+ "ob die Datei '" + filename + "' im Nutzerverzeichnis existiert.");
 			e.printStackTrace();
 		}
 		return vectors;
@@ -383,8 +383,7 @@ public class UserInterfaceControler {
 
 		try {
 			if (classificator == null) {
-				new Alert(AlertType.INFORMATION, "Trainieren Sie zunächst den Klassifizierer.", ButtonType.OK)
-						.showAndWait();
+				showDialogAndWait(AlertType.INFORMATION, "Trainieren Sie zunächst den Klassifizierer.");
 			} else {
 				evalutationImage = ImageDataCreator.getImageData(selectedFile);
 
@@ -400,7 +399,7 @@ public class UserInterfaceControler {
 				}.start();
 			}
 		} catch (IOException e) {
-			new Alert(AlertType.ERROR, e.getMessage(), ButtonType.OK).showAndWait();
+			showDialogAndWait(AlertType.ERROR, e.getMessage());
 		}
 	}
 
