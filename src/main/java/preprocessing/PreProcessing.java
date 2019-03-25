@@ -10,7 +10,7 @@ public class PreProcessing {
 	}
 
 	public void execute(ImageData imageData) {
-		Binarization.execute(imageData, 2);
+		Binarization.execute(imageData);
 		edgeDetection.execute(imageData);
 		//TODO make all preprocessing methods return void?I mean we never use the result and it is kind of confusing
 	}

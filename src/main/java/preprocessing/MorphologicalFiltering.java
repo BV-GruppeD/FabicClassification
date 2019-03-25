@@ -3,12 +3,16 @@ package preprocessing;
 import com.bv_gruppe_d.imagej.ImageData;
 import ij.process.ImageProcessor;
 
+/**
+ * This class provides morphological filtering. It uses squared masks and works also erode and dilate.
+ * By running the execute-mehtode this class works with object from input and manipulates on the original object.
+ */
 public class MorphologicalFiltering
 {
 
-	private final StructureElement edgeDetection = createCenteredSquare(5);
+	private final StructureElement edgeDetection = createCenteredSquare(3); //5
 	// TODO: closing Size
-	private final StructureElement closeHoles = createCenteredSquare(2);
+	private final StructureElement closeHoles = createCenteredSquare(3); //2
 
 	public enum Type {
 		ERODE, DILATE
@@ -32,9 +36,15 @@ public class MorphologicalFiltering
 		return mask;
 	}
 
+	/**
+	 * Execute methode - should be used for filtering. The ImageProcessor of the manipulated ImageData object
+	 * gets black and with withe
+	 * @param imageData
+	 * @return returns a copy of the input ImageData object. The edges on the image a filtered.
+	 */
 	public ImageData execute(ImageData imageData) {
 
-		Binarization.execute(imageData, 0);
+		Binarization.execute(imageData);
 		invert(imageData.getImageProcessor());
 		close(imageData.getImageProcessor(), closeHoles);
 		ImageProcessor other = imageData.getImageProcessor().duplicate();
@@ -45,6 +55,10 @@ public class MorphologicalFiltering
 		return imageData;
 	}
 
+	/**
+	 * This methode simply inverts every single pixel value in the image.
+	 * @param output input ImageProcessor
+	 */
 	public static void invert(ImageProcessor output) {
 		for (int x = 0; x < output.getWidth(); x++) {
 			for (int y = 0; y < output.getHeight(); y++) {
@@ -54,6 +68,11 @@ public class MorphologicalFiltering
 		}
 	}
 
+	/**
+	 * a logic XOR operation on every single pixel, between inverted closed and one extra dilated image
+	 * @param input
+	 * @param output
+	 */
 	public static void xor(ImageProcessor input, ImageProcessor output) {
 		for (int x = 0; x < output.getWidth(); x++) {
 			for (int y = 0; y < output.getHeight(); y++) {
@@ -70,6 +89,11 @@ public class MorphologicalFiltering
 		dilate(output.duplicate(), output, structureElement);
 	}
 
+	/**
+	 * opens the ellipses by first dilate and than erode the objects on the image
+	 * @param output
+	 * @param structureElement
+	 */
 	public static void close(ImageProcessor output, StructureElement structureElement) {
 		dilate(output.duplicate(), output, structureElement);
 		erode(output.duplicate(), output, structureElement);
