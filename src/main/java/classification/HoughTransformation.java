@@ -10,9 +10,8 @@ import com.bv_gruppe_d.imagej.ImageData;
 
 import preprocessing.Segmenter;
 
-// TODO: Check if hough transformation begins with capital letters in englisch
 /**
- * This class uses the hough transformation to extract ellipsis information from
+ * This class uses the Hough transformation to extract ellipsis information from
  * an edge image
  */
 public class HoughTransformation {
@@ -31,7 +30,7 @@ public class HoughTransformation {
 	 * @param max                  the maximal length of the ellipsis long axis
 	 *                             (edge to center)
 	 */
-	public HoughTransformation(int accumulatorThreshold, double accumulatorAccuracy, int min, int max) {
+	public HoughTransformation(int accumulatorThreshold, double accumulatorAccuracy, double min, double max) {
 		minMajor = min;
 		maxMajor = max;
 		minMinor = min;
@@ -53,29 +52,12 @@ public class HoughTransformation {
 		// foundEllipsisList
 		for (int i = 0; i < segments.size(); ++i) {
 			ArrayList<Point> segment = segments.get(i);
+			Thread t = new WorkerThread(lock, segment, foundEllipsisList);
+			t.setDaemon(true);
+			t.setName("HoughWorker#" + i);
 
-			// TODO: Extract method createHoughThread oderso
-			Thread t = new Thread() {
-				public void run() {
-					ArrayList<EllipsisData> ellipsisList = findEllipsis(segment);
-					if (!ellipsisList.isEmpty()) {
-						Collections.sort(ellipsisList);
-						synchronized (lock) {
-							// Use the best candidate
-							foundEllipsisList.add(ellipsisList.get(0));
-
-							System.out.print(".");
-							System.out.flush();
-						}
-					}
-				}
-			};
+			// Add the thread to the list and start it
 			threads.add(t);
-		}
-
-		// TODO: Maybe make threads a field of the object and extraxt methods?
-		// start all threads
-		for (Thread t : threads) {
 			t.start();
 		}
 
@@ -95,6 +77,38 @@ public class HoughTransformation {
 		InternalLogic logic = new InternalLogic(edgePixels);
 		logic.run();
 		return logic.results;
+	}
+
+	/**
+	 * A thread that tries to finds an ellipse in one segment and add it to the
+	 * resultList
+	 */
+	private class WorkerThread extends Thread {
+		private final Object lock;
+		private final ArrayList<Point> segment;
+		private final ArrayList<EllipsisData> resultList;
+
+		public WorkerThread(Object lock, ArrayList<Point> segment, ArrayList<EllipsisData> resultList) {
+			super();
+			this.lock = lock;
+			this.segment = segment;
+			this.resultList = resultList;
+		}
+
+		@Override
+		public void run() {
+			ArrayList<EllipsisData> ellipsisList = findEllipsis(segment);
+			if (!ellipsisList.isEmpty()) {
+				Collections.sort(ellipsisList);
+				synchronized (lock) {
+					// Use the best candidate
+					resultList.add(ellipsisList.get(0));
+
+					System.out.print(".");
+					System.out.flush();
+				}
+			}
+		}
 	}
 
 	/**
@@ -130,8 +144,15 @@ public class HoughTransformation {
 			}
 		}
 
-		// TODO: Well that is heavy stuff, maybe u could add a small explenation of the generell procedure as a javadoc or extract methods 
-		// honestly i don't get this calculation. Maybe even refer to the paper as an explenation
+		/**
+		 * For an explaination of the math see: "A New Efficient Ellipse Detection
+		 * Method" (Yonghong Xie Qiang , Qiang Ji / 2002)
+		 * 
+		 * There is also a python implementation (as of 2019-03-20, the link may be
+		 * invalidated by future updates to scikit-image):
+		 * https://github.com/scikit-image/scikit-image/blob/master/skimage/transform/_hough_transform.pyx#L101
+		 * 
+		 */
 		private void findEllipsis() {
 			Point p1 = edgePixels.get(i1);
 			Point p2 = edgePixels.get(i2);

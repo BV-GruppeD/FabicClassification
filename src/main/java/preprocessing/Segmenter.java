@@ -9,12 +9,13 @@ import com.bv_gruppe_d.imagej.ImageData;
 import ij.process.ImageProcessor;
 
 /**
- * This class splits a image into multiple segments
- * A segment is a list of pixels which are connected. All segments with less elements than minSize are ignored
+ * This class splits a image into multiple segments A segment is a list of
+ * pixels which are connected. All segments with less elements than minSize are
+ * ignored
  * 
- * The image is interpreted as a undirected graph, where each 
- * white pixel is a node and all white pixels that are directly next to each other
- * (horizontal or vertical) are connected by an edge. Each segment is a connected subgraph.
+ * The image is interpreted as a undirected graph, where each white pixel is a
+ * node and all white pixels that are directly next to each other (horizontal or
+ * vertical) are connected by an edge. Each segment is a connected subgraph.
  */
 public class Segmenter {
 	private final int minSize;
@@ -25,46 +26,14 @@ public class Segmenter {
 
 	public ArrayList<ArrayList<Point>> execute(ImageData imageData) {
 		ArrayList<ArrayList<Point>> shapeList = new ArrayList<>();
-		ImageProcessor ip = imageData.getImageProcessor();
-
-		EdgeMap edgeMap = /**/new EdgeMap(ip.getWidth(), ip.getHeight());
-		for (int x = 0; x < ip.getWidth(); ++x) {
-			for (int y = 0; y < ip.getHeight(); ++y) {
-				boolean isEdge = (ip.get(x, y) & 0xff) >= 0x80;
-				if (isEdge) {
-					edgeMap.setEdge(x, y, isEdge);
-				}
-			}
-		}// TODO: extract method something like createEdgeMap
+		EdgeMap edgeMap = createEdgeMap(imageData.getImageProcessor());
 
 		Point start;
-		//While there are unassigned edge points, chose one at random
+		// While there are unassigned edge points, chose one at random
 		while ((start = edgeMap.getRandomPoint()) != null) {
 			// Then add all the neighbors using a breadth first search
-			ArrayList<Point> shape = new ArrayList<Point>();
-			LinkedList<Point> checkNext = new LinkedList<Point>();
-			checkNext.add(start);
-			edgeMap.setEdge(start.x, start.y, false);
+			ArrayList<Point> shape = breathFirstSearch(edgeMap, start);
 
-			// TODO: Is there a point in setting these final?
-			final int w = edgeMap.getWidth(), h = edgeMap.getHeight();
-			while (!checkNext.isEmpty()) {
-				Point current = checkNext.removeFirst();
-				shape.add(current);
-
-				// check neighbors
-				for (int dx = -1; dx < 2; dx++) {
-					for (int dy = -1; dy < 2; dy++) {
-						int x = current.x + dx;
-						int y = current.y + dy;
-						// TODO: extract boolean expression to give it a descriptive name
-						if (x >= 0 && x < w && y >= 0 && y < h && edgeMap.isEdge(x, y)) {
-							checkNext.addLast(new Point(x, y));
-							edgeMap.setEdge(x, y, false);
-						}
-					}
-				}
-			}
 			// Ignore any shapes that are to small
 			if (shape.size() > minSize) {
 				shapeList.add(shape);
@@ -75,5 +44,47 @@ public class Segmenter {
 		return shapeList;
 	}
 
-	
+	private EdgeMap createEdgeMap(ImageProcessor ip) {
+		final int w = ip.getWidth(), h = ip.getHeight();
+
+		EdgeMap edgeMap = new EdgeMap(w, h);
+		for (int x = 0; x < w; ++x) {
+			for (int y = 0; y < h; ++y) {
+				boolean isEdge = (ip.get(x, y) & 0xff) >= 0x80;// check if it is white
+				if (isEdge) {
+					edgeMap.setEdge(x, y, isEdge);
+				}
+			}
+		}
+		return edgeMap;
+	}
+
+	private ArrayList<Point> breathFirstSearch(EdgeMap edgeMap, Point start) {
+		ArrayList<Point> shape = new ArrayList<Point>();
+		LinkedList<Point> checkNext = new LinkedList<Point>();
+		checkNext.add(start);
+		edgeMap.setEdge(start.x, start.y, false);
+
+		// TODO: Is there a point in setting these final? Yes: defensive programming
+		final int w = edgeMap.getWidth(), h = edgeMap.getHeight();
+		while (!checkNext.isEmpty()) {
+			Point current = checkNext.removeFirst();
+			shape.add(current);
+
+			// check neighbors. the point itself will be checked too, but since isEdge will return false for it that is no problem
+			for (int dx = -1; dx < 2; dx++) {
+				for (int dy = -1; dy < 2; dy++) {
+					int x = current.x + dx;
+					int y = current.y + dy;
+
+					boolean isInBounds = x >= 0 && x < w && y >= 0 && y < h;
+					if (isInBounds && edgeMap.isEdge(x, y)) {
+						checkNext.addLast(new Point(x, y));
+						edgeMap.setEdge(x, y, false);
+					}
+				}
+			}
+		}
+		return shape;
+	}
 }

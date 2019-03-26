@@ -30,6 +30,8 @@ public class SVMParameterSearch {
 		optimalClassificationRate = Double.MIN_VALUE;
 		parameterResultMap = new ArrayList<ClassifierTestMapping>();
 		
+		muteLibSvmConsoleOutput();
+		
 		svm_parameter optimalParameter = null;
 		double promisingGammaExp = 0;
 		double promisingNU = 0.5;
@@ -53,6 +55,22 @@ public class SVMParameterSearch {
 		}
 		
 		return optimalParameter;
+	}
+
+	/**
+	 * ImageJ provides a separate Console with some Installations (on Windows in our case) which 
+	 * runs on the UI-Thread of the Application. By default LibSVM prints the results of an 
+	 * execution of the Learning and Cross-validation methods to this console.
+	 * When executing the grid search from this class, that behavior causes the Application to hang
+	 * and extends the execution time by round about 5000%!
+	 * 
+	 * Since the console with the output is not shown by default and the informations are not 
+	 * processed any further, simple muting does the trick.
+	 */
+	private void muteLibSvmConsoleOutput() {
+		svm.svm_set_print_string_function(new libsvm.svm_print_interface(){
+		    @Override public void print(String s) {} // Disables svm output
+		});
 	}
 	
 	/**
