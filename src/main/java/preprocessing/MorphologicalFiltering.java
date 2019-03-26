@@ -9,17 +9,16 @@ import ij.process.ImageProcessor;
  */
 public class MorphologicalFiltering
 {
+	private static final int WHITE = 0xFFFFFF, BLACK = 0x000000;
+	private static final int maskSize = 3;
 
-	private final StructureElement edgeDetection = createCenteredSquare(3); //5
+	private final StructureElement edgeDetection = createCenteredSquare(maskSize); //5
 	// TODO: closing Size
-	private final StructureElement closeHoles = createCenteredSquare(3); //2
+	private final StructureElement closeHoles = createCenteredSquare(maskSize); //2
 
 	public enum Type {
 		ERODE, DILATE
 	}
-
-	private static final int WHITE = 0xFFFFFF, BLACK = 0x000000;
-
 
 	private static StructureElement createCenteredSquare(int size) {
 		return new StructureElement(createSquareMask(size), size / 2, size / 2);
@@ -50,7 +49,7 @@ public class MorphologicalFiltering
 		ImageProcessor other = imageData.getImageProcessor().duplicate();
 		dilate(imageData.getImageProcessor(), other, edgeDetection);
 		xor(other, imageData.getImageProcessor());
-
+		removeBorder(imageData.getImageProcessor());
 
 		return imageData;
 	}
@@ -139,6 +138,12 @@ public class MorphologicalFiltering
 		public int getHeight() {
 			return h;
 		}
+	}
+
+	public static void removeBorder(ImageProcessor imageProcessor) {
+
+		imageProcessor.resize(imageProcessor.getWidth()-(Math.round(maskSize/2)), imageProcessor.getHeight()-Math.round(maskSize/2));
+
 	}
 
 	private static void applyOperation(ImageProcessor input, ImageProcessor output, StructureElement structureElement,
