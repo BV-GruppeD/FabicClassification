@@ -41,7 +41,12 @@ public class EdgeMap {
 		}
 	}
 
-	// TODO: Add java doc, specifically the exception should be explained shortly
+	/**
+	 * This method returns one edge point from the edgemap. This method does not guarantee which point comes next (thus the Random part in its name)
+	 * 
+	 * It might throw an exception if someone modifies the isEdge array directly (which should NEVER be done)
+	 * @return a point which represents an edge pixels location or null if there are no edge pixels
+	 */
 	public Point getRandomPoint() {
 		if (edgeCount <= 0) {
 			return null;
