@@ -22,7 +22,7 @@ public class SVMParameterSearch {
 	/**
 	 * Executes a parameter search on a 10 by 10 grid. By definition the nu-parameter is bounded 
 	 * on the interval between 0 and 1. The recommended starting point for the gamma-parameter is
-	 * 1/NumberOfFeatures and the search is executed on a logarithmic scale
+	 * 1/NumberOfFeatures and the search is executed on a logarithmic scale.
 	 * @param trainingsData
 	 * @return
 	 */
@@ -32,6 +32,8 @@ public class SVMParameterSearch {
 		
 		muteLibSvmConsoleOutput();
 		
+		// Possible cause no sparse data is used in this application
+		int numberOfFeatures = trainingsData.x[0].length;
 		svm_parameter optimalParameter = null;
 		double promisingGammaExp = 0;
 		double promisingNU = 0.5;
@@ -39,9 +41,8 @@ public class SVMParameterSearch {
 			for (int nuIndex = -4; nuIndex < 5; nuIndex++) {
 				for (int gammaIndex = -5; gammaIndex < 5; gammaIndex++) {
 					double nu = promisingNU + Math.pow(10, -(i+1)) * nuIndex;
-					// TODO: Remove magic number
 					double gammaExp = promisingGammaExp + Math.pow(10, -i) * gammaIndex;
-					double gamma = Math.pow(0.3, gammaExp);
+					double gamma = Math.pow(1/numberOfFeatures, gammaExp);
 					
 					svm_parameter parameter = createParametrizationForLearning(nu, gamma);
 					

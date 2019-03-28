@@ -62,7 +62,13 @@ public class UserInterfaceControler {
 	 * ignored
 	 */
 	private static final double HOUGH_ELLIPSIS_AXIS_MAX = 100;
-
+	
+	/**
+	 * Filenames to store and load feature vectors
+	 */
+	private static final String TEST_FILE_NAME = "StoffklassifizierungTestFeatures.txt";
+	private static final String TRAINING_FILE_NAME = "StoffklassifizierungTrainingFeatures.txt";
+	
 	// Session variables
 	private ArrayList<ImageData> trainingsData;
 	private FeatureVector[] trainingsFeatureVectors;
@@ -337,8 +343,7 @@ public class UserInterfaceControler {
 	
 	@FXML
 	private void saveTrainingFeatureVectors() {
-		saveFeatureVector(trainingsFeatureVectors, "StoffklassifizierungTrainingFeatures.txt");// TODO put name in
-																								// variable
+		saveFeatureVector(trainingsFeatureVectors, TRAINING_FILE_NAME);
 	}
 
 	/**
@@ -361,9 +366,7 @@ public class UserInterfaceControler {
 
 	@FXML
 	private void saveTestFeatureVectors() {
-		Runnable r = () -> saveFeatureVector(testFeatureVectors, "StoffklassifizierungTestFeatures.txt");// TODO put
-																											// name in
-																											// variable
+		Runnable r = () -> saveFeatureVector(testFeatureVectors, TEST_FILE_NAME);
 		new Thread(r, "hsowl_saveTestFeatureVectors").start();
 	}
 
@@ -371,8 +374,8 @@ public class UserInterfaceControler {
 	
 	@FXML
 	private void loadTrainingFeatureVectors() {
-		trainingsFeatureVectors = loadFeatureVector("StoffklassifizierungTrainingFeatures.txt");// TODO put name in
-																								// variable
+		trainingsFeatureVectors = loadFeatureVector(TRAINING_FILE_NAME);
+		
 		if (trainingsFeatureVectors != null) {
 			initializeScatterPlot();
 		}
@@ -401,7 +404,7 @@ public class UserInterfaceControler {
 
 	@FXML
 	private void loadTestFeatureVectors() {
-		testFeatureVectors = loadFeatureVector("StoffklassifizierungTestFeatures.txt");// TODO put name in variable
+		testFeatureVectors = loadFeatureVector(TEST_FILE_NAME);
 	}
 
 	
