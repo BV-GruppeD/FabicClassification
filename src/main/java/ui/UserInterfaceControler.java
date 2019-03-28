@@ -22,6 +22,7 @@ import javafx.scene.chart.ScatterChart;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.image.Image;
@@ -91,6 +92,12 @@ public class UserInterfaceControler {
 	private ComboBox<String> yValuesPicker;
 	@FXML
 	private ComboBox<String> xValuesPicker;
+	@FXML
+	private Button trainClassifierBtn;
+	@FXML
+	private Button testClassifierBtn;
+	@FXML
+	private Button singleEvaluation;
 
 	/**
 	 * Takes a directory from the user and maps the images in the subfolders to
@@ -122,6 +129,8 @@ public class UserInterfaceControler {
 		testData = ImageDataCreator.getLabledImageData(upperDirectory);
 	}
 
+	
+	
 	/**
 	 * Initializes the preprocessing of the provided Test Data. If no is provided
 	 * checks if Feature Vectors for testing were loaded and provides notifications
@@ -161,6 +170,7 @@ public class UserInterfaceControler {
 	 * @return Returns a set of Feature Vectors corresponding to the given images.
 	 */
 	private FeatureVector[] executeImageProcessingPipe(ArrayList<ImageData> images, ProgressBar progress) {
+		disableButtons();
 		FeatureVector[] vectors = new FeatureVector[images.size()];
 
 		for (int i = 0; i < vectors.length; ++i) {
@@ -168,7 +178,26 @@ public class UserInterfaceControler {
 			Platform.runLater(() -> progress.setProgress(vectorNumber / vectors.length));
 			vectors[i] = generateFeatureVector(images.get(i));
 		}
+		enableButtons();
 		return vectors;
+	}
+
+	/**
+	 * Preserves the user from starting several time consuming tasks at once.
+	 */
+	private void disableButtons() {
+		trainClassifierBtn.setDisable(true);
+		testClassifierBtn.setDisable(true);
+		singleEvaluation.setDisable(true);
+	}
+	
+	/**
+	 * Lifts the lock on starting time consuming task for the user.
+	 */
+	private void enableButtons() {
+		trainClassifierBtn.setDisable(false);
+		testClassifierBtn.setDisable(false);
+		singleEvaluation.setDisable(false);
 	}
 
 	/**
@@ -208,6 +237,8 @@ public class UserInterfaceControler {
 		resultsBox.show();
 	}
 
+	
+	
 	/**
 	 * Initializes the preprocessing of the provided Training Data. If no is
 	 * provided checks if Feature Vectors for training were loaded and provides a
@@ -220,9 +251,7 @@ public class UserInterfaceControler {
 			@Override
 			public void run() {
 				if (trainingsData != null) {
-					trainingsFeatureVectors = executeImageProcessingPipe(trainingsData, trainingProgressBar);
-					Platform.runLater(() -> initializeScatterPlot());
-					createClassificator();
+					generateTrainingsFeatures(trainingsData);
 				} else if (trainingsFeatureVectors != null) {
 					createClassificator();
 				} else {
@@ -232,6 +261,11 @@ public class UserInterfaceControler {
 		}.start();
 	}
 
+	private static void showDialog(AlertType type, String text) {
+		System.out.println("[DIALOG] '" + text + "'");
+		Platform.runLater(() -> new Alert(type, text, ButtonType.OK).show());
+	}
+
 	/**
 	 * Starts a new Thread to generate the Feature Vectors for training and to
 	 * create the classifier afterwards.
@@ -239,13 +273,9 @@ public class UserInterfaceControler {
 	 * @param images The images to process and train with.
 	 */
 	private void generateTrainingsFeatures(ArrayList<ImageData> images) {
-		new Thread() {
-			public void run() {
-				trainingsFeatureVectors = executeImageProcessingPipe(images, trainingProgressBar);
-				Platform.runLater(() -> initializeScatterPlot());
-				createClassificator();
-			}
-		}.start();
+		trainingsFeatureVectors = executeImageProcessingPipe(images, trainingProgressBar);
+		Platform.runLater(() -> initializeScatterPlot());
+		createClassificator();
 	}
 
 	/**
@@ -283,11 +313,8 @@ public class UserInterfaceControler {
 		}
 	}
 
-	private static void showDialog(AlertType type, String text) {
-		System.out.println("[DIALOG] '" + text + "'");
-		Platform.runLater(() -> new Alert(type, text, ButtonType.OK).show());
-	}
-
+	
+	
 	/**
 	 * Refreshes the Scatter Chart
 	 */
@@ -306,6 +333,8 @@ public class UserInterfaceControler {
 		return (index >= 0) ? index : defaultIndex;
 	}
 
+	
+	
 	@FXML
 	private void saveTrainingFeatureVectors() {
 		saveFeatureVector(trainingsFeatureVectors, "StoffklassifizierungTrainingFeatures.txt");// TODO put name in
@@ -338,6 +367,8 @@ public class UserInterfaceControler {
 		new Thread(r, "hsowl_saveTestFeatureVectors").start();
 	}
 
+	
+	
 	@FXML
 	private void loadTrainingFeatureVectors() {
 		trainingsFeatureVectors = loadFeatureVector("StoffklassifizierungTrainingFeatures.txt");// TODO put name in
@@ -373,6 +404,8 @@ public class UserInterfaceControler {
 		testFeatureVectors = loadFeatureVector("StoffklassifizierungTestFeatures.txt");// TODO put name in variable
 	}
 
+	
+	
 	/**
 	 * Takes a file path from the user to map the image to an unlabeled ImageData
 	 * object for individual classification.
