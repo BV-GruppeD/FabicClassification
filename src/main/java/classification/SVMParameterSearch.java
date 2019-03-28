@@ -2,10 +2,12 @@ package classification;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import com.bv_gruppe_d.imagej.CsvInputOutput;
 
+import ij.IJ;
 import libsvm.svm;
 import libsvm.svm_parameter;
 import libsvm.svm_problem;
@@ -18,6 +20,7 @@ public class SVMParameterSearch {
 	
 	private List<ClassifierTestMapping> parameterResultMap;
 	private double optimalClassificationRate;
+	
 	
 	/**
 	 * Executes a parameter search on a 10 by 10 grid. By definition the nu-parameter is bounded 
@@ -34,29 +37,53 @@ public class SVMParameterSearch {
 		
 		// Possible cause no sparse data is used in this application
 		int numberOfFeatures = trainingsData.x[0].length;
+		double maximalNu = calculateMaximalNu(trainingsData);
 		svm_parameter optimalParameter = null;
-		double promisingGammaExp = 0;
-		double promisingNU = 0.5;
-		for (int i = 0; i < gridDepth; i++) {
-			for (int nuIndex = -4; nuIndex < 5; nuIndex++) {
-				for (int gammaIndex = -5; gammaIndex < 5; gammaIndex++) {
-					double nu = promisingNU + Math.pow(10, -(i+1)) * nuIndex;
-					double gammaExp = promisingGammaExp + Math.pow(10, -i) * gammaIndex;
-					double gamma = Math.pow(1/numberOfFeatures, gammaExp);
-					
-					svm_parameter parameter = createParametrizationForLearning(nu, gamma);
-					
-					if (isNewOptimalParameterSet(parameter, trainingsData)) {
-						optimalParameter = parameter;
-						promisingNU = nu;
-						promisingGammaExp = gammaExp;
-					}
+		
+		for (double nu= 0; nu < maximalNu; nu += maximalNu/20) {
+			for (int gammaExp = -15; gammaExp < 3; gammaExp+=0.5) {
+				double gamma = Math.pow(1/numberOfFeatures, gammaExp);
+				svm_parameter parameter = createParametrizationForLearning(nu, gamma);
+				if (isNewOptimalParameterSet(parameter, trainingsData)) {
+					optimalParameter = parameter;
 				}
 			}
 		}
 		
 		return optimalParameter;
 	}
+
+	private double calculateMaximalNu(svm_problem trainingsData) {
+		double[] labels = trainingsData.y;
+		
+		int[] labelOccurrences = countLabelOccurances(labels);
+		double minimalNuMax = 1.0;
+		for (int i = 0; i < labelOccurrences.length; i++) {
+			for (int j = i+1; j < labelOccurrences.length; j++) {
+				minimalNuMax = Math.min(minimalNuMax, calculateNuMax(labelOccurrences[i],labelOccurrences[j]));
+			}
+		}
+		return minimalNuMax;
+	}
+
+	private int[] countLabelOccurances(double[] labels) {
+		int[] labelOccurrences = new int[countNumberOfDifferentLabels(labels)];
+		for (int i = 0; i < labels.length; i++) {
+			labelOccurrences[(int) Math.round(labels[i]) - 1]++;
+		}
+		return labelOccurrences;	
+	}
+	
+	private int countNumberOfDifferentLabels(double[] labels) {
+		double numberOfDifferentLabels = Arrays.stream(labels).max().getAsDouble();
+		return (int) Math.round(numberOfDifferentLabels);
+	}
+	
+	private double calculateNuMax(int mI, int mJ) {
+		return 2*Math.min(mI, mJ) / (mI + mJ);
+	}
+	
+	
 
 	/**
 	 * ImageJ provides a separate Console with some Installations (on Windows in our case) which 
