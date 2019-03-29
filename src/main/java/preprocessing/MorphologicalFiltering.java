@@ -141,9 +141,11 @@ public class MorphologicalFiltering
 	}
 
 	public static void removeBorder(ImageProcessor imageProcessor) {
-
-		imageProcessor.resize(imageProcessor.getWidth()-(Math.round(maskSize/2)), imageProcessor.getHeight()-Math.round(maskSize/2));
-
+		
+		final int border = (maskSize%2)*2;
+		imageProcessor.setRoi(border/2, border/2, imageProcessor.getWidth()-border, imageProcessor.getHeight()-border);
+		imageProcessor = imageProcessor.crop();
+		
 	}
 
 	private static void applyOperation(ImageProcessor input, ImageProcessor output, StructureElement structureElement,
