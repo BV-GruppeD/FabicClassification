@@ -7,14 +7,14 @@ import ij.process.ImageProcessor;
  * This class provides morphological filtering. It uses squared masks and works also erode and dilate.
  * By running the execute-mehtode this class works with object from input and manipulates on the original object.
  */
-public class MorphologicalFiltering
+public abstract class MorphologicalFiltering
 {
 	private static final int WHITE = 0xFFFFFF, BLACK = 0x000000;
 	private static final int maskSize = 3;
 
-	private final StructureElement edgeDetection = createCenteredSquare(maskSize); //5
+	private static final StructureElement edgeDetection = createCenteredSquare(maskSize); //5
 	// TODO: closing Size
-	private final StructureElement closeHoles = createCenteredSquare(maskSize); //2
+	private static final StructureElement closeHoles = createCenteredSquare(maskSize); //2
 
 	public enum Type {
 		ERODE, DILATE
@@ -41,7 +41,7 @@ public class MorphologicalFiltering
 	 * @param imageData
 	 * @return returns a copy of the input ImageData object. The edges on the image a filtered.
 	 */
-	public ImageData execute(ImageData imageData) {
+	public static ImageData execute(ImageData imageData) {
 
 		Binarization.execute(imageData);
 		invert(imageData.getImageProcessor());
@@ -49,9 +49,9 @@ public class MorphologicalFiltering
 		ImageProcessor other = imageData.getImageProcessor().duplicate();
 		dilate(imageData.getImageProcessor(), other, edgeDetection);
 		xor(other, imageData.getImageProcessor());
-		removeBorder(imageData.getImageProcessor());
+		ImageData image = new ImageData(removeBorder(imageData).getImageProcessor(), removeBorder(imageData).getLable());
 
-		return imageData;
+		return image;
 	}
 
 	/**
@@ -140,11 +140,19 @@ public class MorphologicalFiltering
 		}
 	}
 
-	public static void removeBorder(ImageProcessor imageProcessor) {
+	public static ImageData removeBorder(ImageData imageData) {
 		
-		final int border = (maskSize%2)*2;
-		imageProcessor.setRoi(border/2, border/2, imageProcessor.getWidth()-border, imageProcessor.getHeight()-border);
-		imageProcessor = imageProcessor.crop();
+		final int imageWidth = imageData.getImageProcessor().getWidth()-2*maskSize;
+		final int imageHeight = imageData.getImageProcessor().getHeight()-2*maskSize;
+		
+		ImageData image = imageData.duplicate();
+		image.getImageProcessor().setRoi(maskSize, maskSize, imageWidth, imageHeight);
+		image = new ImageData(image.getImageProcessor().crop(), image.getLable());
+		
+		return image;
+		//ImageData imageData = imageData.duplicate();
+		//imageProcessor.setRoi(border, border, imageProcessor.getWidth()-border, imageProcessor.getHeight()-border);
+		//imageProcessor = imageProcessor.crop();
 		
 	}
 
