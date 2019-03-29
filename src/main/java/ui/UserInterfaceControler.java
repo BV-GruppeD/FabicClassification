@@ -17,6 +17,7 @@ import classification.HoughTransformation;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXML;
 import javafx.scene.chart.ScatterChart;
 import javafx.scene.control.Alert;
@@ -218,8 +219,10 @@ public class UserInterfaceControler {
 		processImage.getImageProcessor().setRoi(0, 0, 200, 200);
 		processImage = new ImageData(processImage.getImageProcessor().crop(), processImage.getLable());
 
-		preprocessing.execute(processImage);
-
+		processImage = new ImageData(preprocessing.execute(processImage).getImageProcessor(), processImage.getLable());
+	
+		evaluationImageView.setImage(SwingFXUtils.toFXImage(processImage.getImageProcessor().getBufferedImage(), null));
+		
 		List<EllipsisData> ellipses = houghTransformation.execute(processImage);
 		return featureExtractor.execute(processImage, ellipses);
 	}

@@ -49,9 +49,9 @@ public abstract class MorphologicalFiltering
 		ImageProcessor other = imageData.getImageProcessor().duplicate();
 		dilate(imageData.getImageProcessor(), other, edgeDetection);
 		xor(other, imageData.getImageProcessor());
-		ImageData image = new ImageData(removeBorder(imageData).getImageProcessor(), removeBorder(imageData).getLable());
+		imageData = new ImageData(removeBorder(imageData).getImageProcessor(), imageData.getLable());
 
-		return image;
+		return imageData;
 	}
 
 	/**
@@ -147,9 +147,9 @@ public abstract class MorphologicalFiltering
 		
 		ImageData image = imageData.duplicate();
 		image.getImageProcessor().setRoi(maskSize, maskSize, imageWidth, imageHeight);
-		image = new ImageData(image.getImageProcessor().crop(), image.getLable());
+		imageData = new ImageData(image.getImageProcessor().crop(), image.getLable());
 		
-		return image;
+		return imageData;
 		//ImageData imageData = imageData.duplicate();
 		//imageProcessor.setRoi(border, border, imageProcessor.getWidth()-border, imageProcessor.getHeight()-border);
 		//imageProcessor = imageProcessor.crop();
