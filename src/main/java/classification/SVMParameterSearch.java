@@ -28,7 +28,7 @@ public class SVMParameterSearch {
 	 * @param trainingsData
 	 * @return
 	 */
-	public svm_parameter parameterGridSearch(svm_problem trainingsData, int gridDepth) {		
+	public svm_parameter parameterGridSearch(svm_problem trainingsData) {		
 		optimalClassificationRate = Double.MIN_VALUE;
 		parameterResultMap = new ArrayList<ClassifierTestMapping>();
 		
@@ -47,6 +47,7 @@ public class SVMParameterSearch {
 				}
 			}
 		}
+		
 		return optimalParameter;
 	}
 
@@ -88,6 +89,8 @@ public class SVMParameterSearch {
 		for (int i = 0; i < labelOccurrences.length; i++) {
 			for (int j = i+1; j < labelOccurrences.length; j++) {
 				minimalNuMax = Math.min(minimalNuMax, calculateNuMax(labelOccurrences[i],labelOccurrences[j]));
+				System.out.println("[DEBUG] Minimal Nu Max: " + minimalNuMax + "; "
+						+ "(Mi,Mj): (" + labelOccurrences[i] + "," + labelOccurrences[j] + ")");
 			}
 		}
 		return minimalNuMax;
@@ -106,8 +109,8 @@ public class SVMParameterSearch {
 		return (int) Math.round(numberOfDifferentLabels);
 	}
 	
-	private double calculateNuMax(int mI, int mJ) {
-		return 2*Math.min(mI, mJ) / (mI + mJ);
+	private double calculateNuMax(double mI, double mJ) {
+		return 2.0 * Math.min(mI, mJ) / (mI + mJ);
 	}
 	
 	/**
@@ -138,7 +141,6 @@ public class SVMParameterSearch {
 
 		// Log process step
 		parameterResultMap.add(new ClassifierTestMapping(parameter.gamma, parameter.nu, classificationRate));
-		System.out.println("Nu: " + parameter.nu + " gammaExp: " + parameter.gamma + " classification rate: " + classificationRate);
 		
 		if (classificationRate > optimalClassificationRate) {
 			optimalClassificationRate = classificationRate;
