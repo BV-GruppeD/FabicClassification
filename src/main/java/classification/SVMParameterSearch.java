@@ -134,9 +134,10 @@ public class SVMParameterSearch {
 	}
 	
 	private boolean isNewOptimalParameterSet(svm_parameter parameter, svm_problem trainingsData) {
-		
-		double[] results = new double[trainingsData.y.length];
-		svm.svm_cross_validation(trainingsData, parameter, 4, results);		
+		double[] labels = trainingsData.y;
+		double[] results = new double[labels.length];
+		int possibleNumberOfFolds = Arrays.stream(countLabelOccurances(labels)).min().getAsInt();
+		svm.svm_cross_validation(trainingsData, parameter, possibleNumberOfFolds, results);		
 		double fMeasure = calculateMicroAveragedFMeasure(trainingsData.y,results);
 
 		// Log process step
