@@ -6,6 +6,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.bv_gruppe_d.imagej.CsvInputOutput;
+import com.bv_gruppe_d.imagej.Lable;
+import com.github.habernal.confusionmatrix.ConfusionMatrix;
 
 import libsvm.svm;
 import libsvm.svm_parameter;
@@ -89,8 +91,6 @@ public class SVMParameterSearch {
 		for (int i = 0; i < labelOccurrences.length; i++) {
 			for (int j = i+1; j < labelOccurrences.length; j++) {
 				minimalNuMax = Math.min(minimalNuMax, calculateNuMax(labelOccurrences[i],labelOccurrences[j]));
-				System.out.println("[DEBUG] Minimal Nu Max: " + minimalNuMax + "; "
-						+ "(Mi,Mj): (" + labelOccurrences[i] + "," + labelOccurrences[j] + ")");
 			}
 		}
 		return minimalNuMax;
@@ -137,7 +137,7 @@ public class SVMParameterSearch {
 		
 		double[] results = new double[trainingsData.y.length];
 		svm.svm_cross_validation(trainingsData, parameter, 4, results);		
-		double classificationRate = calculateClassificationRate(trainingsData.y,results);
+		double classificationRate = calculateMicroAvaragedFMeasure(trainingsData.y,results);
 
 		// Log process step
 		parameterResultMap.add(new ClassifierTestMapping(parameter.gamma, parameter.nu, classificationRate));
@@ -149,6 +149,17 @@ public class SVMParameterSearch {
 		return false;
 	}
 
+	private double calculateMicroAvaragedFMeasure(double[] targetResults, double[] acturalResults) {
+		
+		ConfusionMatrix cm = new ConfusionMatrix();
+		
+		for (int i = 0; i < targetResults.length; i++) {
+			cm.increaseValue(Lable.valueOf(targetResults[i]).toString(), Lable.valueOf(acturalResults[i]).toString());
+		}
+		
+		return cm.getMicroFMeasure();
+	}
+	
 	private double calculateClassificationRate(double[] targetResults, double[] acturalResults) {
 		double sum = 0;
 		for (int i = 0; i < targetResults.length; i++) {
