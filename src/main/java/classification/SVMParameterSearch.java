@@ -7,7 +7,6 @@ import java.util.List;
 
 import com.bv_gruppe_d.imagej.CsvInputOutput;
 
-import ij.IJ;
 import libsvm.svm;
 import libsvm.svm_parameter;
 import libsvm.svm_problem;
@@ -39,51 +38,17 @@ public class SVMParameterSearch {
 		int numberOfFeatures = trainingsData.x[0].length;
 		double maximalNu = calculateMaximalNu(trainingsData);
 		svm_parameter optimalParameter = null;
-		
-		for (double nu= 0; nu < maximalNu; nu += maximalNu/20) {
-			for (int gammaExp = -15; gammaExp < 3; gammaExp+=0.5) {
-				double gamma = Math.pow(1/numberOfFeatures, gammaExp);
+		for (double nu = 0; nu < maximalNu; nu += maximalNu/20) {
+			for (double gammaExp = -4; gammaExp < 15; gammaExp+=0.5) {
+				double gamma = Math.pow(1.0/numberOfFeatures, gammaExp);
 				svm_parameter parameter = createParametrizationForLearning(nu, gamma);
 				if (isNewOptimalParameterSet(parameter, trainingsData)) {
 					optimalParameter = parameter;
 				}
 			}
 		}
-		
 		return optimalParameter;
 	}
-
-	private double calculateMaximalNu(svm_problem trainingsData) {
-		double[] labels = trainingsData.y;
-		
-		int[] labelOccurrences = countLabelOccurances(labels);
-		double minimalNuMax = 1.0;
-		for (int i = 0; i < labelOccurrences.length; i++) {
-			for (int j = i+1; j < labelOccurrences.length; j++) {
-				minimalNuMax = Math.min(minimalNuMax, calculateNuMax(labelOccurrences[i],labelOccurrences[j]));
-			}
-		}
-		return minimalNuMax;
-	}
-
-	private int[] countLabelOccurances(double[] labels) {
-		int[] labelOccurrences = new int[countNumberOfDifferentLabels(labels)];
-		for (int i = 0; i < labels.length; i++) {
-			labelOccurrences[(int) Math.round(labels[i]) - 1]++;
-		}
-		return labelOccurrences;	
-	}
-	
-	private int countNumberOfDifferentLabels(double[] labels) {
-		double numberOfDifferentLabels = Arrays.stream(labels).max().getAsDouble();
-		return (int) Math.round(numberOfDifferentLabels);
-	}
-	
-	private double calculateNuMax(int mI, int mJ) {
-		return 2*Math.min(mI, mJ) / (mI + mJ);
-	}
-	
-	
 
 	/**
 	 * ImageJ provides a separate Console with some Installations (on Windows in our case) which 
@@ -99,6 +64,50 @@ public class SVMParameterSearch {
 		svm.svm_set_print_string_function(new libsvm.svm_print_interface(){
 		    @Override public void print(String s) {} // Disables svm output
 		});
+	}
+
+	/**
+	 * Calculates the upper limit of the admissible interval for the parameter nu.
+	 * (Lower limit is equal to 0 in any case)
+	 * 
+	 * This depends upon how unbalanced the data set is that we deal with. For a 
+	 * uniformly sized classes the value equals one and gets lower as the unbalance 
+	 * in the data set gets greater.
+	 * 
+	 * (See: http://is.tuebingen.mpg.de/fileadmin/user_upload/files/publications/pdf3353.pdf 
+	 * for a more detailed explanation)
+	 * 
+	 * @param trainingsData The data set upon which the calculation is executed.
+	 * @return The upper limit of the admissible interval for the parameter nu.
+	 */
+	private double calculateMaximalNu(svm_problem trainingsData) {
+		double[] labels = trainingsData.y;
+		
+		int[] labelOccurrences = countLabelOccurances(labels);
+		double minimalNuMax = 1.0;
+		for (int i = 0; i < labelOccurrences.length; i++) {
+			for (int j = i+1; j < labelOccurrences.length; j++) {
+				minimalNuMax = Math.min(minimalNuMax, calculateNuMax(labelOccurrences[i],labelOccurrences[j]));
+			}
+		}
+		return minimalNuMax;
+	}
+	
+	private int[] countLabelOccurances(double[] labels) {
+		int[] labelOccurrences = new int[countNumberOfDifferentLabels(labels)];
+		for (int i = 0; i < labels.length; i++) {
+			labelOccurrences[(int) Math.round(labels[i]) - 1]++;
+		}
+		return labelOccurrences;	
+	}
+	
+	private int countNumberOfDifferentLabels(double[] labels) {
+		double numberOfDifferentLabels = Arrays.stream(labels).max().getAsDouble();
+		return (int) Math.round(numberOfDifferentLabels);
+	}
+	
+	private double calculateNuMax(int mI, int mJ) {
+		return 2*Math.min(mI, mJ) / (mI + mJ);
 	}
 	
 	/**
@@ -129,6 +138,7 @@ public class SVMParameterSearch {
 
 		// Log process step
 		parameterResultMap.add(new ClassifierTestMapping(parameter.gamma, parameter.nu, classificationRate));
+		System.out.println("Nu: " + parameter.nu + " gammaExp: " + parameter.gamma + " classification rate: " + classificationRate);
 		
 		if (classificationRate > optimalClassificationRate) {
 			optimalClassificationRate = classificationRate;
