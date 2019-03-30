@@ -91,7 +91,7 @@ public class CsvInputOutput {
 					elements.clear();
 					elements.add(Double.toString(mapping.getNu()));
 					elements.add(Double.toString(mapping.getGamma()));
-					elements.add(Double.toString(mapping.getClassificationRate()));
+					elements.add(Double.toString(mapping.getFMeasure()));
 					writer.write(elements);
 				}
 			}

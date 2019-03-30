@@ -1,5 +1,8 @@
 package ui;
 
+import java.util.Arrays;
+import java.util.stream.Stream;
+
 import com.bv_gruppe_d.imagej.Lable;
 import com.github.habernal.confusionmatrix.ConfusionMatrix;
 
@@ -22,6 +25,11 @@ public class ResultAnalysis {
 	 */
 	private ConfusionMatrix confusionMatrix;
 	
+	/**
+	 * Cross platform line separator.
+	 */
+	private static final String newLine = System.lineSeparator();
+	
 	public ResultAnalysis() {
 		confusionMatrix = new ConfusionMatrix();
 	}
@@ -38,22 +46,25 @@ public class ResultAnalysis {
 	public String getFormatedResultAnalysis(FeatureVector[] testFeatureVectors, Lable[] results) {
 		analyzeResults(testFeatureVectors, results);
 		
-		// To be cross platform
-		final String newLine = System.lineSeparator();
-		
 		StringBuilder sb = new StringBuilder();
 		sb.append("Analyse der Ergebnisse" + newLine);
-		for (String label : confusionMatrix.getLabelSeries()) {
-			sb.append(newLine + label + newLine);
-			sb.append("Genauigkeit (precision):\t" + 
-					confusionMatrix.getPrecisionForLabel(label) + newLine);
-			sb.append("Trefferquote (recall):  \t" + 
-					confusionMatrix.getRecallForLabel(label) + newLine);
-		}
+		
+		Arrays.stream(Lable.values())
+			.filter(lable -> lable != Lable.UNKNOWN)
+			.forEach(lable -> appendPrecisionAndRecall(sb, lable));
+
 		sb.append(newLine);
 		sb.append("F-Maß (F-Measure) insgesammt: " + confusionMatrix.getMicroFMeasure());
 		
 		return sb.toString();
+	}
+	
+	private void appendPrecisionAndRecall(StringBuilder sb, Lable label) {
+		sb.append(newLine + label + newLine);
+		sb.append("Genauigkeit (precision):\t" + 
+				confusionMatrix.getPrecisionForLabel(label.toString()) + newLine);
+		sb.append("Trefferquote (recall):  \t" + 
+				confusionMatrix.getRecallForLabel(label.toString()) + newLine);
 	}
 
 	/**
@@ -63,12 +74,12 @@ public class ResultAnalysis {
 	 * @param results Set of actual Labels
 	 */
 	private void analyzeResults(FeatureVector[] testFeatureVectors, Lable[] results) {
-		ConfusionMatrix cm = new ConfusionMatrix();
+		confusionMatrix = new ConfusionMatrix();
 		
 		for (int i = 0; i < results.length; i++) {
 			Lable actualLabel = results[i];
 			Lable targetLabel = testFeatureVectors[i].getLable();
-			cm.increaseValue(targetLabel.toString(), actualLabel.toString());
+			confusionMatrix.increaseValue(targetLabel.toString(), actualLabel.toString());
 		}
 	}
 }

@@ -7,13 +7,13 @@ package classification;
 public class ClassifierTestMapping {
 	private double gamma;
 	private double nu;
-	private double classificationRate;
+	private double fMeasure;
 
 	
-	public ClassifierTestMapping(double gamme, double nu, double classificationRate) {
+	public ClassifierTestMapping(double gamme, double nu, double fMeasure) {
 		this.nu = nu;
 		this.gamma = gamme;
-		this.classificationRate = classificationRate;
+		this.fMeasure = fMeasure;
 	}
 	
 	public double getGamma() {
@@ -24,7 +24,7 @@ public class ClassifierTestMapping {
 		return nu;
 	}
 	
-	public double getClassificationRate() {
-		return classificationRate;
+	public double getFMeasure() {
+		return fMeasure;
 	}	
 }

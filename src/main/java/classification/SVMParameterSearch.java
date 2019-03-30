@@ -137,19 +137,32 @@ public class SVMParameterSearch {
 		
 		double[] results = new double[trainingsData.y.length];
 		svm.svm_cross_validation(trainingsData, parameter, 4, results);		
-		double classificationRate = calculateMicroAvaragedFMeasure(trainingsData.y,results);
+		double fMeasure = calculateMicroAveragedFMeasure(trainingsData.y,results);
 
 		// Log process step
-		parameterResultMap.add(new ClassifierTestMapping(parameter.gamma, parameter.nu, classificationRate));
+		parameterResultMap.add(new ClassifierTestMapping(parameter.gamma, parameter.nu, fMeasure));
 		
-		if (classificationRate > optimalClassificationRate) {
-			optimalClassificationRate = classificationRate;
+		if (fMeasure > optimalClassificationRate) {
+			optimalClassificationRate = fMeasure;
 			return true;
 		}		
 		return false;
 	}
 
-	private double calculateMicroAvaragedFMeasure(double[] targetResults, double[] acturalResults) {
+	/**
+	 * Calculates the micro averaged F-Measure from the given results. This number is calculated 
+	 * from the True-Positive, True-Negative and False-Positive rates of each class. It gives a
+	 * better impression of the performance of a classifier especially for unbalanced data.
+	 * 
+	 * For more information about the concept see:
+	 * (https://towardsdatascience.com/machine-learning-multiclass-classification-with-imbalanced-data-set-29f6a177c1a)
+	 * For information about the Java implementation look on GitHub:
+	 * (https://github.com/habernal/confusion-matrix)
+	 * @param targetResults		The results that are expected.
+	 * @param acturalResults	The results that the classifier returned
+	 * @return The micro averaged F-Measure for the result sets.
+	 */
+	private double calculateMicroAveragedFMeasure(double[] targetResults, double[] acturalResults) {
 		
 		ConfusionMatrix cm = new ConfusionMatrix();
 		
@@ -160,16 +173,6 @@ public class SVMParameterSearch {
 		return cm.getMicroFMeasure();
 	}
 	
-	private double calculateClassificationRate(double[] targetResults, double[] acturalResults) {
-		double sum = 0;
-		for (int i = 0; i < targetResults.length; i++) {
-			// We expected only near integer values, thereby no precise check is necessary
-			if (Math.abs(targetResults[i]-acturalResults[i]) < 0.1) {
-				sum++;
-			}
-		}
-		return sum/targetResults.length;
-	}
 	
 	/**
 	 * Writes a csv-File to the home directory containing a mapping of SVM parameters to the 
