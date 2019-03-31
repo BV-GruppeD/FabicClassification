@@ -37,7 +37,7 @@ public class ResultAnalysis {
 	/**
 	 * Provides a string containing a statistical analysis of the compliance between the results 
 	 * and the original Feature Vectors. It contains the Precision and Recall rates for each Label
-	 * and the overall F-Micro-Average-Measure.
+	 * and the overall F-Macro-Average-Measure.
 	 * 
 	 * @param testFeatureVectors The Feature Vectors containing the target Labels.
 	 * @param results The actual Labels to be compared to the target Labels.
@@ -54,7 +54,7 @@ public class ResultAnalysis {
 			.forEach(lable -> appendPrecisionAndRecall(sb, lable));
 
 		sb.append(newLine);
-		sb.append("F-Maß (F-Measure) insgesammt: " + confusionMatrix.getMicroFMeasure());
+		sb.append("F-Maß (F-Measure) insgesammt: " + confusionMatrix.getMacroFMeasure());
 		
 		return sb.toString();
 	}

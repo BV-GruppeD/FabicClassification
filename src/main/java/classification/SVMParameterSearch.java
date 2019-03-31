@@ -40,8 +40,8 @@ public class SVMParameterSearch {
 		int numberOfFeatures = trainingsData.x[0].length;
 		double maximalNu = calculateMaximalNu(trainingsData);
 		svm_parameter optimalParameter = null;
-		for (double nu = 0; nu < maximalNu; nu += maximalNu/20) {
-			for (double gammaExp = -4; gammaExp < 15; gammaExp+=0.5) {
+		for (double nu = 0; nu < maximalNu; nu += maximalNu/40) {
+			for (double gammaExp = -4; gammaExp < 15; gammaExp+=0.25) {
 				double gamma = Math.pow(1.0/numberOfFeatures, gammaExp);
 				svm_parameter parameter = createParametrizationForLearning(nu, gamma);
 				if (isNewOptimalParameterSet(parameter, trainingsData)) {
@@ -138,7 +138,7 @@ public class SVMParameterSearch {
 		double[] results = new double[labels.length];
 		int possibleNumberOfFolds = Arrays.stream(countLabelOccurances(labels)).min().getAsInt();
 		svm.svm_cross_validation(trainingsData, parameter, possibleNumberOfFolds, results);		
-		double fMeasure = calculateMicroAveragedFMeasure(trainingsData.y,results);
+		double fMeasure = calculateMacroAveragedFMeasure(trainingsData.y,results);
 
 		// Log process step
 		parameterResultMap.add(new ClassifierTestMapping(parameter.gamma, parameter.nu, fMeasure));
@@ -151,7 +151,7 @@ public class SVMParameterSearch {
 	}
 
 	/**
-	 * Calculates the micro averaged F-Measure from the given results. This number is calculated 
+	 * Calculates the macro averaged F-Measure from the given results. This number is calculated 
 	 * from the True-Positive, True-Negative and False-Positive rates of each class. It gives a
 	 * better impression of the performance of a classifier especially for unbalanced data.
 	 * 
@@ -161,9 +161,9 @@ public class SVMParameterSearch {
 	 * (https://github.com/habernal/confusion-matrix)
 	 * @param targetResults		The results that are expected.
 	 * @param acturalResults	The results that the classifier returned
-	 * @return The micro averaged F-Measure for the result sets.
+	 * @return The macro averaged F-Measure for the result sets.
 	 */
-	private double calculateMicroAveragedFMeasure(double[] targetResults, double[] acturalResults) {
+	private double calculateMacroAveragedFMeasure(double[] targetResults, double[] acturalResults) {
 		
 		ConfusionMatrix cm = new ConfusionMatrix();
 		
@@ -171,7 +171,7 @@ public class SVMParameterSearch {
 			cm.increaseValue(Lable.valueOf(targetResults[i]).toString(), Lable.valueOf(acturalResults[i]).toString());
 		}
 		
-		return cm.getMicroFMeasure();
+		return cm.getMacroFMeasure();
 	}
 	
 	
