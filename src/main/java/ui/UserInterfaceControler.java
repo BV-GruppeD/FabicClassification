@@ -25,12 +25,14 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Region;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
+import preprocessing.Binarization;
 import preprocessing.PreProcessing;
 
 /**
@@ -78,9 +80,8 @@ public class UserInterfaceControler {
 	private ImageData evalutationImage;
 	private Classificator classificator;
 	private ObservableList<String> featureDimensions;
-
-	// Initialize instances of the image processing pipeline
-	private final PreProcessing preprocessing = new PreProcessing();
+	
+	private File pathToImageFolders = null;
 
 	private final HoughTransformation houghTransformation = new HoughTransformation(HOUGH_ACCUMULATOR_THRESHOLD,
 			HOUGH_ACCUMULATOR_BIN_SIZE, HOUGH_ELLIPSIS_AXIS_MIN, HOUGH_ELLIPSIS_AXIS_MAX);
@@ -105,6 +106,8 @@ public class UserInterfaceControler {
 	private Button testClassifierBtn;
 	@FXML
 	private Button singleEvaluation;
+	@FXML
+	private Label lGroup;
 
 	/**
 	 * Takes a directory from the user and maps the images in the subfolders to
@@ -123,7 +126,10 @@ public class UserInterfaceControler {
 	 */
 	private File getDirectoryFromUser() {
 		final DirectoryChooser directoryChooser = new DirectoryChooser();
-		return directoryChooser.showDialog(null);
+		if(pathToImageFolders!=null)
+			directoryChooser.setInitialDirectory(pathToImageFolders);
+		pathToImageFolders = directoryChooser.showDialog(null);
+		return pathToImageFolders;
 	}
 
 	/**
@@ -218,8 +224,8 @@ public class UserInterfaceControler {
 		// use a part. This might negatively affect up the error detection
 		processImage.getImageProcessor().setRoi(0, 0, 200, 200);
 		processImage = new ImageData(processImage.getImageProcessor().crop(), processImage.getLable());
-
-		processImage = new ImageData(preprocessing.execute(processImage).getImageProcessor(), processImage.getLable());
+		
+		processImage = new ImageData(PreProcessing.execute(processImage).getImageProcessor(), processImage.getLable());
 	
 		evaluationImageView.setImage(SwingFXUtils.toFXImage(processImage.getImageProcessor().getBufferedImage(), null));
 		
