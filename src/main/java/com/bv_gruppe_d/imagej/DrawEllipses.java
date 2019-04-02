@@ -42,7 +42,7 @@ public class DrawEllipses {
 		Ellipse2D e = new Ellipse2D.Double(cx - a, cy - b, 2 * a, 2 * b);
 
 		AffineTransform rotateArroundEllipsisCenter = new AffineTransform();
-		rotateArroundEllipsisCenter.rotate(rot - 0.5 * Math.PI, cx, cy);
+		rotateArroundEllipsisCenter.rotate( - rot - 0.5 * Math.PI, cx, cy);
 
 		g.setTransform(rotateArroundEllipsisCenter);
 		g.draw(e);

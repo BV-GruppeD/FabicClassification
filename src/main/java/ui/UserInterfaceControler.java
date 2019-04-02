@@ -33,12 +33,14 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.Region;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
+import javafx.scene.chart.NumberAxis;
 import preprocessing.PreProcessing;
 
 /**
  * Provides methods for user inputs from the UserInterfaceView generated
  * MainPage.fxml
  */
+@SuppressWarnings("restriction")
 public class UserInterfaceControler {
 	/**
 	 * How many votes the maximum of the accumulator needs to be considered a valid
@@ -107,6 +109,20 @@ public class UserInterfaceControler {
 	private Button testClassifierBtn;
 	@FXML
 	private Button singleEvaluation;
+	@FXML
+	private Button loadTrainingFeatures;
+	@FXML
+	private Button saveTrainingFeatures;
+	@FXML
+	private Button loadTestFeatures;
+	@FXML
+	private Button saveTestFeatures;
+	
+	private ArrayList<Button> buttons;
+	
+	public UserInterfaceControler() {
+		buttons = new ArrayList<>();
+	}
 
 	/**
 	 * Takes a directory from the user and maps the images in the subfolders to
@@ -190,23 +206,39 @@ public class UserInterfaceControler {
 		enableButtons();
 		return vectors;
 	}
+	
+	/**
+	 * Lazy initialized to prevent adding a bunch of null objects to the button list
+	 */
+	private ArrayList<Button> getAllButtons() {
+		if (buttons.isEmpty()) {
+			buttons.add(trainClassifierBtn);
+			buttons.add(testClassifierBtn);
+			buttons.add(singleEvaluation);
+			buttons.add(loadTrainingFeatures);
+			buttons.add(saveTrainingFeatures);
+			buttons.add(loadTestFeatures);
+			buttons.add(saveTestFeatures);
+		}
+		return buttons;
+	}
 
 	/**
 	 * Preserves the user from starting several time consuming tasks at once.
 	 */
 	private void disableButtons() {
-		trainClassifierBtn.setDisable(true);
-		testClassifierBtn.setDisable(true);
-		singleEvaluation.setDisable(true);
+		for (Button b : getAllButtons()) {
+			b.setDisable(true);
+		}
 	}
 	
 	/**
 	 * Lifts the lock on starting time consuming task for the user.
 	 */
 	private void enableButtons() {
-		trainClassifierBtn.setDisable(false);
-		testClassifierBtn.setDisable(false);
-		singleEvaluation.setDisable(false);
+		for (Button b : getAllButtons()) {
+			b.setDisable(false);
+		}
 	}
 
 	/**
@@ -307,6 +339,10 @@ public class UserInterfaceControler {
 
 		FabricClassificationScatterChartPopulator populator = new FabricClassificationScatterChartPopulator(
 				scatterChart);
+		((NumberAxis)scatterChart.getXAxis()).setForceZeroInRange(false);
+		((NumberAxis)scatterChart.getYAxis()).setForceZeroInRange(false);
+//		scatterChart.getXAxis().setm
+		
 		populator.setXIndex(0);
 		populator.setYIndex(1);
 		populator.populateScatterChart(trainingsFeatureVectors);
