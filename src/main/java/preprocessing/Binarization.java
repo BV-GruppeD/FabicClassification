@@ -15,14 +15,18 @@ public abstract class Binarization {
 
 
 	/**
-	 * Main function, it manipulates the ImageProcessor into binear image
+	 * Main function, it manipulates the ImageProcessor into binary image
 	 * @param imageData
-	 * @return binarized ImageData object result depends on slected function
+	 * @return binarized ImageData object result depends on selected function
 	 */
 	public static ImageData execute(ImageData imageData) {
 		ImageProcessor imageProcessor = imageData.getImageProcessor();
 
-		int threshholdinc = getMean(imageProcessor);
+		int threshholdinc = 128;//getMean(imageProcessor);
+		
+		//threshholdinc = (int)(threshholdinc - threshholdinc*0.3);
+		
+		//threshholdinc = (int)(((threshholdinc-threshholdinc*0.1*255)+(threshholdinc+threshholdinc*0.1*255)+2*threshholdinc)/4);
 
 
 		for (int x = 0; x < imageProcessor.getWidth(); x++) {
