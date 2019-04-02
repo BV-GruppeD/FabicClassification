@@ -256,7 +256,7 @@ public class UserInterfaceControler {
 		ImageData processImage = image.duplicate();
 		// Processing the whole image takes way too long for testing, so we just
 		// use a part. This might negatively affect up the error detection
-		processImage.getImageProcessor().setRoi(0, 0, 200, 200);
+		processImage.getImageProcessor().setRoi(0, 0, 512, 512);
 		processImage = new ImageData(processImage.getImageProcessor().crop(), processImage.getLable());
 		
 		processImage = new ImageData(PreProcessing.execute(processImage).getImageProcessor(), processImage.getLable());

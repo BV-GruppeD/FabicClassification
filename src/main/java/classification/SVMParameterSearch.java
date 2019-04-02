@@ -141,7 +141,7 @@ public class SVMParameterSearch {
 		double fMeasure = calculateMacroAveragedFMeasure(trainingsData.y,results);
 
 		// Log process step
-		parameterResultMap.add(new ClassifierTestMapping(parameter.gamma, parameter.nu, fMeasure));
+		parameterResultMap.add(new ClassifierTestMapping(Math.log(parameter.gamma)/Math.log(1.0/3.0), parameter.nu, fMeasure));
 		
 		if (fMeasure > optimalClassificationRate) {
 			optimalClassificationRate = fMeasure;
