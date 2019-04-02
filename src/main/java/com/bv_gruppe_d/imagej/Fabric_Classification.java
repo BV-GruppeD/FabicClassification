@@ -11,5 +11,7 @@ public class Fabric_Classification implements PlugIn {
 		IJ.showStatus("Work in Progress");
 
 		new UserInterfaceView().show();
+
+
 	}
 }

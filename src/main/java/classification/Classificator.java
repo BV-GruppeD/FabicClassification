@@ -49,8 +49,8 @@ public class Classificator {
 		svm_problem data = createDataFormatForLearning(featureVectors);
 
 		SVMParameterSearch search = new SVMParameterSearch();
-		svm_parameter parameters = search.parameterGridSearch(data,3);
-
+		svm_parameter parameters = search.parameterGridSearch(data);
+		
 		// A library provided check for the integrity of the parameters
 		String parameterCheck = svm.svm_check_parameter(data, parameters);
 		if(parameterCheck == null) {

@@ -65,7 +65,6 @@ public class Segmenter {
 		checkNext.add(start);
 		edgeMap.setEdge(start.x, start.y, false);
 
-		// TODO: Is there a point in setting these final? Yes: defensive programming
 		final int w = edgeMap.getWidth(), h = edgeMap.getHeight();
 		while (!checkNext.isEmpty()) {
 			Point current = checkNext.removeFirst();

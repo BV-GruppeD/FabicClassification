@@ -1,5 +1,6 @@
 package ui;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -7,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.bv_gruppe_d.imagej.CsvInputOutput;
+import com.bv_gruppe_d.imagej.DrawEllipses;
 import com.bv_gruppe_d.imagej.ImageData;
 import com.bv_gruppe_d.imagej.Lable;
 import classification.Classificator;
@@ -17,11 +19,13 @@ import classification.HoughTransformation;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXML;
 import javafx.scene.chart.ScatterChart;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.image.Image;
@@ -29,12 +33,14 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.Region;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
+import javafx.scene.chart.NumberAxis;
 import preprocessing.PreProcessing;
 
 /**
  * Provides methods for user inputs from the UserInterfaceView generated
  * MainPage.fxml
  */
+@SuppressWarnings("restriction")
 public class UserInterfaceControler {
 	/**
 	 * How many votes the maximum of the accumulator needs to be considered a valid
@@ -61,7 +67,13 @@ public class UserInterfaceControler {
 	 * ignored
 	 */
 	private static final double HOUGH_ELLIPSIS_AXIS_MAX = 100;
-
+	
+	/**
+	 * Filenames to store and load feature vectors
+	 */
+	private static final String TEST_FILE_NAME = "StoffklassifizierungTestFeatures.txt";
+	private static final String TRAINING_FILE_NAME = "StoffklassifizierungTrainingFeatures.txt";
+	
 	// Session variables
 	private ArrayList<ImageData> trainingsData;
 	private FeatureVector[] trainingsFeatureVectors;
@@ -91,6 +103,26 @@ public class UserInterfaceControler {
 	private ComboBox<String> yValuesPicker;
 	@FXML
 	private ComboBox<String> xValuesPicker;
+	@FXML
+	private Button trainClassifierBtn;
+	@FXML
+	private Button testClassifierBtn;
+	@FXML
+	private Button singleEvaluation;
+	@FXML
+	private Button loadTrainingFeatures;
+	@FXML
+	private Button saveTrainingFeatures;
+	@FXML
+	private Button loadTestFeatures;
+	@FXML
+	private Button saveTestFeatures;
+	
+	private ArrayList<Button> buttons;
+	
+	public UserInterfaceControler() {
+		buttons = new ArrayList<>();
+	}
 
 	/**
 	 * Takes a directory from the user and maps the images in the subfolders to
@@ -122,6 +154,8 @@ public class UserInterfaceControler {
 		testData = ImageDataCreator.getLabledImageData(upperDirectory);
 	}
 
+	
+	
 	/**
 	 * Initializes the preprocessing of the provided Test Data. If no is provided
 	 * checks if Feature Vectors for testing were loaded and provides notifications
@@ -161,6 +195,7 @@ public class UserInterfaceControler {
 	 * @return Returns a set of Feature Vectors corresponding to the given images.
 	 */
 	private FeatureVector[] executeImageProcessingPipe(ArrayList<ImageData> images, ProgressBar progress) {
+		disableButtons();
 		FeatureVector[] vectors = new FeatureVector[images.size()];
 
 		for (int i = 0; i < vectors.length; ++i) {
@@ -168,7 +203,42 @@ public class UserInterfaceControler {
 			Platform.runLater(() -> progress.setProgress(vectorNumber / vectors.length));
 			vectors[i] = generateFeatureVector(images.get(i));
 		}
+		enableButtons();
 		return vectors;
+	}
+	
+	/**
+	 * Lazy initialized to prevent adding a bunch of null objects to the button list
+	 */
+	private ArrayList<Button> getAllButtons() {
+		if (buttons.isEmpty()) {
+			buttons.add(trainClassifierBtn);
+			buttons.add(testClassifierBtn);
+			buttons.add(singleEvaluation);
+			buttons.add(loadTrainingFeatures);
+			buttons.add(saveTrainingFeatures);
+			buttons.add(loadTestFeatures);
+			buttons.add(saveTestFeatures);
+		}
+		return buttons;
+	}
+
+	/**
+	 * Preserves the user from starting several time consuming tasks at once.
+	 */
+	private void disableButtons() {
+		for (Button b : getAllButtons()) {
+			b.setDisable(true);
+		}
+	}
+	
+	/**
+	 * Lifts the lock on starting time consuming task for the user.
+	 */
+	private void enableButtons() {
+		for (Button b : getAllButtons()) {
+			b.setDisable(false);
+		}
 	}
 
 	/**
@@ -183,9 +253,14 @@ public class UserInterfaceControler {
 		processImage.getImageProcessor().setRoi(0, 0, 200, 200);
 		processImage = new ImageData(processImage.getImageProcessor().crop(), processImage.getLable());
 
-		preprocessing.execute(processImage);
-
+		processImage = new ImageData(preprocessing.execute(processImage).getImageProcessor(), processImage.getLable());
+	
+//		evaluationImageView.setImage(SwingFXUtils.toFXImage(processImage.getImageProcessor().getBufferedImage(), null));
+		
 		List<EllipsisData> ellipses = houghTransformation.execute(processImage);
+		
+		BufferedImage bi = DrawEllipses.drawEllipses(processImage.getImageProcessor(), ellipses);
+		evaluationImageView.setImage(SwingFXUtils.toFXImage(bi, null));
 		return featureExtractor.execute(processImage, ellipses);
 	}
 
@@ -208,6 +283,8 @@ public class UserInterfaceControler {
 		resultsBox.show();
 	}
 
+	
+	
 	/**
 	 * Initializes the preprocessing of the provided Training Data. If no is
 	 * provided checks if Feature Vectors for training were loaded and provides a
@@ -220,9 +297,7 @@ public class UserInterfaceControler {
 			@Override
 			public void run() {
 				if (trainingsData != null) {
-					trainingsFeatureVectors = executeImageProcessingPipe(trainingsData, trainingProgressBar);
-					Platform.runLater(() -> initializeScatterPlot());
-					createClassificator();
+					generateTrainingsFeatures(trainingsData);
 				} else if (trainingsFeatureVectors != null) {
 					createClassificator();
 				} else {
@@ -232,6 +307,11 @@ public class UserInterfaceControler {
 		}.start();
 	}
 
+	private static void showDialog(AlertType type, String text) {
+		System.out.println("[DIALOG] '" + text + "'");
+		Platform.runLater(() -> new Alert(type, text, ButtonType.OK).show());
+	}
+
 	/**
 	 * Starts a new Thread to generate the Feature Vectors for training and to
 	 * create the classifier afterwards.
@@ -239,13 +319,9 @@ public class UserInterfaceControler {
 	 * @param images The images to process and train with.
 	 */
 	private void generateTrainingsFeatures(ArrayList<ImageData> images) {
-		new Thread() {
-			public void run() {
-				trainingsFeatureVectors = executeImageProcessingPipe(images, trainingProgressBar);
-				Platform.runLater(() -> initializeScatterPlot());
-				createClassificator();
-			}
-		}.start();
+		trainingsFeatureVectors = executeImageProcessingPipe(images, trainingProgressBar);
+		Platform.runLater(() -> initializeScatterPlot());
+		createClassificator();
 	}
 
 	/**
@@ -263,6 +339,10 @@ public class UserInterfaceControler {
 
 		FabricClassificationScatterChartPopulator populator = new FabricClassificationScatterChartPopulator(
 				scatterChart);
+		((NumberAxis)scatterChart.getXAxis()).setForceZeroInRange(false);
+		((NumberAxis)scatterChart.getYAxis()).setForceZeroInRange(false);
+//		scatterChart.getXAxis().setm
+		
 		populator.setXIndex(0);
 		populator.setYIndex(1);
 		populator.populateScatterChart(trainingsFeatureVectors);
@@ -283,11 +363,8 @@ public class UserInterfaceControler {
 		}
 	}
 
-	private static void showDialog(AlertType type, String text) {
-		System.out.println("[DIALOG] '" + text + "'");
-		Platform.runLater(() -> new Alert(type, text, ButtonType.OK).show());
-	}
-
+	
+	
 	/**
 	 * Refreshes the Scatter Chart
 	 */
@@ -306,10 +383,11 @@ public class UserInterfaceControler {
 		return (index >= 0) ? index : defaultIndex;
 	}
 
+	
+	
 	@FXML
 	private void saveTrainingFeatureVectors() {
-		saveFeatureVector(trainingsFeatureVectors, "StoffklassifizierungTrainingFeatures.txt");// TODO put name in
-																								// variable
+		saveFeatureVector(trainingsFeatureVectors, TRAINING_FILE_NAME);
 	}
 
 	/**
@@ -332,16 +410,16 @@ public class UserInterfaceControler {
 
 	@FXML
 	private void saveTestFeatureVectors() {
-		Runnable r = () -> saveFeatureVector(testFeatureVectors, "StoffklassifizierungTestFeatures.txt");// TODO put
-																											// name in
-																											// variable
+		Runnable r = () -> saveFeatureVector(testFeatureVectors, TEST_FILE_NAME);
 		new Thread(r, "hsowl_saveTestFeatureVectors").start();
 	}
 
+	
+	
 	@FXML
 	private void loadTrainingFeatureVectors() {
-		trainingsFeatureVectors = loadFeatureVector("StoffklassifizierungTrainingFeatures.txt");// TODO put name in
-																								// variable
+		trainingsFeatureVectors = loadFeatureVector(TRAINING_FILE_NAME);
+		
 		if (trainingsFeatureVectors != null) {
 			initializeScatterPlot();
 		}
@@ -370,9 +448,11 @@ public class UserInterfaceControler {
 
 	@FXML
 	private void loadTestFeatureVectors() {
-		testFeatureVectors = loadFeatureVector("StoffklassifizierungTestFeatures.txt");// TODO put name in variable
+		testFeatureVectors = loadFeatureVector(TEST_FILE_NAME);
 	}
 
+	
+	
 	/**
 	 * Takes a file path from the user to map the image to an unlabeled ImageData
 	 * object for individual classification.

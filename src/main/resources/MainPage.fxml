@@ -34,9 +34,9 @@
                                                       <Font size="16.0" />
                                                    </font>
                                                 </Label>
-                                                <Button fx:id="readTrainingsData" layoutX="281.0" layoutY="14.0" mnemonicParsing="false" onAction="#readLabledTrainingsData" prefHeight="30.0" prefWidth="124.0" text="..." textAlignment="CENTER" />
-                                                <Button fx:id="trainClassifierBtn" layoutX="111.0" layoutY="88.0" mnemonicParsing="false" onAction="#trainClassifier" text="Trainiere Klassifizierer" />
-                                                <ProgressBar fx:id="trainingProgressBar" layoutX="111.0" layoutY="127.0" prefHeight="9.0" prefWidth="196.0" progress="0.0" />
+                                                <Button fx:id="readTrainingsData" layoutX="281.0" layoutY="14.0" mnemonicParsing="false" onAction="#readLabledTrainingsData" onMouseClicked="#readLabledTrainingsData" prefHeight="30.0" prefWidth="124.0" text="..." textAlignment="CENTER" />
+                                                <Button fx:id="trainClassifierBtn" layoutX="114.0" layoutY="88.0" mnemonicParsing="false" onAction="#trainClassifier" text="Trainiere Klassifizierer" prefHeight="39" prefWidth="196" />
+                                                <ProgressBar fx:id="trainingProgressBar" layoutX="114.0" layoutY="127.0" prefHeight="9.0" prefWidth="196.0" progress="0.0" />
                                              </children>
                                           </AnchorPane>
                                         <AnchorPane maxHeight="-Infinity" minHeight="-Infinity" minWidth="0.0" prefHeight="90.0" prefWidth="443.0">
@@ -109,8 +109,8 @@
                                       <items>
                                         <AnchorPane maxHeight="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="40.0" prefWidth="160.0">
                                              <children>
-                                                <ComboBox layoutX="169.0" layoutY="1.0" onAction="#updateScatterChart" prefWidth="150.0" fx:id="xValuesPicker" />
-                                                <ComboBox fx:id="yValuesPicker" layoutX="487.0" layoutY="1.0" onAction="#updateScatterChart" prefWidth="150.0" />
+                                                <ComboBox layoutX="169.0" layoutY="7.0" onAction="#updateScatterChart" prefWidth="150.0" fx:id="xValuesPicker" />
+                                                <ComboBox fx:id="yValuesPicker" layoutX="487.0" layoutY="7.0" onAction="#updateScatterChart" prefWidth="150.0" />
                                                 <Label layoutX="80.0" layoutY="7.0" prefHeight="27.0" prefWidth="89.0" text="X Values:" />
                                                 <Label layoutX="398.0" layoutY="7.0" prefHeight="27.0" prefWidth="89.0" text="Y Values:" />
                                              </children>

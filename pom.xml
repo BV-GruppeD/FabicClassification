@@ -97,6 +97,11 @@
 		    <artifactId>super-csv</artifactId>
 		    <version>2.4.0</version>
 		</dependency>
+		<dependency>
+			<groupId>com.github.habernal</groupId>
+			<artifactId>confusion-matrix</artifactId>
+			<version>1.0</version>
+		</dependency>
 	</dependencies>
 	<artifactId>Fabric_Classification</artifactId>
 	<url>fabricclassification/test.com</url>
