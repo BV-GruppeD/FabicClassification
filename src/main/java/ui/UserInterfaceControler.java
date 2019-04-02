@@ -1,5 +1,6 @@
 package ui;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -7,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.bv_gruppe_d.imagej.CsvInputOutput;
+import com.bv_gruppe_d.imagej.DrawEllipses;
 import com.bv_gruppe_d.imagej.ImageData;
 import com.bv_gruppe_d.imagej.Lable;
 import classification.Classificator;
@@ -227,9 +229,12 @@ public class UserInterfaceControler {
 		
 		processImage = new ImageData(PreProcessing.execute(processImage).getImageProcessor(), processImage.getLable());
 	
-		evaluationImageView.setImage(SwingFXUtils.toFXImage(processImage.getImageProcessor().getBufferedImage(), null));
+//		evaluationImageView.setImage(SwingFXUtils.toFXImage(processImage.getImageProcessor().getBufferedImage(), null));
 		
 		List<EllipsisData> ellipses = houghTransformation.execute(processImage);
+		
+		BufferedImage bi = DrawEllipses.drawEllipses(processImage.getImageProcessor(), ellipses);
+		evaluationImageView.setImage(SwingFXUtils.toFXImage(bi, null));
 		return featureExtractor.execute(processImage, ellipses);
 	}
 
