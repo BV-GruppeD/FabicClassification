@@ -24,7 +24,7 @@
                                       <items>
                                         <AnchorPane>
                                              <children>
-                                                <Button fx:id="trainClassifierBtn" layoutX="68.0" layoutY="81.0" mnemonicParsing="false" onAction="#trainClassifier" text="Trainiere Klassifizierer" />
+                                                <Button fx:id="trainClassifierBtn" layoutX="68.0" layoutY="81.0" mnemonicParsing="false" onAction="#trainClassifier" prefHeight="39.0" prefWidth="196.0" text="Trainiere Klassifizierer" />
                                                 <Label alignment="CENTER" contentDisplay="CENTER" text="Beachten Sie die geforderte Ordnerstruktur" textAlignment="CENTER" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0">
                                                    <font>
                                                       <Font size="16.0" />
@@ -77,7 +77,7 @@
                                                    </font>
                                                 </Label>
                                                 <Button fx:id="testClassifierBtn" layoutX="68.0" layoutY="56.0" mnemonicParsing="false" onAction="#testClassifier" prefHeight="39.0" prefWidth="196.0" text="Teste Klassifizierer" />
-                                                <ProgressBar fx:id="testProgressBar" layoutX="68.0" layoutY="95.0" prefHeight="9.0" prefWidth="196.0" progress="0.0" />
+                                                <ProgressBar fx:id="testProgressBar" layoutX="68.0" layoutY="95.0" prefHeight="27.0" prefWidth="196.0" progress="0.0" />
                                              </children>
                                           </AnchorPane>
                                           <AnchorPane maxHeight="49.0" minHeight="-Infinity">
@@ -110,7 +110,7 @@
                           <items>
                               <AnchorPane>
                                  <children>
-                                    <ImageView fx:id="evaluationImageView" layoutX="101.0" layoutY="49.0" pickOnBounds="true" AnchorPane.bottomAnchor="4.0" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="8.0" AnchorPane.topAnchor="5.0" />
+                                    <ImageView fx:id="evaluationImageView" fitHeight="240.0" fitWidth="240.0" layoutX="231.0" layoutY="-1.0" pickOnBounds="true" AnchorPane.bottomAnchor="2.0" AnchorPane.leftAnchor="231.0" AnchorPane.rightAnchor="230.0" AnchorPane.topAnchor="2.0" />
                                  </children>
                               </AnchorPane>
                               <AnchorPane>
@@ -169,7 +169,7 @@
                <children>
                   <Label text="Ein Projekt von Micha Beyer, Marcel Sandermann, Patrick Schlüter, Daniel Wolf" />
                   <HBox HBox.hgrow="ALWAYS" />
-                  <Label alignment="CENTER_RIGHT" text="© 2019" />
+                  <Label alignment="CENTER_RIGHT" text="© 2019 " />
                </children>
             </HBox>
          </bottom>
