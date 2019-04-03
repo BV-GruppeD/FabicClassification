@@ -34,7 +34,6 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.Region;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
-import preprocessing.Binarization;
 import javafx.scene.chart.NumberAxis;
 import preprocessing.PreProcessing;
 
@@ -56,7 +55,7 @@ public class UserInterfaceControler {
 	 * accurate the ellipsis parameters, but if it is chosen too small no ellipsis
 	 * will be found
 	 */
-	private static final double HOUGH_ACCUMULATOR_BIN_SIZE = 1.0;
+	private static final double HOUGH_ACCUMULATOR_BIN_SIZE = 0.25;
 
 	/**
 	 * How small the minor (small) axis of an ellipsis may be. Smaller ellipses will

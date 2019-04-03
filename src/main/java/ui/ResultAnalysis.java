@@ -1,7 +1,6 @@
 package ui;
 
 import java.util.Arrays;
-import java.util.stream.Stream;
 
 import com.bv_gruppe_d.imagej.Lable;
 import com.github.habernal.confusionmatrix.ConfusionMatrix;
