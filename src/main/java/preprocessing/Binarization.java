@@ -22,12 +22,7 @@ public abstract class Binarization {
 	public static ImageData execute(ImageData imageData) {
 		ImageProcessor imageProcessor = imageData.getImageProcessor();
 
-		int threshholdinc = 90;//getMean(imageProcessor);
-		
-		//threshholdinc = (int)(threshholdinc - threshholdinc*0.3);
-		
-		//threshholdinc = (int)(((threshholdinc-threshholdinc*0.1*255)+(threshholdinc+threshholdinc*0.1*255)+2*threshholdinc)/4);
-
+		int threshholdinc = 128;//getMean(imageProcessor);
 
 		for (int x = 0; x < imageProcessor.getWidth(); x++) {
 			for (int y = 0; y < imageProcessor.getHeight(); y++) {

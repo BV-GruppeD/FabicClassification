@@ -12,9 +12,9 @@ public abstract class MorphologicalFiltering
 	private static final int WHITE = 0xFFFFFF, BLACK = 0x000000;
 	private static final int maskSize = 3;
 
-	private static final StructureElement edgeDetection = createCenteredSquare(maskSize); //5
+	private static final StructureElement edgeDetection = createCenteredSquare(maskSize);
 	// TODO: closing Size
-	private static final StructureElement closeHoles = createCenteredSquare(maskSize); //2
+	private static final StructureElement closeHoles = createCenteredSquare(maskSize);
 
 	public enum Type {
 		ERODE, DILATE
@@ -149,11 +149,7 @@ public abstract class MorphologicalFiltering
 		image.getImageProcessor().setRoi(maskSize, maskSize, imageWidth, imageHeight);
 		imageData = new ImageData(image.getImageProcessor().crop(), image.getLable());
 		
-		return imageData;
-		//ImageData imageData = imageData.duplicate();
-		//imageProcessor.setRoi(border, border, imageProcessor.getWidth()-border, imageProcessor.getHeight()-border);
-		//imageProcessor = imageProcessor.crop();
-		
+		return imageData;		
 	}
 
 	private static void applyOperation(ImageProcessor input, ImageProcessor output, StructureElement structureElement,

@@ -5,7 +5,7 @@ import ij.process.ImageProcessor;
 
 public abstract class ContrastAdjustment {
 	
-	static int saturation = 5;
+	static double saturation = 0.05;
 	static final int max = 255, min = 0;
 	
 	public static ImageData execute(ImageData imageData) {
