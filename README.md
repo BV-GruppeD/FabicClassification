@@ -7,7 +7,8 @@ Project Supervisors:  Dipl.-Inform. Jan Leif Hoffmann & Prof. Dr.-Ing. Volker Lo
 Project Kick-Off:     23.01.2019\
 Submission Date:      08.04.2019
 
-#TODO?
+<!--- The # is there to make a separator that looks like the ones used on a heading --->
+#
 A Maven project implementing an [ImageJ](https://imagej.net/) 1.x plugin.
 
 The plugin takes a set of training samples classified as no stretch, medium stretch, strong stretch, sheared or disturbed and learns a support vector machines (SVM) as a classifier that you can test on unknown data.
@@ -75,7 +76,7 @@ The code in this repository is designed by the following guidelines to increase 
   - No empty catch blocks exist
 
 ## External Libraries
-The plugin uses four open source libraries which are listed below:
+The plugin uses four open source libraries which are listed below:\
 [LibSVM](https://github.com/cjlin1/libsvm) by C.-C. Chang [C.-J. Lin](https://github.com/cjlin1)\
 License: [Copyright (c) 2000-2018 Chih-Chung Chang and Chih-Jen Lin](https://github.com/cjlin1/libsvm/blob/master/COPYRIGHT)
 
