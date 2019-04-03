@@ -12,22 +12,39 @@ import com.bv_gruppe_d.imagej.ImageData;
  * the edges of the image) don't distort the result.
  */
 public class FeatureExtractor {
+	
+	/**
+	 * This method converts a list of ellipses to a single FeatureVector. If
+	 * necessary a median is used, which has the advantage that partial ellipses (at
+	 * the edges of the image) don't distort the result.
+	 */
+	@SuppressWarnings("unused")
 	public FeatureVector execute(ImageData imageData, List<EllipsisData> ellipsisList) {
 		int size = ellipsisList.size();
 		ArrayList<Double> ratios = new ArrayList<>(size);
 		ArrayList<Double> areas = new ArrayList<>(size);
+		ArrayList<Double> as = new ArrayList<>(size);
+		ArrayList<Double> bs = new ArrayList<>(size);
+		double totalEllipseArea = 0;
 		for (EllipsisData e : ellipsisList) {
+			double a = e.a, b = e.b;
 			// make sure it is bigger radius divided by smaller radius
-			ratios.add(Math.max(e.a / e.b, e.b / e.a));
-			areas.add(Math.PI * e.a * e.b);
+			ratios.add(Math.max(a / b, b / a));
+			areas.add(Math.PI * a * b);
+			as.add(a);
+			bs.add(b);
+			totalEllipseArea += a * b;
 		}
+		totalEllipseArea *= Math.PI;// do this later for numeric purposes
 
 		double ratio = median(ratios);
 		double area = median(areas);
-		double ellipsisPerArea = size / (double) imageData.getImageProcessor().getPixelCount();
+		double medianA = median(as);
+		double medianB = median(bs);
+		double ellipsisCoverage = totalEllipseArea / (double) imageData.getImageProcessor().getPixelCount();
 
-		String[] featureNames = { "median axis ratio", "median area", "ellipsis per pixel" };
-		double[] features = { ratio, area, ellipsisPerArea };
+		String[] featureNames = {  "a", "b", "ellipsis coverage" };
+		double[] features = {  medianA, medianB, ellipsisCoverage };
 		return new FeatureVector(featureNames, features, imageData.getLable());
 	}
 
@@ -47,7 +64,6 @@ public class FeatureExtractor {
 		}
 		return sum / values.size();
 	}
-
 
 	/**
 	 * 
