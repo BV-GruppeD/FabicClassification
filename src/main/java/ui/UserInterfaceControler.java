@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import com.bv_gruppe_d.imagej.CsvInputOutput;
@@ -16,6 +17,7 @@ import classification.EllipsisData;
 import classification.FeatureExtractor;
 import classification.FeatureVector;
 import classification.HoughTransformation;
+import ij.util.ArrayUtil;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -82,6 +84,7 @@ public class UserInterfaceControler {
 	private FeatureVector[] testFeatureVectors;
 	private ImageData evalutationImage;
 	private Classificator classificator;
+	private FabricClassificationScatterChartPopulator populator;
 	private ObservableList<String> featureDimensions;
 	
 	private File pathToImageFolders = null;
@@ -211,22 +214,6 @@ public class UserInterfaceControler {
 		enableButtons();
 		return vectors;
 	}
-	
-	/**
-	 * Lazy initialized to prevent adding a bunch of null objects to the button list
-	 */
-	private ArrayList<Button> getAllButtons() {
-		if (buttons.isEmpty()) {
-			buttons.add(trainClassifierBtn);
-			buttons.add(testClassifierBtn);
-			buttons.add(singleEvaluation);
-			buttons.add(loadTrainingFeatures);
-			buttons.add(saveTrainingFeatures);
-			buttons.add(loadTestFeatures);
-			buttons.add(saveTestFeatures);
-		}
-		return buttons;
-	}
 
 	/**
 	 * Preserves the user from starting several time consuming tasks at once.
@@ -244,6 +231,22 @@ public class UserInterfaceControler {
 		for (Button b : getAllButtons()) {
 			b.setDisable(false);
 		}
+	}
+	
+	/**
+	 * Lazy initialized to prevent adding a bunch of null objects to the button list
+	 */
+	private ArrayList<Button> getAllButtons() {
+		if (buttons.isEmpty()) {
+			buttons.add(trainClassifierBtn);
+			buttons.add(testClassifierBtn);
+			buttons.add(singleEvaluation);
+			buttons.add(loadTrainingFeatures);
+			buttons.add(saveTrainingFeatures);
+			buttons.add(loadTestFeatures);
+			buttons.add(saveTestFeatures);
+		}
+		return buttons;
 	}
 
 	/**
@@ -325,7 +328,7 @@ public class UserInterfaceControler {
 	 */
 	private void generateTrainingsFeatures(ArrayList<ImageData> images) {
 		trainingsFeatureVectors = executeImageProcessingPipe(images, trainingProgressBar);
-		Platform.runLater(() -> initializeScatterPlot());
+		Platform.runLater(() -> initializeScatterPlot(trainingsFeatureVectors));
 		createClassificator();
 	}
 
@@ -333,24 +336,20 @@ public class UserInterfaceControler {
 	 * Fills the DropDown menus for Feature selection and populates the scatter
 	 * chart.
 	 */
-	private void initializeScatterPlot() {
-		String[] dimensionNames = trainingsFeatureVectors[0].getFeatureNames();
+	private void initializeScatterPlot(FeatureVector[] featureVectors) {
+		populator = new FabricClassificationScatterChartPopulator(scatterChart);
+		
+		String[] dimensionNames = featureVectors[0].getFeatureNames();
 		featureDimensions = FXCollections.observableArrayList(dimensionNames);
-
+		
 		xValuesPicker.setItems(featureDimensions);
 		xValuesPicker.setValue(dimensionNames[0]);
 		yValuesPicker.setItems(featureDimensions);
 		yValuesPicker.setValue(dimensionNames[1]);
-
-		FabricClassificationScatterChartPopulator populator = new FabricClassificationScatterChartPopulator(
-				scatterChart);
-		((NumberAxis)scatterChart.getXAxis()).setForceZeroInRange(false);
-		((NumberAxis)scatterChart.getYAxis()).setForceZeroInRange(false);
-//		scatterChart.getXAxis().setm
 		
 		populator.setXIndex(0);
 		populator.setYIndex(1);
-		populator.populateScatterChart(trainingsFeatureVectors);
+		populator.populateScatterChart(featureVectors);
 	}
 
 	/**
@@ -371,15 +370,13 @@ public class UserInterfaceControler {
 	
 	
 	/**
-	 * Refreshes the Scatter Chart
+	 * Refreshes the Scatter Chart after new axes were selected.
 	 */
 	@FXML
 	private void updateScatterChart() {
-		FabricClassificationScatterChartPopulator populator = new FabricClassificationScatterChartPopulator(
-				scatterChart);
 		populator.setXIndex(dimensionNameToIndex(xValuesPicker.getValue(), 0));
 		populator.setYIndex(dimensionNameToIndex(yValuesPicker.getValue(), 1));
-		populator.populateScatterChart(trainingsFeatureVectors);
+		populator.populateScatterChart();
 
 	}
 
@@ -426,7 +423,7 @@ public class UserInterfaceControler {
 		trainingsFeatureVectors = loadFeatureVector(TRAINING_FILE_NAME);
 		
 		if (trainingsFeatureVectors != null) {
-			initializeScatterPlot();
+			initializeScatterPlot(trainingsFeatureVectors);
 		}
 	}
 
@@ -479,6 +476,7 @@ public class UserInterfaceControler {
 					public void run() {
 						FeatureVector evaluationFeatureVector = generateFeatureVector(evalutationImage);
 						Lable result = classificator.testClassifier(evaluationFeatureVector);
+						Platform.runLater(() -> includeInScatterChart(evaluationFeatureVector));
 						showDialog(AlertType.INFORMATION, "Ergebnis: " + result);
 					}
 				}.start();
@@ -499,5 +497,11 @@ public class UserInterfaceControler {
 		FileChooser.ExtensionFilter imageFilter = new FileChooser.ExtensionFilter("Bilddateien", "*.jpg", "*.png");
 		fileChooser.getExtensionFilters().add(imageFilter);
 		return fileChooser.showOpenDialog(null);
+	}
+	
+	private void includeInScatterChart(FeatureVector evaluationFeatureVector) {
+		FeatureVector[] trainingAndEvaluationVectors = (FeatureVector[])Arrays.copyOf(trainingsFeatureVectors, trainingsFeatureVectors.length+1);
+		trainingAndEvaluationVectors[trainingAndEvaluationVectors.length-1] = evaluationFeatureVector;
+		populator.populateScatterChart(trainingAndEvaluationVectors);
 	}
 }

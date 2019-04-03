@@ -1,6 +1,7 @@
 package ui;
 
 import classification.FeatureVector;
+import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.ScatterChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Alert;
@@ -25,6 +26,9 @@ public class FabricClassificationScatterChartPopulator {
 	// Hold the index of the feature used for the x/y-values
 	private int featureIndexAxisX;
 	private int featureIndexAxisY;
+	
+	// Hold the current data plottet
+	private FeatureVector[] featureVectors;
 	
 	/**
 	 * Creates a new scatter chart populator and initializes the data series for
@@ -59,13 +63,26 @@ public class FabricClassificationScatterChartPopulator {
 	}
 
 	/**
+	 * Re-populates the scatter plot with the last provided data set.
+	 * 
+	 * @param featureVectors The features to be plotted.
+	 */
+	public void populateScatterChart() {
+		if (this.featureVectors != null) {
+			populateScatterChart(this.featureVectors);
+		}
+	}
+	
+	/**
 	 * Adds all data points from the given array to this scatter chart. Only the two
 	 * dimensional data is accepted.
 	 * 
 	 * @param featureVectors The features to be plotted.
 	 */
 	public void populateScatterChart(FeatureVector[] featureVectors) {
-
+		this.featureVectors = featureVectors;
+		clearDataSeries();
+		
 		for (FeatureVector featureVector : featureVectors) {
 			if (featureVector.getFeatureValues().length >= 2) {
 				addVectorToCorrectSeries(featureVector);
@@ -74,7 +91,24 @@ public class FabricClassificationScatterChartPopulator {
 						ButtonType.OK).showAndWait();
 			}
 		}
+		
 		addDataSeriesToChart();
+		
+		((NumberAxis)scatterChart.getXAxis()).setForceZeroInRange(false);
+		((NumberAxis)scatterChart.getYAxis()).setForceZeroInRange(false);
+	}
+
+	/**
+	 * Removes all data points stores in the each series.
+	 */
+	private void clearDataSeries() {
+		seriesNoStretch.getData().clear();
+		seriesMediumStretch.getData().clear();
+		seriesMaximumStretch.getData().clear();
+		seriesDisturbance.getData().clear();
+		seriesSheard.getData().clear();
+		seriesUnknown.getData().clear();
+		scatterChart.getData().clear();
 	}
 
 	/**
