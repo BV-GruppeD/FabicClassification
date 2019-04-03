@@ -5,6 +5,9 @@ import ij.process.ImageProcessor;
 
 public abstract class ContrastAdjustment {
 	
+	static int saturation = 5;
+	static final int max = 255, min = 0;
+	
 	public static ImageData execute(ImageData imageData) {
 		
 		int[] histogram = imageData.getImageProcessor().getHistogram();		
@@ -14,15 +17,18 @@ public abstract class ContrastAdjustment {
 		int imageWidth = imageData.getImageProcessor().getWidth();
 		ImageProcessor imageProcessor = imageData.getImageProcessor();
 		
+		int calculatedLow = calculateLowestModifiedPixelValue(imageProcessor, histogram);
+		int calculatedHigh = calculateHighestModifiedPixelValue(imageProcessor, histogram);
 		
-		double scalingFactor = (double)(histoframMax - histogramMin) / (histoframMax - histogramMin);
+		
+		double scalingFactor = (double)(max) / (calculatedHigh - calculatedLow);
 				
 				for (int h = 0; h < imageHeight; h++) {
 					for (int w = 0; w < imageWidth; w++) {
 						int oldPixelValue = imageProcessor.getPixel(w, h);
 						
-						int newPixelValue = (int) (histogramMin + (oldPixelValue - histogramMin) * scalingFactor);
-						newPixelValue = Math.min(Math.max(0, newPixelValue), 255);
+						int newPixelValue = (int) (min + (oldPixelValue - calculatedLow) * scalingFactor);
+						newPixelValue = Math.min(Math.max(min, newPixelValue), max);
 						imageProcessor.putPixel(w, h, newPixelValue);
 					}
 		}
@@ -44,4 +50,28 @@ public abstract class ContrastAdjustment {
 		return pixelValue;
 	}
 
+	
+	private static int calculateLowestModifiedPixelValue(ImageProcessor imageProcessor, int[] histogram) {
+		int modifiedPixelValue = min;
+		int border = (int) Math.ceil(saturation * imageProcessor.getHeight() * imageProcessor.getWidth());
+		int sum = 0;
+		
+		while(sum < border) {
+			sum += histogram[modifiedPixelValue];
+			modifiedPixelValue++;
+		}
+		return modifiedPixelValue;
+	}
+
+	private static int calculateHighestModifiedPixelValue(ImageProcessor imageProcessor, int[] histogram) {
+		int modifiedPixelValue = max;
+		int border = (int) (saturation * imageProcessor.getHeight() * imageProcessor.getWidth());
+		int sum = 0;
+
+		while(sum < border) {
+			sum += histogram[modifiedPixelValue];
+			modifiedPixelValue--;
+		}
+		return modifiedPixelValue;
+	}
 }
