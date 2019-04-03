@@ -15,6 +15,11 @@ import preprocessing.Segmenter;
  * an edge image
  */
 public class HoughTransformation {
+	/**
+	 * All segments shorter than this number will be ignored
+	 */
+	private static final int MIN_SEGMENT_SIZE = 60;
+	
 	private final int accumulatorThreshold;
 	private final double accumulatorAccuracy;
 	private final double minMajor, maxMajor;
@@ -42,7 +47,7 @@ public class HoughTransformation {
 	public List<EllipsisData> execute(ImageData imageData) {
 		// Split the image into segments (each ellipse is one segment) to speed up
 		// calculation time and improve accuracy
-		ArrayList<ArrayList<Point>> segments = new Segmenter(30).execute(imageData);
+		ArrayList<ArrayList<Point>> segments = new Segmenter(MIN_SEGMENT_SIZE).execute(imageData);
 		ArrayList<Thread> threads = new ArrayList<Thread>();
 
 		Object lock = new Object();
