@@ -11,8 +11,8 @@ import java.util.List;
 import com.bv_gruppe_d.imagej.CsvInputOutput;
 import com.bv_gruppe_d.imagej.DrawEllipses;
 import com.bv_gruppe_d.imagej.ImageData;
-import com.bv_gruppe_d.imagej.Lable;
-import classification.Classificator;
+import com.bv_gruppe_d.imagej.Label;
+import classification.Classifier;
 import classification.EllipsisData;
 import classification.FeatureExtractor;
 import classification.FeatureVector;
@@ -29,7 +29,6 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -83,7 +82,7 @@ public class UserInterfaceControler {
 	private ArrayList<ImageData> testData;
 	private FeatureVector[] testFeatureVectors;
 	private ImageData evalutationImage;
-	private Classificator classificator;
+	private Classifier classifier;
 	private FabricClassificationScatterChartPopulator populator;
 	private ObservableList<String> featureDimensions;
 	
@@ -134,9 +133,9 @@ public class UserInterfaceControler {
 	 * labeled ImageData objects representing the training data for a classifier.
 	 */
 	@FXML
-	private void readLabledTrainingsData() {
+	private void readLabeldTrainingsData() {
 		File upperDirectory = getDirectoryFromUser();
-		trainingsData = ImageDataCreator.getLabledImageData(upperDirectory);
+		trainingsData = ImageDataCreator.getLabeldImageData(upperDirectory);
 	}
 
 	/**
@@ -157,9 +156,9 @@ public class UserInterfaceControler {
 	 * labeled ImageData objects representing the test data for a classifier.
 	 */
 	@FXML
-	private void readLabledTestData() {
+	private void readLabeldTestData() {
 		File upperDirectory = getDirectoryFromUser();
-		testData = ImageDataCreator.getLabledImageData(upperDirectory);
+		testData = ImageDataCreator.getLabeldImageData(upperDirectory);
 	}
 
 	
@@ -171,13 +170,13 @@ public class UserInterfaceControler {
 	 */
 	@FXML
 	private void testClassifier() {
-		if (testData != null && classificator != null) {
+		if (testData != null && classifier != null) {
 			generateTestFeatures(testData);
-		} else if (testFeatureVectors != null && classificator != null) {
+		} else if (testFeatureVectors != null && classifier != null) {
 			classifiyTestFeatureVectors();
 		} else if (testData == null) {
 			showDialog(AlertType.INFORMATION, "Bitte lesen Sie zunächst Testdaten ein.");
-		} else if (classificator == null) {
+		} else if (classifier == null) {
 			showDialog(AlertType.INFORMATION, "Trainieren Sie zunächst einen Klassifizierer");
 		} else {
 			showDialog(AlertType.ERROR, "Bei der Bearbeitung ist leider ein Fehler aufgetreten");
@@ -260,9 +259,9 @@ public class UserInterfaceControler {
 		// use a part. This might negatively affect up the error detection
 		processImage.getImageProcessor().setRoi(0, 0, Math.min(512, image.getImageProcessor().getWidth()), 
 				Math.min(512, image.getImageProcessor().getHeight()));
-		processImage = new ImageData(processImage.getImageProcessor().crop(), processImage.getLable());
+		processImage = new ImageData(processImage.getImageProcessor().crop(), processImage.getLabel());
 		
-		processImage = new ImageData(PreProcessing.execute(processImage).getImageProcessor(), processImage.getLable());
+		processImage = new ImageData(PreProcessing.execute(processImage).getImageProcessor(), processImage.getLabel());
 	
 //		evaluationImageView.setImage(SwingFXUtils.toFXImage(processImage.getImageProcessor().getBufferedImage(), null));
 		
@@ -279,9 +278,9 @@ public class UserInterfaceControler {
 	 */
 	private void classifiyTestFeatureVectors() {
 
-		Lable[] results = new Lable[testFeatureVectors.length];
+		Label[] results = new Label[testFeatureVectors.length];
 		for (int i = 0; i < testFeatureVectors.length; i++) {
-			results[i] = classificator.testClassifier(testFeatureVectors[i]);
+			results[i] = classifier.testClassifier(testFeatureVectors[i]);
 		}
 
 		ResultAnalysis analysis = new ResultAnalysis();
@@ -301,14 +300,14 @@ public class UserInterfaceControler {
 	 */
 	@FXML
 	private void trainClassifier() {
-		classificator = new Classificator();
+		classifier = new Classifier();
 		new Thread("hs_owl.trainClassifier") {
 			@Override
 			public void run() {
 				if (trainingsData != null) {
 					generateTrainingsFeatures(trainingsData);
 				} else if (trainingsFeatureVectors != null) {
-					createClassificator();
+					createClassifier();
 				} else {
 					showDialog(AlertType.INFORMATION, "Bitte lesen Sie zunächst Testdaten ein.");
 				}
@@ -330,7 +329,7 @@ public class UserInterfaceControler {
 	private void generateTrainingsFeatures(ArrayList<ImageData> images) {
 		trainingsFeatureVectors = executeImageProcessingPipe(images, trainingProgressBar);
 		Platform.runLater(() -> initializeScatterPlot(trainingsFeatureVectors));
-		createClassificator();
+		createClassifier();
 	}
 
 	/**
@@ -356,11 +355,11 @@ public class UserInterfaceControler {
 	/**
 	 * Creates and trains the classifier with the Training Feature Vectors.
 	 */
-	private final void createClassificator() {
+	private final void createClassifier() {
 		try {
-			classificator.learnClassifier(trainingsFeatureVectors);
+			classifier.learnClassifier(trainingsFeatureVectors);
 			showDialog(AlertType.INFORMATION, "Training abgeschlossen" + System.lineSeparator() + "nu = "
-					+ classificator.getNu() + "\r\nGamma = " + classificator.getGamma());
+					+ classifier.getNu() + "\r\nGamma = " + classifier.getGamma());
 		} catch (Exception e) {
 			showDialog(AlertType.ERROR,
 					"Leider ist beim Lernen ein Fehler aufgetreten" + System.lineSeparator() + e.getMessage());
@@ -465,7 +464,7 @@ public class UserInterfaceControler {
 		File selectedFile = getImageFileFromUser();
 
 		try {
-			if (classificator == null) {
+			if (classifier == null) {
 				showDialog(AlertType.INFORMATION, "Trainieren Sie zunächst den Klassifizierer.");
 			} else {
 				evalutationImage = ImageDataCreator.getImageData(selectedFile);
@@ -476,7 +475,7 @@ public class UserInterfaceControler {
 				new Thread("hsowl_evaluateImage") {
 					public void run() {
 						FeatureVector evaluationFeatureVector = generateFeatureVector(evalutationImage);
-						Lable result = classificator.testClassifier(evaluationFeatureVector);
+						Label result = classifier.testClassifier(evaluationFeatureVector);
 						Platform.runLater(() -> includeInScatterChart(evaluationFeatureVector));
 						showDialog(AlertType.INFORMATION, "Ergebnis: " + result);
 					}

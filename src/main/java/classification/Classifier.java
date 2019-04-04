@@ -2,7 +2,7 @@ package classification;
 
 import java.util.ArrayList;
 
-import com.bv_gruppe_d.imagej.Lable;
+import com.bv_gruppe_d.imagej.Label;
 
 import libsvm.svm;
 import libsvm.svm_model;
@@ -21,7 +21,7 @@ import libsvm.svm_problem;
  * 
  * https://github.com/cjlin1/libsvm
  */
-public class Classificator {
+public class Classifier {
 	
 	private svm_model model;
 	private FeatureScaling scaling;
@@ -82,7 +82,7 @@ public class Classificator {
 			FeatureVector scaledFeaturVector = scaling.scaleFeatureVector(featureVectors[i]);
 			
 			// Create svm_nodes
-			data.y[i] = scaledFeaturVector.getLable().getNumericRepresentation();
+			data.y[i] = scaledFeaturVector.getLabel().getNumericRepresentation();
 			svm_node[] features = convertFeatureVector(scaledFeaturVector);
 			convertedFeatureVectors.add(features);
 		}		
@@ -116,11 +116,11 @@ public class Classificator {
 	 * @param featureVector The data point to be classified.
 	 * @return The Label which the classifier determined for the data point.
 	 */
-	public Lable testClassifier(FeatureVector featureVector) {
+	public Label testClassifier(FeatureVector featureVector) {
 		FeatureVector scaledFeatureVector = scaling.scaleFeatureVector(featureVector);
 		
 		svm_node[] features = convertFeatureVector(scaledFeatureVector);
 		
-		return Lable.valueOf(svm.svm_predict(model, features));
+		return Label.valueOf(svm.svm_predict(model, features));
 	}
 }

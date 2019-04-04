@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import javax.imageio.ImageIO;
 
 import com.bv_gruppe_d.imagej.ImageData;
-import com.bv_gruppe_d.imagej.Lable;
+import com.bv_gruppe_d.imagej.Label;
 
 import ij.IJ;
 import ij.process.ByteProcessor;
@@ -48,23 +48,23 @@ public class ImageDataCreator {
 	 * @param upperDirectory The directory that contains the folders named for automatic labeling of the contained images.
 	 * @return All ImageData objects that could be labeled automatically from the sub-directories.
 	 */
-	public static ArrayList<ImageData> getLabledImageData(File upperDirectory) {
-		ArrayList<File> lableDirectories = new ArrayList<>();
-		ArrayList<ImageData> labledImages = new ArrayList<>();
+	public static ArrayList<ImageData> getLabeldImageData(File upperDirectory) {
+		ArrayList<File> labelDirectories = new ArrayList<>();
+		ArrayList<ImageData> labeldImages = new ArrayList<>();
 		
 	    if (upperDirectory != null && upperDirectory.isDirectory()) {
-	    	lableDirectories = getDirectoriesWithLabledImages(upperDirectory);
-	    	for (File directory : lableDirectories) {
+	    	labelDirectories = getDirectoriesWithLabeldImages(upperDirectory);
+	    	for (File directory : labelDirectories) {
 	    		try {
-					labledImages.addAll(getLabledImagesFromDirectory(directory));
+					labeldImages.addAll(getLabeldImagesFromDirectory(directory));
 				} catch (Exception e) {
 					IJ.showMessage(e.getMessage());
 				}
 			}
 	    }
-	    promptUserInformationForLoadingProcess(lableDirectories, labledImages);
+	    promptUserInformationForLoadingProcess(labelDirectories, labeldImages);
 	    
-	    return labledImages;
+	    return labeldImages;
 	}
 	
 	/**
@@ -72,7 +72,7 @@ public class ImageDataCreator {
 	 * @param folder The directory containing the sub-directories named for automatic labeling.
 	 * @return The paths to the sub-directories for automatic labeling.
 	 */
-	private static ArrayList<File> getDirectoriesWithLabledImages(final File folder) {
+	private static ArrayList<File> getDirectoriesWithLabeldImages(final File folder) {
 	    ArrayList<File> directories = new ArrayList<>();
 		for (File fileEntry : folder.listFiles()) {
 			if (fileEntry.isDirectory() && expectedDirectories.contains(fileEntry.getName())) {	           
@@ -88,19 +88,19 @@ public class ImageDataCreator {
 	 * @return The ImageData objects from the images in the directory.
 	 * @throws Exception Throws exceptions occurring in the process of image loading.
 	 */
-	private static ArrayList<ImageData> getLabledImagesFromDirectory(File directory) throws Exception {
-		Lable lable = determineLableFromDirectory(directory);
+	private static ArrayList<ImageData> getLabeldImagesFromDirectory(File directory) throws Exception {
+		Label label = determineLabelFromDirectory(directory);
 		
 		//Load all images
 		File[] files = directory.listFiles();
-		ArrayList<ImageData> labledImages = new ArrayList<>();
+		ArrayList<ImageData> labeldImages = new ArrayList<>();
 		for (File file : files) {
 			if (file.isFile()) {
 				ByteProcessor bp = loadFileToImageProcessor(file);
-				labledImages.add(new ImageData(bp, lable));
+				labeldImages.add(new ImageData(bp, label));
 			}
 		}
-		return labledImages;
+		return labeldImages;
 	}
 	
 	/**
@@ -109,18 +109,18 @@ public class ImageDataCreator {
 	 * @return An enum-value from the Label enumeration.
 	 * @throws Exception Throws an exception if no mapping could be achieved.
 	 */
-	private static Lable determineLableFromDirectory(File directory) throws Exception {
+	private static Label determineLabelFromDirectory(File directory) throws Exception {
 		switch (directory.getName()) {
 		case "geschert":
-			return Lable.SHEARD;
+			return Label.SHEARD;
 		case "keineDehnung":
-			return Lable.NO_STRETCH;
+			return Label.NO_STRETCH;
 		case "mittlereDehnung":
-			return Lable.MEDIUM_STRETCH;
+			return Label.MEDIUM_STRETCH;
 		case "maximaleDehnung":
-			return Lable.MAXIMUM_STRECH;
+			return Label.MAXIMUM_STRECH;
 		case "stoerung":
-			return Lable.DISTURBANCE;
+			return Label.DISTURBANCE;
 		default:
 			throw new Exception("Beim Labeln der Daten ist leider ein Fehler aufgetreten.");
 		}
@@ -143,14 +143,14 @@ public class ImageDataCreator {
 	/**
 	 * Prompts a notification for the user how many images where loaded and labeled. It also adds 
 	 * the paths to the directories used for automatic labeling.
-	 * @param lableDirectories The directories used for automatic labeling.
-	 * @param labledImages The ImageData objects that where created and labeled in the process.
+	 * @param labelDirectories The directories used for automatic labeling.
+	 * @param labeldImages The ImageData objects that where created and labeled in the process.
 	 */
-	private static void promptUserInformationForLoadingProcess(ArrayList<File> lableDirectories,
-			ArrayList<ImageData> labledImages) {
-		String countingMessage = labledImages.size() + " Bilder erfolgreich hinzugefügt.\r\n\r\n";
+	private static void promptUserInformationForLoadingProcess(ArrayList<File> labelDirectories,
+			ArrayList<ImageData> labeldImages) {
+		String countingMessage = labeldImages.size() + " Bilder erfolgreich hinzugefügt.\r\n\r\n";
 		
-		String directoriesMessage = "Genutze Ordner:\r\n" + lableDirectories.toString();
+		String directoriesMessage = "Genutze Ordner:\r\n" + labelDirectories.toString();
 		directoriesMessage = directoriesMessage.replaceAll(",", System.lineSeparator());
 		directoriesMessage = directoriesMessage.replace("[", " ");
 		directoriesMessage = directoriesMessage.replace("]", " ");
@@ -167,6 +167,6 @@ public class ImageDataCreator {
 	 */
 	public static ImageData getImageData(File selectedFile) throws IOException {
 		ByteProcessor bp = loadFileToImageProcessor(selectedFile);
-		return new ImageData(bp, Lable.UNKNOWN);
+		return new ImageData(bp, Label.UNKNOWN);
 	}	
 }

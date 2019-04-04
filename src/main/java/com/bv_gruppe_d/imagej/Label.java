@@ -6,7 +6,7 @@ import java.util.Map;
 /**
  * Provides the different labels that are used for data classification in this application.
  */
-public enum Lable {
+public enum Label {
 	NO_STRETCH(1.0),
 	MEDIUM_STRETCH(2.0),
 	MAXIMUM_STRECH(3.0),
@@ -15,9 +15,9 @@ public enum Lable {
 	UNKNOWN(6.0);
 	
     private double numericRepresentation;
-    private static Map<Double, Lable> representationMapping = new HashMap<>();
+    private static Map<Double, Label> representationMapping = new HashMap<>();
 
-    Lable(double numericRepresentation) {
+    Label(double numericRepresentation) {
         this.numericRepresentation = numericRepresentation;
     }
 
@@ -33,7 +33,7 @@ public enum Lable {
      * Creates a dictionary for reverse mapping of the numeric representation.
      */
     static {
-        for (Lable label: Lable.values()) {
+        for (Label label: Label.values()) {
             representationMapping.put(label.numericRepresentation, label);
         }
     }
@@ -41,8 +41,8 @@ public enum Lable {
     /**
      * Maps the provided numeric representation to the corresponding label.
      */
-    public static Lable valueOf(double numericRepresentation) {
-        return (Lable) representationMapping.get(numericRepresentation);
+    public static Label valueOf(double numericRepresentation) {
+        return (Label) representationMapping.get(numericRepresentation);
     }
     
     /**
@@ -51,7 +51,7 @@ public enum Lable {
      * @param targetLabel Second value to compare.
      * @return True if the parameters contain the same value.
      */
-    public static boolean areEqual(Lable actualLabel, Lable targetLabel) {
+    public static boolean areEqual(Label actualLabel, Label targetLabel) {
     	// Because this type only contains integer like values an unprecise check is sufficient.
     	if (Math.abs(targetLabel.getNumericRepresentation()-actualLabel.getNumericRepresentation())<0.1) {
 			return true;

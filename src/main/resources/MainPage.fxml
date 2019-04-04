@@ -39,7 +39,7 @@
                                                          </font>
                                                       </Label>
                                                       <HBox HBox.hgrow="ALWAYS" />
-                                                      <Button fx:id="readTrainingsData" mnemonicParsing="false" onAction="#readLabledTrainingsData" onMouseClicked="#readLabledTrainingsData" text="..." textAlignment="CENTER" />
+                                                      <Button fx:id="readTrainingsData" mnemonicParsing="false" onAction="#readLabeldTrainingsData" onMouseClicked="#readLabeldTrainingsData" text="..." textAlignment="CENTER" />
                                                    </children>
                                                 </HBox>
                                              </children>
@@ -68,7 +68,7 @@
                                                          </font>
                                                       </Label>
                                                       <HBox HBox.hgrow="ALWAYS" />
-                                                      <Button fx:id="readTestData" mnemonicParsing="false" onAction="#readLabledTestData" text="..." />
+                                                      <Button fx:id="readTestData" mnemonicParsing="false" onAction="#readLabeldTestData" text="..." />
                                                    </children>
                                                 </HBox>
                                                 <Label alignment="CENTER" contentDisplay="CENTER" layoutX="14.0" layoutY="129.0" text="Beachten Sie die geforderte Ordnerstruktur" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0">

@@ -30,7 +30,7 @@ public class CsvInputOutput {
 				// Write the entries
 				for (FeatureVector v : data) {
 					elements.clear();
-					elements.add(v.getLable().toString());
+					elements.add(v.getLabel().toString());
 					for (double d : v.getFeatureValues()) {
 						elements.add(Double.toString(d));
 					}
@@ -63,7 +63,7 @@ public class CsvInputOutput {
 					throw new RuntimeException(
 							"Line column count does not match the header: '" + listReader.getUntokenizedRow() + "'");
 				}
-				Lable label = Lable.valueOf(line.get(0));
+				Label label = Label.valueOf(line.get(0));
 				double[] values = new double[valueCount];
 				for (int i = 0; i < valueCount; ++i) {
 					values[i] = Double.valueOf(line.get(i + valueOffset));

@@ -2,7 +2,7 @@ package ui;
 
 import java.util.Arrays;
 
-import com.bv_gruppe_d.imagej.Lable;
+import com.bv_gruppe_d.imagej.Label;
 import com.github.habernal.confusionmatrix.ConfusionMatrix;
 
 import classification.FeatureVector;
@@ -42,15 +42,15 @@ public class ResultAnalysis {
 	 * @param results The actual Labels to be compared to the target Labels.
 	 * @return The formated String
 	 */
-	public String getFormatedResultAnalysis(FeatureVector[] testFeatureVectors, Lable[] results) {
+	public String getFormatedResultAnalysis(FeatureVector[] testFeatureVectors, Label[] results) {
 		analyzeResults(testFeatureVectors, results);
 		
 		StringBuilder sb = new StringBuilder();
 		sb.append("Analyse der Ergebnisse" + newLine);
 		
-		Arrays.stream(Lable.values())
-			.filter(lable -> lable != Lable.UNKNOWN)
-			.forEach(lable -> appendPrecisionAndRecall(sb, lable));
+		Arrays.stream(Label.values())
+			.filter(label -> label != Label.UNKNOWN)
+			.forEach(label -> appendPrecisionAndRecall(sb, label));
 
 		sb.append(newLine);
 		sb.append("F-Maß (F-Measure) insgesammt: " + confusionMatrix.getMacroFMeasure());
@@ -58,7 +58,7 @@ public class ResultAnalysis {
 		return sb.toString();
 	}
 	
-	private void appendPrecisionAndRecall(StringBuilder sb, Lable label) {
+	private void appendPrecisionAndRecall(StringBuilder sb, Label label) {
 		sb.append(newLine + label + newLine);
 		sb.append("Genauigkeit (precision):\t" + 
 				confusionMatrix.getPrecisionForLabel(label.toString()) + newLine);
@@ -72,12 +72,12 @@ public class ResultAnalysis {
 	 * @param testFeatureVectors Set of Feature Vectors holding the target Labels
 	 * @param results Set of actual Labels
 	 */
-	private void analyzeResults(FeatureVector[] testFeatureVectors, Lable[] results) {
+	private void analyzeResults(FeatureVector[] testFeatureVectors, Label[] results) {
 		confusionMatrix = new ConfusionMatrix();
 		
 		for (int i = 0; i < results.length; i++) {
-			Lable actualLabel = results[i];
-			Lable targetLabel = testFeatureVectors[i].getLable();
+			Label actualLabel = results[i];
+			Label targetLabel = testFeatureVectors[i].getLabel();
 			confusionMatrix.increaseValue(targetLabel.toString(), actualLabel.toString());
 		}
 	}

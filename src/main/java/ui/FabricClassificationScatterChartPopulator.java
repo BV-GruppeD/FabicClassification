@@ -121,7 +121,7 @@ public class FabricClassificationScatterChartPopulator {
 	 */
 	private void addVectorToCorrectSeries(FeatureVector featureVector) {
 		double[] values = featureVector.getFeatureValues();
-		switch (featureVector.getLable()) {
+		switch (featureVector.getLabel()) {
 		case NO_STRETCH:
 			seriesNoStretch.getData().add(new XYChart.Data<Number, Number>(values[featureIndexAxisX], values[featureIndexAxisY]));
 			break;

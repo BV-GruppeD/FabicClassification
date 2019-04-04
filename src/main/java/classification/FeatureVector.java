@@ -2,19 +2,19 @@ package classification;
 
 import java.io.Serializable;
 
-import com.bv_gruppe_d.imagej.Lable;
+import com.bv_gruppe_d.imagej.Label;
 
 public class FeatureVector implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	private final double[] featureValues;
 	private final String[] featureNames;
-	private final Lable lable;
+	private final Label label;
 
-	public FeatureVector(String[] featureNames, double[] featureValues, Lable lable) {
+	public FeatureVector(String[] featureNames, double[] featureValues, Label label) {
 		this.featureNames = featureNames;
 		this.featureValues = featureValues;
-		this.lable = lable;
+		this.label = label;
 	}
 
 	public double[] getFeatureValues() {
@@ -25,7 +25,7 @@ public class FeatureVector implements Serializable {
 		return featureNames;
 	}
 
-	public Lable getLable() {
-		return this.lable;
+	public Label getLabel() {
+		return this.label;
 	}
 }

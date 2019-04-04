@@ -45,7 +45,7 @@ public class FeatureExtractor {
 
 		String[] featureNames = {  "a", "b", "ellipsis coverage" };
 		double[] features = {  medianA, medianB, ellipsisCoverage };
-		return new FeatureVector(featureNames, features, imageData.getLable());
+		return new FeatureVector(featureNames, features, imageData.getLabel());
 	}
 
 	/**

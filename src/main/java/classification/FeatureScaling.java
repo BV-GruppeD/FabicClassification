@@ -60,6 +60,6 @@ public class FeatureScaling {
 			scaledFeatureValues[j] = vector.getFeatureValues()[j] * scalingFactors[j];
 		}
 		
-		return new FeatureVector(vector.getFeatureNames(), scaledFeatureValues, vector.getLable());
+		return new FeatureVector(vector.getFeatureNames(), scaledFeatureValues, vector.getLabel());
 	}
 }

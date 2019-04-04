@@ -6,7 +6,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.bv_gruppe_d.imagej.CsvInputOutput;
-import com.bv_gruppe_d.imagej.Lable;
+import com.bv_gruppe_d.imagej.Label;
 import com.github.habernal.confusionmatrix.ConfusionMatrix;
 
 import libsvm.svm;
@@ -168,7 +168,7 @@ public class SVMParameterSearch {
 		ConfusionMatrix cm = new ConfusionMatrix();
 		
 		for (int i = 0; i < targetResults.length; i++) {
-			cm.increaseValue(Lable.valueOf(targetResults[i]).toString(), Lable.valueOf(acturalResults[i]).toString());
+			cm.increaseValue(Label.valueOf(targetResults[i]).toString(), Label.valueOf(acturalResults[i]).toString());
 		}
 		
 		return cm.getMacroFMeasure();

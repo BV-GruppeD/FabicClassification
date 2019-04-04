@@ -9,10 +9,10 @@ import ij.process.ImageProcessor;
 public class ImageData {
 	
 	private ImageProcessor imageProcessor;
-	private Lable lable;
+	private Label label;
 	
-	public ImageData(ImageProcessor imageProcessor, Lable lable) {
-		this.lable = lable;
+	public ImageData(ImageProcessor imageProcessor, Label label) {
+		this.label = label;
 		this.imageProcessor = imageProcessor;
 	}
 	
@@ -20,11 +20,11 @@ public class ImageData {
 		return this.imageProcessor;
 	}
 	
-	public Lable getLable() {
-		return this.lable;
+	public Label getLabel() {
+		return this.label;
 	}
 	
 	public ImageData duplicate() {
-		return new ImageData(imageProcessor.duplicate(), lable);
+		return new ImageData(imageProcessor.duplicate(), label);
 	}
 }
