@@ -16,8 +16,7 @@ import classification.FeatureVector;
 
 public class CsvInputOutput {
 	public static void write(String filePath, FeatureVector[] data) throws IOException {
-		CsvListWriter writer = new CsvListWriter(new FileWriter(filePath), CsvPreference.STANDARD_PREFERENCE);
-		try {
+		try (CsvListWriter writer = new CsvListWriter(new FileWriter(filePath), CsvPreference.STANDARD_PREFERENCE)){
 			if (data != null && data.length >= 0) {
 				// write the header
 				List<String> elements = new ArrayList<String>();
@@ -38,15 +37,12 @@ public class CsvInputOutput {
 				}
 			}
 			writer.flush();
-		} finally {
-			writer.close();
 		}
 	}
 
 	public static FeatureVector[] read(String filePath) throws IOException {
-		CsvListReader listReader = new CsvListReader(new FileReader(filePath), CsvPreference.STANDARD_PREFERENCE);
 		List<FeatureVector> featureVectors = new LinkedList<FeatureVector>();
-		try {
+		try (CsvListReader listReader = new CsvListReader(new FileReader(filePath), CsvPreference.STANDARD_PREFERENCE)){
 			// read the header			
 			List<String> line = listReader.read();
 			final int valueOffset = 1;// since the index 0 is for the label
@@ -70,9 +66,7 @@ public class CsvInputOutput {
 				}
 				featureVectors.add(new FeatureVector(names, values, label));
 			}
-		} finally {
-			listReader.close();
-		}
+		} 
 		return featureVectors.toArray(new FeatureVector[featureVectors.size()]);
 	}
 	
@@ -83,7 +77,7 @@ public class CsvInputOutput {
 				List<String> elements = new ArrayList<String>();
 				elements.add("nu");
 				elements.add("Gamma");
-				elements.add("Crossvalidation Classification Rate");
+				elements.add("F-Measure");
 				writer.write(elements);
 
 				// Write the entries
