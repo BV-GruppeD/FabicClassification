@@ -30,6 +30,12 @@ public class FeatureScaling {
 		scalingFactors = calculateMappingToScaledInterval(maxima);
 	}
 
+	/**
+	 * Takes the first element of the input to determine the number of features and then finds the 
+	 * maximum value for each feature in the feature vector.
+	 * @param featureVectors The feature vectors for the calculation.
+	 * @return An array holding the maximum values for each feature.
+	 */
 	private double[] findFeatureMaxima(FeatureVector[] featureVectors) {
 		
 		int numberOfFeatures = featureVectors[0].getFeatureValues().length;
@@ -43,6 +49,11 @@ public class FeatureScaling {
 		return maxima;
 	}
 	
+	/**
+	 * Calculates the factor to scale each feature with the specified interval size and the maximum values
+	 * @param maxima The maximum values for each individual feature.
+	 * @return An array of scaling factors for each individual Feature.
+	 */
 	private double[] calculateMappingToScaledInterval(double[] maxima) {
 		double[] factors = new double[maxima.length];
 		for (int i = 0; i < maxima.length; i++) {
@@ -52,7 +63,11 @@ public class FeatureScaling {
 		return factors;
 	}
 	
-	
+	/**
+	 * Scales the provided feature vector with the scaling factors hold within this object.
+	 * @param vector The feature vector to scale.
+	 * @return The scaled feature vector.
+	 */
 	public FeatureVector scaleFeatureVector(FeatureVector vector) {
 		
 		int numberOfFeatures = vector.getFeatureValues().length;

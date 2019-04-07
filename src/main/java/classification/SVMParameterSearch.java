@@ -24,7 +24,7 @@ public class SVMParameterSearch {
 	
 	
 	/**
-	 * Executes a parameter search on a 10 by 10 grid. By definition the nu-parameter is bounded 
+	 * Executes a parameter search on a 40 by 70 grid of parameter values. By definition the nu-parameter is bounded 
 	 * on the interval between 0 and 1. The recommended starting point for the gamma-parameter is
 	 * 1/NumberOfFeatures and the search is executed on a logarithmic scale.
 	 * @param trainingsData
@@ -133,6 +133,15 @@ public class SVMParameterSearch {
 		return parameters;
 	}
 	
+	/**
+	 * Determines if the given parameter set performs better in a crossvalidation on the given data set 
+	 * as the previous parameters tested by this object did.
+	 * The macro averaged F-Measure is used to determine the performance and the parameters with their  
+	 * corresponding results are logged to a file in the home directory of the user.
+	 * @param parameter The parameter to test.
+	 * @param trainingsData The data to test the parameter on.
+	 * @return True if the parameter performed better in the crossvalidation with the data set, False otherwise.
+	 */
 	private boolean isNewOptimalParameterSet(svm_parameter parameter, svm_problem trainingsData) {
 		double[] labels = trainingsData.y;
 		double[] results = new double[labels.length];
@@ -141,7 +150,8 @@ public class SVMParameterSearch {
 		double fMeasure = calculateMacroAveragedFMeasure(trainingsData.y,results);
 
 		// Log process step
-		parameterResultMap.add(new ClassifierTestMapping(Math.log(parameter.gamma)/Math.log(1.0/3.0), parameter.nu, fMeasure));
+		parameterResultMap.add(
+				new ClassifierTestMapping(Math.log(parameter.gamma)/Math.log(1.0/3.0), parameter.nu, fMeasure));
 		
 		if (fMeasure > optimalClassificationRate) {
 			optimalClassificationRate = fMeasure;

@@ -1,7 +1,7 @@
 package classification;
 
 /**
- * Data structure to map nu-SVM parameters to a classification rate.
+ * Data structure to map nu-SVM parameters to a f-measure.
  * Thereby maps parameterization to results on an unspecified test set.
  */
 public class ClassifierTestMapping {
