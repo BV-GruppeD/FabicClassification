@@ -12,8 +12,9 @@ import featureextraction.EllipsisData;
 import ij.process.ImageProcessor;
 
 public class DrawEllipses {
+	
 	/**
-	 * 
+	 * Draws the provided ellipses on the image in the image processor and thereby creates a new RGB image.
 	 * @param ip The original image
 	 * @param ellipses The ellipses to draw
 	 * @return A colored copy of the original with ellipses drawn on it

@@ -16,7 +16,16 @@ import com.bv_gruppe_d.imagej.Label;
 import classification.ClassifierTestMapping;
 import featureextraction.FeatureVector;
 
+/**
+ * Provides methods to store and load feature vectors to a csv file and to log the results of a grid search.
+ */
 public class CsvInputOutput {
+	/**
+	 * Writes the provided feature vectors to a file at the provided location.
+	 * @param filePath The location to write to.
+	 * @param data The data to be written.
+	 * @throws IOException Thrown when the process failed
+	 */
 	public static void write(String filePath, FeatureVector[] data) throws IOException {
 		try (CsvListWriter writer = new CsvListWriter(new FileWriter(filePath), CsvPreference.STANDARD_PREFERENCE)){
 			if (data != null && data.length >= 0) {
@@ -42,6 +51,12 @@ public class CsvInputOutput {
 		}
 	}
 
+	/**
+	 * Reads a set of feature vectors from a file at the provided location.
+	 * @param data The data to be written.
+	 * @return An array of feature vectors created from the file.
+	 * @throws IOException Thrown when the process failed.
+	 */
 	public static FeatureVector[] read(String filePath) throws IOException {
 		List<FeatureVector> featureVectors = new LinkedList<FeatureVector>();
 		try (CsvListReader listReader = new CsvListReader(new FileReader(filePath), CsvPreference.STANDARD_PREFERENCE)){
@@ -72,6 +87,11 @@ public class CsvInputOutput {
 		return featureVectors.toArray(new FeatureVector[featureVectors.size()]);
 	}
 	
+	/**
+	 * Creates a file containing the list of parameters with their corresponding results at the provided location.
+	 * @param filePath The location to save the file to.
+	 * @param parameterResultMap The list of mappings to write.
+	 */
 	public static void writeGridSearchLog(String filePath, List<ClassifierTestMapping> parameterResultMap) {
 		try (CsvListWriter writer = new CsvListWriter(new FileWriter(filePath), CsvPreference.STANDARD_PREFERENCE)){
 			if (parameterResultMap != null && parameterResultMap.size() >= 0) {

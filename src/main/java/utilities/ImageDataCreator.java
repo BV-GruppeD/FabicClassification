@@ -34,14 +34,6 @@ public class ImageDataCreator {
 	    add("stoerung");
 	}};
 	
-	/*//TODO I suggest something like 
-	static {
-	expectedDirectories = new ArrayList<String>();
-	expectedDirectories.add("geschert");
-	...
-	}
-	//to prevent this @SuppressWarnings("serial"). It is the first time I ever saw an anonymous subclass to initialize a list
-	*/
 	/**
 	 * Given a valid upper directory this method iterates over the directories matching the expected
 	 * names for automatic labeling and creates a list of ImageData objects from the files in the directories.
@@ -137,9 +129,6 @@ public class ImageDataCreator {
 		return new ByteProcessor(image);
 	}
 	
-	/*
-	 * TDOD: move to ui controller
-	 */
 	/**
 	 * Prompts a notification for the user how many images where loaded and labeled. It also adds 
 	 * the paths to the directories used for automatic labeling.
