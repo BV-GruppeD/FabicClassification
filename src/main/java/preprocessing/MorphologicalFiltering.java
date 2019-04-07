@@ -10,6 +10,7 @@ import ij.process.ImageProcessor;
 public abstract class MorphologicalFiltering
 {
 	private static final int WHITE = 0xFFFFFF, BLACK = 0x000000;
+	// TODO: move to hyperparameter class and add explenation
 	private static final int maskSize = 3;
 
 	private static final StructureElement edgeDetection = createCenteredSquare(maskSize);
@@ -68,7 +69,7 @@ public abstract class MorphologicalFiltering
 	}
 
 	/**
-	 * a logic XOR operation on every single pixel, between inverted closed and one extra dilated image
+	 * A logic XOR operation on every single pixel, between inverted closed and one extra dilated image
 	 * @param input
 	 * @param output
 	 */
@@ -83,11 +84,14 @@ public abstract class MorphologicalFiltering
 		}
 	}
 
+	// TODO: Add Comment and remove output parameter -> replace with return value
 	public static void open(ImageProcessor output, StructureElement structureElement) {
 		erode(output.duplicate(), output, structureElement);
 		dilate(output.duplicate(), output, structureElement);
 	}
 
+
+	// TODO: Add Comment and remove output parameter -> replace with return value
 	/**
 	 * opens the ellipses by first dilate and than erode the objects on the image
 	 * @param output
@@ -98,14 +102,18 @@ public abstract class MorphologicalFiltering
 		erode(output.duplicate(), output, structureElement);
 	}
 
+	// TODO: Add Comment and remove output parameter -> replace with return value
 	public static void dilate(ImageProcessor input, ImageProcessor output, StructureElement structureElement) {
 		applyOperation(input, output, structureElement, Type.DILATE);
 	}
 
+
+	// TODO: Add Comment and remove output parameter -> replace with return value
 	public static void erode(ImageProcessor input, ImageProcessor output, StructureElement structureElement) {
 		applyOperation(input, output, structureElement, Type.ERODE);
 	}
 
+	// TODO: Move to seperate file
 	public static class StructureElement {
 		private final boolean[][] mask;
 		private final int anchorX, anchorY;
@@ -140,6 +148,7 @@ public abstract class MorphologicalFiltering
 		}
 	}
 
+	// TODO: Add Comment
 	public static ImageData removeBorder(ImageData imageData) {
 		
 		final int imageWidth = imageData.getImageProcessor().getWidth()-2*maskSize;
@@ -152,6 +161,7 @@ public abstract class MorphologicalFiltering
 		return imageData;		
 	}
 
+	// TODO: Add Comment
 	private static void applyOperation(ImageProcessor input, ImageProcessor output, StructureElement structureElement,
 									   Type type) {
 		int thresholdInclusive = -1;// just so java does not complain

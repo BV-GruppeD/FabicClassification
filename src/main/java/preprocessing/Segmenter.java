@@ -19,11 +19,12 @@ import ij.process.ImageProcessor;
  */
 public class Segmenter {
 	private final int minSize;
-
+	// TODO: Add Comment
 	public Segmenter(int minSize) {
 		this.minSize = minSize;
 	}
-
+	
+	// TODO: Add Comment
 	public ArrayList<ArrayList<Point>> execute(ImageData imageData) {
 		ArrayList<ArrayList<Point>> shapeList = new ArrayList<>();
 		EdgeMap edgeMap = createEdgeMap(imageData.getImageProcessor());

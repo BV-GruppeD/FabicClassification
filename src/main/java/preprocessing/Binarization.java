@@ -1,7 +1,6 @@
 package preprocessing;
 
 import com.bv_gruppe_d.imagej.ImageData;
-import ij.process.AutoThresholder;
 import ij.process.ImageProcessor;
 
 /**
@@ -29,12 +28,12 @@ public abstract class Binarization {
 
 				int binarizedPixelValue = imageProcessor.get(x,y) >= threshholdinc ? WHITE : BLACK;
 				imageProcessor.set(x, y, binarizedPixelValue);
-
 			}
 		}
 		return imageData;
 	}
 
+	// TODO: remove unused method or suppress warning with comment why warning is suppressed?
 	/**
 	 * This class calculates the mean color of all pixels
 	 * @param imageProcessor
@@ -49,7 +48,6 @@ public abstract class Binarization {
 			}
 		}
 		threshholdinc /= (imageProcessor.getWidth() * imageProcessor.getHeight());
-
 
 		return threshholdinc;
 	}
