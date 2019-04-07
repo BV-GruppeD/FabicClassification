@@ -12,19 +12,26 @@ import ij.process.ImageProcessor;
  * This class splits a image into multiple segments A segment is a list of
  * pixels which are connected. All segments with less elements than minSize are
  * ignored
- * 
+ *
  * The image is interpreted as a undirected graph, where each white pixel is a
  * node and all white pixels that are directly next to each other (horizontal or
  * vertical) are connected by an edge. Each segment is a connected subgraph.
  */
 public class Segmenter {
 	private final int minSize;
-	// TODO: Add Comment
+
+	/**
+	* Creates a new Segmenter. All segments with less elements than minSize are
+  * ignored
+	*/
 	public Segmenter(int minSize) {
 		this.minSize = minSize;
 	}
-	
-	// TODO: Add Comment
+
+	/**
+	* Extracts all the segments (a segment is just a ArrayList<Point>) out of the
+	* imageData object and returns them as a list.
+	*/
 	public ArrayList<ArrayList<Point>> execute(ImageData imageData) {
 		ArrayList<ArrayList<Point>> shapeList = new ArrayList<>();
 		EdgeMap edgeMap = createEdgeMap(imageData.getImageProcessor());
