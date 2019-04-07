@@ -14,11 +14,11 @@ import utilities.CsvInputOutput;
  */
 public class Session  {
 
-	//Filenames to store and load feature vectors
+	// Filenames to store and load feature vectors
 	private static final String TEST_FILE_NAME = "StoffklassifizierungTestFeatures.txt";
 	private static final String TRAINING_FILE_NAME = "StoffklassifizierungTrainingFeatures.txt";
 	
-	
+	// Session variables
 	private ArrayList<ImageData> trainingData;
 	private FeatureVector[] trainingFeatureVectors;
 	
@@ -32,6 +32,10 @@ public class Session  {
 		return trainingData;
 	}
 
+	/**
+	 * Sets the current training data in the session and empties the last feature vectors.
+	 * @param trainingsData The current set of ImageData objects for training in this session
+	 */
 	public void setTrainingsData(ArrayList<ImageData> trainingsData) {
 		this.trainingData = trainingsData;
 		this.trainingFeatureVectors = null;
@@ -49,6 +53,10 @@ public class Session  {
 		return testData;
 	}
 
+	/**
+	 * Sets the current test data in the session and empties the last feature vectors.
+	 * @param trainingsData The current set of ImageData objects for testing in this session
+	 */
 	public void setTestData(ArrayList<ImageData> testData) {
 		this.testData = testData;
 		this.testFeatureVectors = null;

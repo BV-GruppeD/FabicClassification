@@ -24,6 +24,12 @@ public class ImageData {
 		return this.label;
 	}
 	
+	/**
+	 * Creates a deep copy of this ImageData object with the same label and a duplicate of the image processor.
+	 * 
+	 * Changes on the returned object will not effect this object and vice versa.
+	 * @return A deep copy of this object.
+	 */
 	public ImageData duplicate() {
 		return new ImageData(imageProcessor.duplicate(), label);
 	}
