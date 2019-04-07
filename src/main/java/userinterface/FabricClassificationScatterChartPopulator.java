@@ -1,8 +1,8 @@
-package ui;
+package userinterface;
 
 import java.util.Arrays;
 
-import classification.FeatureVector;
+import featureextraction.FeatureVector;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.ScatterChart;
 import javafx.scene.chart.XYChart;

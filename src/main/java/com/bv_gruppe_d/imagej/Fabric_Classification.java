@@ -2,7 +2,7 @@ package com.bv_gruppe_d.imagej;
 
 import ij.IJ;
 import ij.plugin.PlugIn;
-import ui.UserInterfaceView;
+import userinterface.UserInterfaceView;
 
 public class Fabric_Classification implements PlugIn {
 

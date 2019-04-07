@@ -1,4 +1,4 @@
-package ui;
+package userinterface;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -7,15 +7,16 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.bv_gruppe_d.imagej.DrawEllipses;
 import com.bv_gruppe_d.imagej.Hyperparameter;
 import com.bv_gruppe_d.imagej.ImageData;
 import com.bv_gruppe_d.imagej.Label;
+import com.bv_gruppe_d.imagej.Session;
+
 import classification.Classifier;
-import classification.EllipsisData;
-import classification.FeatureExtractor;
-import classification.FeatureVector;
-import classification.HoughTransformation;
+import featureextraction.EllipsisData;
+import featureextraction.FeatureExtractor;
+import featureextraction.FeatureVector;
+import featureextraction.HoughTransformation;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -28,6 +29,8 @@ import javafx.scene.control.ProgressBar;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import preprocessing.PreProcessing;
+import utilities.DrawEllipses;
+import utilities.ImageDataCreator;
 
 /**
  * Provides methods for user inputs from the UserInterfaceView generated

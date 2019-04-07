@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import com.bv_gruppe_d.imagej.Label;
 
+import featureextraction.FeatureVector;
 import libsvm.svm;
 import libsvm.svm_model;
 import libsvm.svm_node;

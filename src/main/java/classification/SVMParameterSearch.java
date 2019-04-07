@@ -5,13 +5,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import com.bv_gruppe_d.imagej.CsvInputOutput;
 import com.bv_gruppe_d.imagej.Label;
 import com.github.habernal.confusionmatrix.ConfusionMatrix;
 
 import libsvm.svm;
 import libsvm.svm_parameter;
 import libsvm.svm_problem;
+import utilities.CsvInputOutput;
 
 /**
  * Provides methods to search for the parameters of a nu-SVM and holds informations about the last 

@@ -1,5 +1,7 @@
 package classification;
 
+import featureextraction.FeatureVector;
+
 /**
  * Provides Methods to determine a factor for linear scaling of a set of Feature Vectors to the 
  * interval [-1,1] and the scaling itself. This is absolutely necessary before training a Support

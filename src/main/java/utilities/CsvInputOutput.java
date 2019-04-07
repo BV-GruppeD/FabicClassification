@@ -1,4 +1,4 @@
-package com.bv_gruppe_d.imagej;
+package utilities;
 
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -11,8 +11,10 @@ import org.supercsv.io.CsvListReader;
 import org.supercsv.io.CsvListWriter;
 import org.supercsv.prefs.CsvPreference;
 
+import com.bv_gruppe_d.imagej.Label;
+
 import classification.ClassifierTestMapping;
-import classification.FeatureVector;
+import featureextraction.FeatureVector;
 
 public class CsvInputOutput {
 	public static void write(String filePath, FeatureVector[] data) throws IOException {

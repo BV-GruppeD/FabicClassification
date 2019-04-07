@@ -1,4 +1,4 @@
-package com.bv_gruppe_d.imagej;
+package utilities;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -8,7 +8,7 @@ import java.awt.geom.Ellipse2D;
 import java.awt.image.BufferedImage;
 import java.util.List;
 
-import classification.EllipsisData;
+import featureextraction.EllipsisData;
 import ij.process.ImageProcessor;
 
 public class DrawEllipses {

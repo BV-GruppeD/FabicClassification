@@ -1,4 +1,4 @@
-package ui;
+package userinterface;
 
 import java.awt.Dimension;
 import java.io.IOException;

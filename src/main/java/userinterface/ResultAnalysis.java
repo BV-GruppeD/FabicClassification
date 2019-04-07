@@ -1,11 +1,11 @@
-package ui;
+package userinterface;
 
 import java.util.Arrays;
 
 import com.bv_gruppe_d.imagej.Label;
 import com.github.habernal.confusionmatrix.ConfusionMatrix;
 
-import classification.FeatureVector;
+import featureextraction.FeatureVector;
 
 /**
  * Provides methods to compare Feature Vectors and associated Labels,

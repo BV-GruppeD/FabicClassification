@@ -1,14 +1,12 @@
-package ui;
+package com.bv_gruppe_d.imagej;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import com.bv_gruppe_d.imagej.CsvInputOutput;
-import com.bv_gruppe_d.imagej.ImageData;
-
 import classification.Classifier;
-import classification.FeatureVector;
+import featureextraction.FeatureVector;
+import utilities.CsvInputOutput;
 
 /**
  * Data structure to manage one session of the PlugIn. 

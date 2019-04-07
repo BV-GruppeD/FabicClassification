@@ -1,4 +1,4 @@
-package classification;
+package featureextraction;
 
 /**
  * An accumulator used by the hough transformation to vote for an ellipsis
