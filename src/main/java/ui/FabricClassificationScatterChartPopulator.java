@@ -1,16 +1,14 @@
 package ui;
 
+import java.util.Arrays;
+
 import classification.FeatureVector;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.ScatterChart;
 import javafx.scene.chart.XYChart;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
-import javafx.scene.control.ButtonType;
 
 /**
- * Provides utility methods to visualize two features of classified or
- * unclassified data samples in ScatterChart.
+ * Provides methods to manage the visualization of feature vectors on a scatter chart.
  */
 public class FabricClassificationScatterChartPopulator {
 
@@ -23,12 +21,12 @@ public class FabricClassificationScatterChartPopulator {
 	private XYChart.Series<Number, Number> seriesSheard;
 	private XYChart.Series<Number, Number> seriesUnknown;
 
-	// Hold the index of the feature used for the x/y-values
+	
+	private FeatureVector[] plottedDataSet;
+	private boolean dataSetIsExtended;
+	
 	private int featureIndexAxisX;
 	private int featureIndexAxisY;
-	
-	// Hold the current data plottet
-	private FeatureVector[] featureVectors;
 	
 	/**
 	 * Creates a new scatter chart populator and initializes the data series for
@@ -37,6 +35,7 @@ public class FabricClassificationScatterChartPopulator {
 	 * @param scatterChart The ScatterChart object that is populated by this object.
 	 */
 	public FabricClassificationScatterChartPopulator(ScatterChart<Number, Number> scatterChart) {
+		this.dataSetIsExtended = false;
 		this.scatterChart = scatterChart;
 		scatterChart.getData().clear();
 		
@@ -62,34 +61,32 @@ public class FabricClassificationScatterChartPopulator {
 		seriesUnknown.setName("Unknown");
 	}
 
+	public void setPlottedDataSet(FeatureVector[] plottedDataSet) {
+		this.plottedDataSet = plottedDataSet;
+		this.dataSetIsExtended = false;
+		populateScatterChart();
+	}
+
+	public void setXIndex(int index) {
+		this.featureIndexAxisX = index;
+		populateScatterChart();
+	}
+
+	public void setYIndex(int index) {
+		this.featureIndexAxisY = index;
+		populateScatterChart();
+	}
+
 	/**
 	 * Re-populates the scatter plot with the last provided data set.
 	 * 
-	 * @param featureVectors The features to be plotted.
+	 * @param plottedDataSet The features to be plotted.
 	 */
-	public void populateScatterChart() {
-		if (this.featureVectors != null) {
-			populateScatterChart(this.featureVectors);
-		}
-	}
-	
-	/**
-	 * Adds all data points from the given array to this scatter chart. Only the two
-	 * dimensional data is accepted.
-	 * 
-	 * @param featureVectors The features to be plotted.
-	 */
-	public void populateScatterChart(FeatureVector[] featureVectors) {
-		this.featureVectors = featureVectors;
+	private void populateScatterChart() {
 		clearDataSeries();
 		
-		for (FeatureVector featureVector : featureVectors) {
-			if (featureVector.getFeatureValues().length >= 2) {
-				addVectorToCorrectSeries(featureVector);
-			} else {
-				new Alert(AlertType.ERROR,"Der Datensatz kann nicht in einem 2D-Graphen angezeigt werden.", 
-						ButtonType.OK).showAndWait();
-			}
+		for (FeatureVector featureVector : plottedDataSet) {
+			addVectorToCorrectSeries(featureVector);
 		}
 		
 		addDataSeriesToChart();
@@ -146,7 +143,7 @@ public class FabricClassificationScatterChartPopulator {
 	/**
 	 * Adds the data sets to the scatter chart.
 	 */
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("unchecked") // The series are completely encapsulated and can, thereby, be processed.
 	private void addDataSeriesToChart() {
 		scatterChart.getData().addAll(seriesNoStretch);
 		scatterChart.getData().addAll(seriesMediumStretch);
@@ -155,12 +152,22 @@ public class FabricClassificationScatterChartPopulator {
 		scatterChart.getData().addAll(seriesSheard);
 		scatterChart.getData().addAll(seriesUnknown);
 	}
-
-	public void setXIndex(int index) {
-		this.featureIndexAxisX = index;
-	}
-
-	public void setYIndex(int index) {
-		this.featureIndexAxisY = index;
+	
+	/**
+	 * Adds the provided vector to the scatter chart temporarily. The data point is removed when the original 
+	 * data set changes or a new feature vector is added to the scatter chart.
+	 * @param vector
+	 */
+	public void includeInScatterChartTemporarily(FeatureVector vector) {
+		if (plottedDataSet == null) {
+			plottedDataSet = new FeatureVector[] {vector};
+		} else {
+			if (!dataSetIsExtended) {
+				plottedDataSet = (FeatureVector[])Arrays.copyOf(plottedDataSet, plottedDataSet.length+1);
+			}
+			plottedDataSet[plottedDataSet.length-1] = vector;
+		}
+		dataSetIsExtended = true;
+		populateScatterChart();
 	}
 }
