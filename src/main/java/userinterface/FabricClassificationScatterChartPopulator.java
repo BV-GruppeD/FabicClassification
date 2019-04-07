@@ -61,26 +61,39 @@ public class FabricClassificationScatterChartPopulator {
 		seriesUnknown.setName("Unknown");
 	}
 
+	/**
+	 * Sets the data set to be displayed on the scatter chart populated by this object and updates the visualization.
+	 * Thereby resets the plot to not show an additional data point.
+	 * @param plottedDataSet The data set to be displayed in the scatter chart.
+	 */
 	public void setPlottedDataSet(FeatureVector[] plottedDataSet) {
 		this.plottedDataSet = plottedDataSet;
 		this.dataSetIsExtended = false;
 		populateScatterChart();
 	}
 
+	/**
+	 * Sets the index determining which feature is displayed on the x axis from the feature vectors currently displayed
+	 * and updates the visualization.
+	 * @param index Value for the index.
+	 */
 	public void setXIndex(int index) {
 		this.featureIndexAxisX = index;
 		populateScatterChart();
 	}
 
+	/**
+	 * Sets the index determining which feature is displayed on the y axis from the feature vectors currently displayed
+	 * and updates the visualization.
+	 * @param index Value for the index.
+	 */
 	public void setYIndex(int index) {
 		this.featureIndexAxisY = index;
 		populateScatterChart();
 	}
 
 	/**
-	 * Re-populates the scatter plot with the last provided data set.
-	 * 
-	 * @param plottedDataSet The features to be plotted.
+	 * (Re-)Populates the scatter plot with the current data set.
 	 */
 	private void populateScatterChart() {
 		clearDataSeries();
@@ -156,7 +169,7 @@ public class FabricClassificationScatterChartPopulator {
 	/**
 	 * Adds the provided vector to the scatter chart temporarily. The data point is removed when the original 
 	 * data set changes or a new feature vector is added to the scatter chart.
-	 * @param vector
+	 * @param vector The vector to show on the scatter chart.
 	 */
 	public void includeInScatterChartTemporarily(FeatureVector vector) {
 		if (plottedDataSet == null) {

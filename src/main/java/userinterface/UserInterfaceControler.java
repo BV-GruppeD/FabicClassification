@@ -87,6 +87,7 @@ public class UserInterfaceControler {
 	/**
 	 * Takes a directory from the user and maps the images in the subfolders to
 	 * labeled ImageData objects representing the training data for a classifier.
+	 * Stores the data in the current session.
 	 */
 	@FXML
 	private void readLabeldTrainingsData() {
@@ -97,6 +98,7 @@ public class UserInterfaceControler {
 	/**
 	 * Takes a directory from the user and maps the images in the subfolders to
 	 * labeled ImageData objects representing the test data for a classifier.
+	 * Stores the data in the current session.
 	 */
 	@FXML
 	private void readLabeldTestData() {
@@ -107,9 +109,12 @@ public class UserInterfaceControler {
 	
 	
 	/**
-	 * Initializes the preprocessing of the provided Test Data. If no is provided
-	 * checks if Feature Vectors for testing were loaded and provides notifications
-	 * otherwise.
+	 * Tests the current classifier in the session on the currently provided feature vectors for testing.
+	 * 
+	 * Prompts notifications if either is missing or initializes the preprocessing and feature extraction
+	 * pipe when images are provided in the session.
+	 * (Does not work on the UI-Thread because the calculation is not trivial, thereby the buttons to 
+	 * start another competing process are disabled for the duration)
 	 */
 	@FXML
 	private void testClassifier() {
@@ -170,7 +175,8 @@ public class UserInterfaceControler {
 	}
 	
 	/**
-	 * Lazy initialized to prevent adding a bunch of null objects to the button list
+	 * Lazy initialized to prevent adding a bunch of null objects to the button list 
+	 * (which would happen if executed in the constructor)
 	 */
 	private ArrayList<Button> getAllButtons() {
 		if (buttons.isEmpty()) {
@@ -186,7 +192,7 @@ public class UserInterfaceControler {
 	}
 
 	/**
-	 * Applies the image processing chain up to and including the feature extractor
+	 * Applies the image processing chain including the feature extractor
 	 * and returns the resulting FeatureVector
 	 */
 	private FeatureVector generateFeatureVector(ImageData image) {
@@ -208,8 +214,7 @@ public class UserInterfaceControler {
 	}
 
 	/**
-	 * Classifies all Feature Vectors for testing. Prompts the ratio of correct
-	 * classification afterwards.
+	 * Classifies all provided feature vectors and prompts a detailed description of the results.
 	 */
 	private void classifiy(Classifier classifier, FeatureVector[] testVectors) {
 		
@@ -227,9 +232,12 @@ public class UserInterfaceControler {
 	
 	
 	/**
-	 * Initializes the preprocessing of the provided Training Data. If no is
-	 * provided checks if Feature Vectors for training were loaded and provides a
-	 * notifications otherwise.
+	 * Trains a new classifier for the session on the currently provided feature vectors for training.
+	 * 
+	 * Initializes the preprocessing and feature extraction pipe when no feature vectors but images are 
+	 * provided in the session. Otherwise prompts notifications
+	 * (Does not work on the UI-Thread because the calculation is not trivial, thereby the buttons to 
+	 * start another competing process are disabled for the duration)
 	 */
 	@FXML
 	private void trainClassifier() {
@@ -257,7 +265,7 @@ public class UserInterfaceControler {
 	}
 	
 	/**
-	 * Fills the DropDown menus for feature selection with the current feature names and sets 
+	 * Fills the DropDown menus for feature selection in the scatter chart with the current feature names and sets 
 	 * the data on the scatter chart to the current training data.
 	 */
 	private void initializeScatterPlot() {
@@ -274,7 +282,7 @@ public class UserInterfaceControler {
 	}
 
 	/**
-	 * Trains the classifier with the Training Feature Vectors and prompts the training results.
+	 * Trains the classifier with provided feature vectors and prompts the parameter used for the classifier.
 	 * @param classifier An initialized classifier to train.
 	 * @param trainingVectors The data on which the classifier is trained.
 	 */
