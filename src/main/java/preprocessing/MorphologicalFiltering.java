@@ -1,26 +1,29 @@
 package preprocessing;
 
+import com.bv_gruppe_d.imagej.Hyperparameter;
 import com.bv_gruppe_d.imagej.ImageData;
 import ij.process.ImageProcessor;
 
 /**
  * This class provides morphological filtering. It uses squared masks and works also erode and dilate.
- * By running the execute-mehtode this class works with object from input and manipulates on the original object.
+ * By running the execute-method this class works with object from input and manipulates on the original object.
  */
 public abstract class MorphologicalFiltering
 {
 	private static final int WHITE = 0xFFFFFF, BLACK = 0x000000;
-	// TODO: move to hyperparameter class and add explenation
-	private static final int maskSize = 3;
 
-	private static final StructureElement edgeDetection = createCenteredSquare(maskSize);
-	// TODO: closing Size
-	private static final StructureElement closeHoles = createCenteredSquare(maskSize);
+	private static final StructureElement edgeDetection = createCenteredSquare(Hyperparameter.MASK_SIZE);
+	private static final StructureElement closeHoles = createCenteredSquare(Hyperparameter.MASK_SIZE);
 
 	public enum Type {
 		ERODE, DILATE
 	}
 
+	/**
+	 * Set the size for an structure element.
+	 * @param size
+	 * @return
+	 */
 	private static StructureElement createCenteredSquare(int size) {
 		return new StructureElement(createSquareMask(size), size / 2, size / 2);
 	}
@@ -84,14 +87,11 @@ public abstract class MorphologicalFiltering
 		}
 	}
 
-	// TODO: Add Comment and remove output parameter -> replace with return value
 	public static void open(ImageProcessor output, StructureElement structureElement) {
 		erode(output.duplicate(), output, structureElement);
 		dilate(output.duplicate(), output, structureElement);
 	}
 
-
-	// TODO: Add Comment and remove output parameter -> replace with return value
 	/**
 	 * opens the ellipses by first dilate and than erode the objects on the image
 	 * @param output
@@ -102,18 +102,29 @@ public abstract class MorphologicalFiltering
 		erode(output.duplicate(), output, structureElement);
 	}
 
-	// TODO: Add Comment and remove output parameter -> replace with return value
+	/**
+	 * Dilate operation on binary image
+	 * @param input
+	 * @param output
+	 * @param structureElement
+	 */
 	public static void dilate(ImageProcessor input, ImageProcessor output, StructureElement structureElement) {
 		applyOperation(input, output, structureElement, Type.DILATE);
 	}
 
-
-	// TODO: Add Comment and remove output parameter -> replace with return value
+	/**
+	 * Erode operation on binary image
+	 * @param input
+	 * @param output
+	 * @param structureElement
+	 */
 	public static void erode(ImageProcessor input, ImageProcessor output, StructureElement structureElement) {
 		applyOperation(input, output, structureElement, Type.ERODE);
 	}
 
-	// TODO: Move to seperate file
+	/**
+	 * Provides a structure element for opening an closing.
+	 */
 	public static class StructureElement {
 		private final boolean[][] mask;
 		private final int anchorX, anchorY;
@@ -135,7 +146,6 @@ public abstract class MorphologicalFiltering
 		}
 
 		public boolean get(int x, int y) {
-			// TODO Do we need to mirror the mask? (wg faltung)
 			return mask[h - (y + 1)][w - (x + 1)];
 		}
 
@@ -148,23 +158,33 @@ public abstract class MorphologicalFiltering
 		}
 	}
 
-	// TODO: Add Comment
+	/**
+	 * After filtering this method removes the white border
+	 * @param imageData
+	 * @return
+	 */
 	public static ImageData removeBorder(ImageData imageData) {
 		
-		final int imageWidth = imageData.getImageProcessor().getWidth()-2*maskSize;
-		final int imageHeight = imageData.getImageProcessor().getHeight()-2*maskSize;
+		final int imageWidth = imageData.getImageProcessor().getWidth()-2*Hyperparameter.MASK_SIZE;
+		final int imageHeight = imageData.getImageProcessor().getHeight()-2*Hyperparameter.MASK_SIZE;
 		
 		ImageData image = imageData.duplicate();
-		image.getImageProcessor().setRoi(maskSize, maskSize, imageWidth, imageHeight);
+		image.getImageProcessor().setRoi(Hyperparameter.MASK_SIZE, Hyperparameter.MASK_SIZE, imageWidth, imageHeight);
 		imageData = new ImageData(image.getImageProcessor().crop(), image.getLabel());
 		
 		return imageData;		
 	}
 
-	// TODO: Add Comment
+	/**
+	 * Executes the method which is inserted as parameter
+	 * @param input
+	 * @param output
+	 * @param structureElement
+	 * @param type
+	 */
 	private static void applyOperation(ImageProcessor input, ImageProcessor output, StructureElement structureElement,
 									   Type type) {
-		int thresholdInclusive = -1;// just so java does not complain
+		int thresholdInclusive = -1;
 		if (type == Type.ERODE) {
 			int sum = 0;
 			for (int x = 0; x < structureElement.getWidth(); x++) {
@@ -173,10 +193,10 @@ public abstract class MorphologicalFiltering
 						sum++;
 					}
 				}
-				thresholdInclusive = sum;// All pixels must be set
+				thresholdInclusive = sum;
 			}
 		} else if (type == Type.DILATE) {
-			thresholdInclusive = 1;// Only 1 pixel needs to be set
+			thresholdInclusive = 1;
 		} else {
 			throw new RuntimeException("Unknown type: " + type);
 		}
@@ -184,8 +204,6 @@ public abstract class MorphologicalFiltering
 		int maxX = input.getWidth() - structureElement.getWidth();// off by 1?
 		int maxY = input.getHeight() - structureElement.getHeight();// off by 1?
 
-		// TODO what to do with the border pixels?
-		// This just sets them to black
 		for (int x = 0; x < input.getWidth(); x++) {
 			for (int y = 0; y < input.getHeight(); y++) {
 				output.set(x, y, BLACK);
@@ -208,5 +226,4 @@ public abstract class MorphologicalFiltering
 			}
 		}
 	}
-
 }

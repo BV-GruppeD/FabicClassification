@@ -32,4 +32,14 @@ public class Hyperparameter {
 	 */
 	public static final double HOUGH_ELLIPSIS_AXIS_MAX = 100;
 	
+	/**
+	 * Determines the amount of pixels that are set to the maximum/minimum pixel value 
+	 * available in percent. 
+	 */
+	public static final double SATURATION = 0.05;
+	
+	/**
+	 * Determines the size of the mask used to remove unwanted effects with closing.
+	 */
+	public static final int MASK_SIZE = 3;
 }
